@@ -31,7 +31,7 @@
 // Logging macros
 
 #ifndef LOGLEVEL
-#define LOGLEVEL LOG_LEVEL_ERROR
+#define LOGLEVEL LOG_LEVEL_INFO
 #endif //LOGLEVEL
 
 #ifdef NLOG

@@ -269,15 +269,27 @@ int cif_draw(ChipEmu emu, uint16_t instruction) {
 }
 
 int cif_sip(ChipEmu emu, uint16_t instruction) {
-	return 0;
+	assert((instruction & 0xF0FF) == 0xE09E);
+
+	emu->pc += (emu->keymap >> emu->registers[nibble3(instruction)] & 1) ? 4 : 2;
+
+	return INST_SUCCESS;
 }
 
 int cif_snip(ChipEmu emu, uint16_t instruction) {
-	return 0;
+	assert((instruction & 0xF0FF) == 0xE0A1);
+
+	emu->pc += (!(emu->keymap >> emu->registers[nibble3(instruction)] & 1)) ? 4 : 2;
+
+	return INST_SUCCESS;
 }
 
 int cif_ld(ChipEmu emu, uint16_t instruction) {
-	return 0;
+	assert((instruction & 0xF0FF) == 0xF007);
+
+	emu->registers[nibble3(instruction)] = emu->delayTimer;
+
+	return INST_SUCCESS_INCR_PC;
 }
 
 int cif_lk(ChipEmu emu, uint16_t instruction) {

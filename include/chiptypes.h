@@ -33,6 +33,7 @@ typedef struct ChipEmuStruct {
     uint8_t sndTimer;
     uint8_t delayTimer;
     uint8_t memory[CHIP_MEM_LEN];
+    uint16_t keymap;
 	ChipStack stack;
     //ChipMem memory;
 } * ChipEmu;

@@ -44,12 +44,13 @@ static const uint8_t DIGITS[] = {
 
 ChipEmu chipemu_create() {
     ChipEmu emu = (ChipEmu)malloc(sizeof(struct ChipEmuStruct));
-	emu->pc = CHIP_PRGM_START;
+    emu->pc = CHIP_PRGM_START;
 
     //emu->sp = &(emu->stack);
     emu->addressReg = 0;
     emu->sndTimer = 0;
     emu->delayTimer = 0;
+    emu->keymap = 0;
 
     for (int i = 0; i < REGISTERS; ++i)
         emu->registers[i] = 0;
@@ -82,7 +83,6 @@ int chipemu_mainLoop(ChipEmu emu) {
         }
 
         // decode
-        //int (*instFunc)(ChipEmu, uint16_t);
         ChipInstFunc instFunc;
 
         // instFunc will be null if decoding fails
