@@ -2,6 +2,7 @@
 #define _CHIPMEM_H
 
 #include <stdint.h>
+#include "chipstack.h"
 
 #define CHIPMEM_RESERVED_LEN 512
 #define CHIPMEM_DATA_LEN 3584
@@ -23,13 +24,39 @@
 #define CHIP_DEL_TIMER 0x85
 #define CHIP_ADDR_REGISTER 0x86
 
-struct ChipMemStruct {
-    uint8_t reserved[CHIP_PRGM_START];
-    uint8_t data[CHIP_END - CHIP_PRGM_START + 1];
-};
 
-typedef struct ChipMemStruct * ChipMem;
 
+typedef uint8_t[80] ChipMem_fontset;
+
+// CHIP-8 datapath struct
+typedef struct ChipMem_dp_s {
+  uint16_t pc;
+  uint16_t addrReg;
+  uint8_t regs[16];
+  uint8_t sndTimer;
+  uint8_t delTimer;
+} ChipMem_dp;
+
+
+
+typedef union ChipMem_u {
+
+	uint8_t asArray[CHIPMEM_RESERVED_LEN + CHIPMEM_DATA_LEN];
+
+	struct {
+        union {
+            uint8_t reservedArray[CHIPMEM_RESERVED_LEN];
+            struct {
+                ChipMem_fontset fontset;
+                ChipMem_dp dp;
+                ChipStack stack;
+            } reserved;
+        }
+    };
+    uint8_t data[CHIPMEM_DATA_LEN];
+ };
+
+} * ChipMem;
 
 
 ChipMem chipmem_create();

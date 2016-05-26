@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "instructions.h"
 #include "chipstack.h"
+#include "debug.h"
 
 #define addr(x) (x & 0x0FFF)
 #define lowerbyte(x) (x & 0x00FF)
@@ -12,18 +13,20 @@
 
 
 // sys - system call
-int cif_sys(ChipEmu emu, uint16_t instruction) {
-	assert((instruction & 0xF000) == 0);
+int cif_sys(ChipEmu emu, ChipInst instruction) {
+	//assert((instruction & 0xF000) == 0);
+	assert(instruction.atype.reserved == 0);
 	(void)emu;
 
-	// not implemented, do nothing
+	// not implemented, log warning
+	logWarn("Attempted system call at 0x%03x", instruction.atype.addr);
 
 	return INST_SUCCESS_INCR_PC;
 }
 
 // cls - Clear screen
-int cif_cls(ChipEmu emu, uint16_t instruction) {
-	assert(instruction == 0x00E0);
+int cif_cls(ChipEmu emu, ChipInst instruction) {
+	assert(instruction.instruction == 0x00E0);
 
 	// TODO: clear screen
 
@@ -32,7 +35,7 @@ int cif_cls(ChipEmu emu, uint16_t instruction) {
 }
 
 // ret - Return from subroutine
-int cif_ret(ChipEmu emu, uint16_t instruction) {
+int cif_ret(ChipEmu emu, ChipInst instruction) {
 	assert(instruction == 0x00EE);
 
 	int result;
@@ -56,7 +59,7 @@ int cif_ret(ChipEmu emu, uint16_t instruction) {
 }
 
 // j - Jump to address
-int cif_j(ChipEmu emu, uint16_t instruction) {
+int cif_j(ChipEmu emu, ChipInst instruction) {
 	assert((instruction & 0xF000) == 0x1000);
 
 	emu->pc = addr(instruction);
@@ -65,7 +68,7 @@ int cif_j(ChipEmu emu, uint16_t instruction) {
 }
 
 // call - Call subroutine
-int cif_call(ChipEmu emu, uint16_t instruction) {
+int cif_call(ChipEmu emu, ChipInst instruction) {
 	assert((instruction & 0xF000) == 0x2000);
 
 	// add pc to stack
@@ -83,7 +86,7 @@ int cif_call(ChipEmu emu, uint16_t instruction) {
 }
 
 // sei - Skip next if equal to immediate
-int cif_sei(ChipEmu emu, uint16_t instruction) {
+int cif_sei(ChipEmu emu, ChipInst instruction) {
 	assert((instruction & 0xF000) == 0x3000);
 
 	emu->pc += (emu->registers[nibble3(instruction)] == lowerbyte(instruction)) ? 4 : 2;
@@ -92,7 +95,7 @@ int cif_sei(ChipEmu emu, uint16_t instruction) {
 }
 
 // sni - Skip next if not equal to immediate
-int cif_sni(ChipEmu emu, uint16_t instruction) {
+int cif_sni(ChipEmu emu, ChipInst instruction) {
 	assert((instruction & 0xF000) == 0x4000);
 
 	emu->pc += (emu->registers[nibble3(instruction)] != lowerbyte(instruction)) ? 4 : 2;
@@ -101,7 +104,7 @@ int cif_sni(ChipEmu emu, uint16_t instruction) {
 }
 
 // se - Skip next if equal
-int cif_se(ChipEmu emu, uint16_t instruction) {
+int cif_se(ChipEmu emu, ChipInst instruction) {
 	assert((instruction & 0xF00F) == 0x5000);
 
 	emu->pc += (emu->registers[nibble3(instruction)] ==
@@ -111,7 +114,7 @@ int cif_se(ChipEmu emu, uint16_t instruction) {
 }
 
 // li - load immediate
-int cif_li(ChipEmu emu, uint16_t instruction) {
+int cif_li(ChipEmu emu, ChipInst instruction) {
 	assert((instruction & 0xF000) == 0x6000);
 
 	emu->registers[nibble3(instruction)] = lowerbyte(instruction);
@@ -120,7 +123,7 @@ int cif_li(ChipEmu emu, uint16_t instruction) {
 }
 
 // addi - add immediate
-int cif_addi(ChipEmu emu, uint16_t instruction) {
+int cif_addi(ChipEmu emu, ChipInst instruction) {
 	assert((instruction & 0xF000) == 0x7000);
 
 	emu->registers[(instruction & 0x0F00) >> 8] += instruction & 0x00FF;
@@ -129,7 +132,7 @@ int cif_addi(ChipEmu emu, uint16_t instruction) {
 }
 
 // move - sets register value to another register
-int cif_move(ChipEmu emu, uint16_t instruction) {
+int cif_move(ChipEmu emu, ChipInst instruction) {
 	assert((instruction & 0xF00F) == 0x8000);
 
 	emu->registers[nibble3(instruction)] = emu->registers[nibble2(instruction)];
@@ -138,7 +141,7 @@ int cif_move(ChipEmu emu, uint16_t instruction) {
 }
 
 // or - bitwise or
-int cif_or(ChipEmu emu, uint16_t instruction) {
+int cif_or(ChipEmu emu, ChipInst instruction) {
 	assert((instruction & 0xF00F) == 0x8001);
 
 	emu->registers[nibble3(instruction)] |= emu->registers[nibble2(instruction)];
@@ -147,7 +150,7 @@ int cif_or(ChipEmu emu, uint16_t instruction) {
 }
 
 // and - bitwise and
-int cif_and(ChipEmu emu, uint16_t instruction) {
+int cif_and(ChipEmu emu, ChipInst instruction) {
 	assert((instruction & 0xF00F) == 0x8002);
 
 	emu->registers[nibble3(instruction)] &= emu->registers[nibble2(instruction)];
@@ -156,7 +159,7 @@ int cif_and(ChipEmu emu, uint16_t instruction) {
 }
 
 // xor - bitwise xor
-int cif_xor(ChipEmu emu, uint16_t instruction) {
+int cif_xor(ChipEmu emu, ChipInst instruction) {
 	assert((instruction & 0xF00F) == 0x8003);
 
 	emu->registers[nibble3(instruction)] ^= emu->registers[nibble2(instruction)];
@@ -165,7 +168,7 @@ int cif_xor(ChipEmu emu, uint16_t instruction) {
 }
 
 // add - addition
-int cif_add(ChipEmu emu, uint16_t instruction) {
+int cif_add(ChipEmu emu, ChipInst instruction) {
 	assert((instruction & 0xF00F) == 0x8004);
 
 	uint8_t vx = nibble3(instruction), vy = nibble2(instruction);
@@ -179,7 +182,7 @@ int cif_add(ChipEmu emu, uint16_t instruction) {
 }
 
 // sub - subtraction
-int cif_sub(ChipEmu emu, uint16_t instruction) {
+int cif_sub(ChipEmu emu, ChipInst instruction) {
 	assert((instruction & 0xF00F) == 0x8005);
 
 	uint8_t vx = nibble3(instruction), vy = nibble2(instruction);
@@ -193,7 +196,7 @@ int cif_sub(ChipEmu emu, uint16_t instruction) {
 }
 
 // shr - shift right by 1
-int cif_shr(ChipEmu emu, uint16_t instruction) {
+int cif_shr(ChipEmu emu, ChipInst instruction) {
 	assert((instruction & 0xF00F) == 0x8006);
 
 	emu->registers[CARRY_REG] = emu->registers[nibble3(instruction)] & 1;
@@ -203,7 +206,7 @@ int cif_shr(ChipEmu emu, uint16_t instruction) {
 }
 
 // subn - subtraction, operands swapped
-int cif_subn(ChipEmu emu, uint16_t instruction) {
+int cif_subn(ChipEmu emu, ChipInst instruction) {
 	assert((instruction & 0xF00F) == 0x8007);
 
 	uint16_t a = (instruction >> 4) & 0x00F0; // nibble3 in nibble2 position
@@ -213,7 +216,7 @@ int cif_subn(ChipEmu emu, uint16_t instruction) {
 }
 
 // shift left by 1
-int cif_shl(ChipEmu emu, uint16_t instruction) {
+int cif_shl(ChipEmu emu, ChipInst instruction) {
 	assert((instruction & 0xF00F) == 0x800E);
 
 	emu->registers[CARRY_REG] = emu->registers[nibble3(instruction)] >> 7;
@@ -223,7 +226,7 @@ int cif_shl(ChipEmu emu, uint16_t instruction) {
 }
 
 // sn - skip if not equal
-int cif_sn(ChipEmu emu, uint16_t instruction) {
+int cif_sn(ChipEmu emu, ChipInst instruction) {
 	assert((instruction & 0xF00F) == 0x9000);
 
 	emu->pc += (emu->registers[nibble3(instruction)] !=
@@ -233,7 +236,7 @@ int cif_sn(ChipEmu emu, uint16_t instruction) {
 }
 
 // la - load address
-int cif_la(ChipEmu emu, uint16_t instruction) {
+int cif_la(ChipEmu emu, ChipInst instruction) {
 	assert((instruction & 0xF000) == 0xA000);
 
 	emu->addressReg = addr(instruction);
@@ -242,7 +245,7 @@ int cif_la(ChipEmu emu, uint16_t instruction) {
 }
 
 // jo - jump with offset
-int cif_jo(ChipEmu emu, uint16_t instruction) {
+int cif_jo(ChipEmu emu, ChipInst instruction) {
 	assert((instruction & 0xF000) == 0xB000);
 
 	emu->pc = addr(instruction) + emu->registers[0];
@@ -251,7 +254,7 @@ int cif_jo(ChipEmu emu, uint16_t instruction) {
 }
 
 // rnd - random
-int cif_rnd(ChipEmu emu, uint16_t instruction) {
+int cif_rnd(ChipEmu emu, ChipInst instruction) {
 	assert((instruction & 0xF000) == 0xC000);
 
 	emu->registers[nibble3(instruction)] = (uint8_t)(rand() % 255) & lowerbyte(instruction);
@@ -260,7 +263,7 @@ int cif_rnd(ChipEmu emu, uint16_t instruction) {
 }
 
 // draw - draw sprite
-int cif_draw(ChipEmu emu, uint16_t instruction) {
+int cif_draw(ChipEmu emu, ChipInst instruction) {
 	assert((instruction & 0xF000) == 0xD000);
 
 	// TODO: Draw function
@@ -268,7 +271,7 @@ int cif_draw(ChipEmu emu, uint16_t instruction) {
 	return INST_SUCCESS_INCR_PC;
 }
 
-int cif_sip(ChipEmu emu, uint16_t instruction) {
+int cif_sip(ChipEmu emu, ChipInst instruction) {
 	assert((instruction & 0xF0FF) == 0xE09E);
 
 	emu->pc += (emu->keymap >> emu->registers[nibble3(instruction)] & 1) ? 4 : 2;
@@ -276,7 +279,7 @@ int cif_sip(ChipEmu emu, uint16_t instruction) {
 	return INST_SUCCESS;
 }
 
-int cif_snip(ChipEmu emu, uint16_t instruction) {
+int cif_snip(ChipEmu emu, ChipInst instruction) {
 	assert((instruction & 0xF0FF) == 0xE0A1);
 
 	emu->pc += (!(emu->keymap >> emu->registers[nibble3(instruction)] & 1)) ? 4 : 2;
@@ -284,7 +287,7 @@ int cif_snip(ChipEmu emu, uint16_t instruction) {
 	return INST_SUCCESS;
 }
 
-int cif_ld(ChipEmu emu, uint16_t instruction) {
+int cif_ld(ChipEmu emu, ChipInst instruction) {
 	assert((instruction & 0xF0FF) == 0xF007);
 
 	emu->registers[nibble3(instruction)] = emu->delayTimer;
@@ -292,34 +295,34 @@ int cif_ld(ChipEmu emu, uint16_t instruction) {
 	return INST_SUCCESS_INCR_PC;
 }
 
-int cif_lk(ChipEmu emu, uint16_t instruction) {
+int cif_lk(ChipEmu emu, ChipInst instruction) {
 	return 0;
 }
 
-int cif_del(ChipEmu emu, uint16_t instruction) {
+int cif_del(ChipEmu emu, ChipInst instruction) {
 	return 0;
 }
 
-int cif_snd(ChipEmu emu, uint16_t instruction) {
+int cif_snd(ChipEmu emu, ChipInst instruction) {
 	return 0;
 }
 
-int cif_ii(ChipEmu emu, uint16_t instruction) {
+int cif_ii(ChipEmu emu, ChipInst instruction) {
 	return 0;
 }
 
-int cif_font(ChipEmu emu, uint16_t instruction) {
+int cif_font(ChipEmu emu, ChipInst instruction) {
 	return 0;
 }
 
-int cif_bcd(ChipEmu emu, uint16_t instruction) {
+int cif_bcd(ChipEmu emu, ChipInst instruction) {
 	return 0;
 }
 
-int cif_save(ChipEmu emu, uint16_t instruction) {
+int cif_save(ChipEmu emu, ChipInst instruction) {
 	return 0;
 }
 
-int cif_rest(ChipEmu emu, uint16_t instruction) {
+int cif_rest(ChipEmu emu, ChipInst instruction) {
 	return 0;
 }

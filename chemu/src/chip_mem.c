@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "chipmem.h"
+#include "chip_mem.h"
 
 // digit sprites representing digits 0-F as 8x5 sprites.
 static const uint8_t DIGITS[] = {
@@ -24,30 +24,22 @@ static const uint8_t DIGITS[] = {
     0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 };
 
-ChipMem chipmem_create() {
-    ChipMem mem = (ChipMem)malloc(sizeof(struct ChipMemStruct));
+ChipMem* chipmem_create() {
+    ChipMem *mem = (ChipMem*)malloc(sizeof(struct ChipMem_s));
     chipmem_init(mem);
     return mem;
 }
 
-void chipmem_init(ChipMem mem) {
-    memcpy(mem->reserved + CHIP_FONTSET_START, DIGITS, 40);
-    // mem->reserved[CHIP_PC] = CHIP_PRGM_START;
-    // mem->reserved[CHIP_SP] = 0;
-    //
-    // for (int i = 0; i < 16; ++i)
-    //     mem->reserved[CHIP_REGISTERS + i] = 0;
-    //
-    // mem->reserved[CHIP_SND_TIMER] = 0;
-    // mem->reserved[CHIP_DEL_TIMER] = 0;
-    // mem->reserved[CHIP_ADDR_REGISTER] = 0;
+void chipmem_init(ChipMem *mem) {
+    memcpy(mem->reserved.fontset, DIGITS, sizeof(DIGITS) / sizeof(uint8_t));
 
 }
 
-void chipmem_destroy(ChipMem mem) {
+void chipmem_destroy(ChipMem *mem) {
     free(mem);
 }
 
-uint8_t* chipmem_get_font(ChipMem mem, char digit) {
-    return mem->reserved + CHIP_FONTSET_START + (digit * 5);
+uint8_t* chipmem_get_font(ChipMem *mem, char digit) {
+    //return mem->reserved + CHIP_FONTSET_START + (digit * 5);
+    return mem->reserved.fontset + (digit * 5);
 }

@@ -1,6 +1,5 @@
 
 #include <stdio.h>
-#include <curses.h>
 
 
 #define CHIP_DISPLAY_ADT
@@ -37,10 +36,3 @@ static void set_cur_pos(FILE* stream, int rCursor, int cCursor) {
 } // set_cur_pos
 */
 
-
-int main() {
-
-
-
-    return 0;
-}

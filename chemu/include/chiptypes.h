@@ -38,6 +38,37 @@ typedef struct ChipEmuStruct {
     //ChipMem memory;
 } * ChipEmu;
 
-typedef int (*ChipInstFunc)(ChipEmu, uint16_t);
+typedef union {
+
+	uint16_t instruction;
+
+	struct {
+		uint16_t addr:12;
+		uint16_t reserved:4;
+	} atype;
+
+	struct {
+		uint16_t immediate:8;
+		uint16_t rnum:4;
+		uint16_t reserved:4;
+	} itype;
+
+	struct {
+		uint16_t reserved_lo:4;
+		uint16_t ra_num:4;       // aux register number
+		uint16_t rs_num:4;       // source register number
+		uint16_t reserved_hi:4;
+	} rtype;
+
+	struct {
+		uint16_t rows:4;
+		uint16_t ry_num:4;
+		uint16_t rx_num:4;
+		uint16_t reserved:4;
+	} dtype;
+
+} ChipInst;
+
+typedef int (*ChipInstFunc)(ChipEmu, ChipInst);
 
 #endif

@@ -1,4 +1,7 @@
-bin/
+chemu/bin/*
+chemu/obj/*
+chemu-tests/bin/*
+chemu-tests/obj/*
 
 # Object files
 *.o
