@@ -2,7 +2,7 @@
 # paths
 
 BINDIR=		bin
-OBJDIR=     obj
+OBJDIR=		obj
 SRCDIR=		src
 
 UNIT_SRC=	../chemu/src
@@ -22,7 +22,7 @@ memtest: $(addprefix $(OBJDIR)/,chip_mem.o chip_mem_test.o)
 	$(CC) -o $(BINDIR)/$@ $+
 
 stacktest: $(addprefix $(OBJDIR)/,chip_stack.o chip_stack_test.o)
-		$(CC) -o $(BINDIR)/$@ $+
+	$(CC) -o $(BINDIR)/$@ $+
 
 
 

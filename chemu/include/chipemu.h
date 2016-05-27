@@ -2,17 +2,19 @@
 #define _CHIPEMU_H
 
 #include <stdint.h>
-#include "chiptypes.h"
+
+#include "ChipDP.h"
+#include "ChipMem.h"
+#include "ChipStack.h"
+
+typedef struct ChipEmu_s {
+    ChipDP dp;
+    ChipStack stack;
+    ChipMem memory;
+} ChipEmu;
 
 
 
-ChipEmu chipemu_create();
-
-int chipemu_mainLoop(ChipEmu emu);
-
-ChipInstFunc chipemu_decode(uint16_t instruction);
-
-void chipemu_destroy(ChipEmu emu);
 
 
 #endif

@@ -12,18 +12,15 @@ vpath %.c $(SRCDIR)
 
 CC =			gcc
 CFLAGS =		-std=c11 -Wextra -Wall -pedantic -fPIC
-OBJFILES =		$(addprefix $(OBJDIR)/,chemu.o chipemu.o instructions.o chipstack.o)
+OBJFILES =		$(addprefix $(OBJDIR)/,emulation.o instructions.o stack.o memory.o)
 LDFLAGS=		-shared
 
 # targets
 
-all: chemu insttest
+all: chemu
 
 chemu: $(OBJFILES)
 	$(CC) $(LDFLAGS) -o $(BINDIR)/$@.so $+
-
-#insttest: $(addprefix $(BINDIR)/,insttest.o instructions.o chipemu.o chipstack.o)
-#	$(CC) $(LDFLAGS) -o $(BINDIR)/$@ $+
 
 #.c.o:
 $(OBJDIR)/%.o: %.c

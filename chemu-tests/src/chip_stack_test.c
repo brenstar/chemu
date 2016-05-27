@@ -1,7 +1,7 @@
 
 #include <stdio.h>
 
-#include "chip_stack.h"
+#include "stack.h"
 
 
 int main() {

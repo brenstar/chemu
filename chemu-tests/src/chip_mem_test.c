@@ -1,7 +1,7 @@
 #include <assert.h>
 #include <stdio.h>
 
-#include "chip_mem.h"
+#include "memory.h"
 
 
 int main() {

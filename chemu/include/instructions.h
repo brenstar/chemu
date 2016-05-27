@@ -5,7 +5,8 @@
 
 #include <stdint.h>
 
-#include "chipemu.h"
+#include "ChipEmu.h"
+#include "ChipInst.h"
 
 // successful instruction execution
 #define INST_SUCCESS            0
@@ -14,114 +15,74 @@
 // instruction failed to execute
 #define INST_FAILURE            2
 
-/* Typedef representing a CHIP-8 instruction. A CHIP-8 instruction is
- * 2 bytes long and stored big endian. Instructions have 4 classes: atype,
- * itype, rtype and dtype.
- */
-typedef union {
+int cif_sys(ChipEmu *emu, ChipInst instruction);
 
-	uint16_t instruction;
+int cif_cls(ChipEmu *emu, ChipInst instruction);
 
-	struct {
-		uint16_t addr:12;
-		uint16_t reserved:4;
-	} atype;
+int cif_ret(ChipEmu *emu, ChipInst instruction);
 
-	struct {
-		uint16_t immediate:8;
-		uint16_t rnum:4;
-		uint16_t reserved:4;
-	} itype;
+int cif_j(ChipEmu *emu, ChipInst instruction);
 
-	struct {
-		uint16_t reserved_lo:4;
-		uint16_t ra_num:4;       // aux register number
-		uint16_t rs_num:4;       // source register number
-		uint16_t reserved_hi:4;
-	} rtype;
+int cif_call(ChipEmu *emu, ChipInst instruction);
 
-	struct {
-		uint16_t rows:4;
-		uint16_t ry_num:4;
-		uint16_t rx_num:4;
-		uint16_t reserved:4;
-	} dtype;
+int cif_sei(ChipEmu *emu, ChipInst instruction);
 
-} ChipInst;
+int cif_sni(ChipEmu *emu, ChipInst instruction);
 
-/* typedef for a function pointer
- */
-typedef int (*ChipInstFunc)(ChipEmu, ChipInst);
+int cif_se(ChipEmu *emu, ChipInst instruction);
 
+int cif_li(ChipEmu *emu, ChipInst instruction);
 
-int cif_sys(ChipEmu emu, ChipInst instruction);
+int cif_addi(ChipEmu *emu, ChipInst instruction);
 
-int cif_cls(ChipEmu emu, ChipInst instruction);
+int cif_move(ChipEmu *emu, ChipInst instruction);
 
-int cif_ret(ChipEmu emu, ChipInst instruction);
+int cif_or(ChipEmu *emu, ChipInst instruction);
 
-int cif_j(ChipEmu emu, ChipInst instruction);
+int cif_and(ChipEmu *emu, ChipInst instruction);
 
-int cif_call(ChipEmu emu, ChipInst instruction);
+int cif_xor(ChipEmu *emu, ChipInst instruction);
 
-int cif_sei(ChipEmu emu, ChipInst instruction);
+int cif_add(ChipEmu *emu, ChipInst instruction);
 
-int cif_sni(ChipEmu emu, ChipInst instruction);
+int cif_sub(ChipEmu *emu, ChipInst instruction);
 
-int cif_se(ChipEmu emu, ChipInst instruction);
+int cif_shr(ChipEmu *emu, ChipInst instruction);
 
-int cif_li(ChipEmu emu, ChipInst instruction);
+int cif_subn(ChipEmu *emu, ChipInst instruction);
 
-int cif_addi(ChipEmu emu, ChipInst instruction);
+int cif_shl(ChipEmu *emu, ChipInst instruction);
 
-int cif_move(ChipEmu emu, ChipInst instruction);
+int cif_sn(ChipEmu *emu, ChipInst instruction);
 
-int cif_or(ChipEmu emu, ChipInst instruction);
+int cif_la(ChipEmu *emu, ChipInst instruction);
 
-int cif_and(ChipEmu emu, ChipInst instruction);
+int cif_jo(ChipEmu *emu, ChipInst instruction);
 
-int cif_xor(ChipEmu emu, ChipInst instruction);
+int cif_rnd(ChipEmu *emu, ChipInst instruction);
 
-int cif_add(ChipEmu emu, ChipInst instruction);
+int cif_draw(ChipEmu *emu, ChipInst instruction);
 
-int cif_sub(ChipEmu emu, ChipInst instruction);
+int cif_sip(ChipEmu *emu, ChipInst instruction);
 
-int cif_shr(ChipEmu emu, ChipInst instruction);
+int cif_snip(ChipEmu *emu, ChipInst instruction);
 
-int cif_subn(ChipEmu emu, ChipInst instruction);
+int cif_ld(ChipEmu *emu, ChipInst instruction);
 
-int cif_shl(ChipEmu emu, ChipInst instruction);
+int cif_lk(ChipEmu *emu, ChipInst instruction);
 
-int cif_sn(ChipEmu emu, ChipInst instruction);
+int cif_del(ChipEmu *emu, ChipInst instruction);
 
-int cif_la(ChipEmu emu, ChipInst instruction);
+int cif_snd(ChipEmu *emu, ChipInst instruction);
 
-int cif_jo(ChipEmu emu, ChipInst instruction);
+int cif_ii(ChipEmu *emu, ChipInst instruction);
 
-int cif_rnd(ChipEmu emu, ChipInst instruction);
+int cif_font(ChipEmu *emu, ChipInst instruction);
 
-int cif_draw(ChipEmu emu, ChipInst instruction);
+int cif_bcd(ChipEmu *emu, ChipInst instruction);
 
-int cif_sip(ChipEmu emu, ChipInst instruction);
+int cif_save(ChipEmu *emu, ChipInst instruction);
 
-int cif_snip(ChipEmu emu, ChipInst instruction);
-
-int cif_ld(ChipEmu emu, ChipInst instruction);
-
-int cif_lk(ChipEmu emu, ChipInst instruction);
-
-int cif_del(ChipEmu emu, ChipInst instruction);
-
-int cif_snd(ChipEmu emu, ChipInst instruction);
-
-int cif_ii(ChipEmu emu, ChipInst instruction);
-
-int cif_font(ChipEmu emu, ChipInst instruction);
-
-int cif_bcd(ChipEmu emu, ChipInst instruction);
-
-int cif_save(ChipEmu emu, ChipInst instruction);
-
-int cif_rest(ChipEmu emu, ChipInst instruction);
+int cif_rest(ChipEmu *emu, ChipInst instruction);
 
 #endif

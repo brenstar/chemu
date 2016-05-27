@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "chip_mem.h"
+#include "memory.h"
 
 // digit sprites representing digits 0-F as 8x5 sprites.
 static const uint8_t DIGITS[] = {

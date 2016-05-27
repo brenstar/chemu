@@ -3,14 +3,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "chipemu.h"
+#include "emulation.h"
 #include "instructions.h"
 
-static void dumpRegisters(ChipEmu emu);
+static void dumpRegisters(ChipEmu *emu);
 
 int main(int argc, const char* argv[]) {
 
-    ChipEmu emu = chipemu_create();
+    ChipEmu *emu = chipemu_create();
 
     while (!feof(stdin)) {
 
@@ -19,7 +19,8 @@ int main(int argc, const char* argv[]) {
         size_t bufsize, size;
         if ((size = getline(&line, &bufsize, stdin)) != -1) {
             if (size - 1 == 4) {
-                uint16_t inst = (uint16_t)strtol(line, NULL, 16);
+                //uint16_t inst = (uint16_t)strtol(line, NULL, 16);
+                ChipInst inst = { .instruction = (uint16_t)strtol(line, NULL, 16)};
                 ChipInstFunc func = chipemu_decode(inst);
                 if (func != NULL) {
                     (*func)(emu, inst);
@@ -64,17 +65,17 @@ int main(int argc, const char* argv[]) {
     return 0;
 }
 
-static void dumpRegisters(ChipEmu emu) {
+static void dumpRegisters(ChipEmu *emu) {
 
     for (int i = 0; i < 4; ++i) {
         for (int j = 0; j < 4; ++j) {
             int reg = (i * 4) + j;
-            printf("v%-2d: %3d        ", reg, emu->registers[reg]);
+            printf("v%-2d: %3d        ", reg, emu->dp.regs[reg]);
         }
         putchar('\n');
     }
 
-    printf("I: %03x\t", emu->addressReg);
-    printf("st: %d\t", emu->sndTimer);
-    printf("dt: %d\n", emu->delayTimer);
+    printf("I: %03x\t", emu->dp.addrReg);
+    printf("st: %d\t", emu->dp.sndTimer);
+    printf("dt: %d\n", emu->dp.delTimer);
 }
