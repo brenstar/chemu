@@ -14,7 +14,6 @@ inline bool chipstack_can_push(ChipStack *stack) {
     return stack->sp != stack->data;
 }
 
-
 void chipstack_push(ChipStack *stack, uint16_t element) {
     //stack->data[stack->sp--] = element;
     *(stack->sp--) = element;

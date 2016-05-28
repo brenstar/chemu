@@ -14,34 +14,37 @@
 
 // sys - system call
 int cif_sys(ChipEmu *emu, ChipInst instruction) {
-	assert(instruction.atype.reserved == 0);
+	ChipInst_AType inst = instruction.atype;
+	assert(inst.reserved == 0);
 	(void)emu;
 
 	// not implemented, log warning
-	logWarn("Attempted system call at 0x%03x", instruction.atype.addr);
+	logWarn("Attempted system call at 0x%03x\n", inst.addr);
 
 	return INST_SUCCESS_INCR_PC;
 }
 
 // j - Jump to address
 int cif_j(ChipEmu *emu, ChipInst instruction) {
-	assert(instruction.atype.reserved == 1);
+	ChipInst_AType inst = instruction.atype;
+	assert(inst.reserved == 1);
 
-	emu->dp.pc = instruction.atype.addr;
+	emu->dp.pc = inst.addr;
 
 	return INST_SUCCESS;
 }
 
 // call - Call subroutine
 int cif_call(ChipEmu *emu, ChipInst instruction) {
-	assert(instruction.atype.reserved == 2);
+	ChipInst_AType inst = instruction.atype;
+	assert(inst.reserved == 2);
 
 	// add pc to stack
 
 	int result;
 	if (chipstack_can_push(&emu->stack)) {
 		chipstack_push(&emu->stack, emu->dp.pc);
-		emu->dp.pc = instruction.atype.addr;
+		emu->dp.pc = inst.addr;
 		result = INST_SUCCESS;
 	} else {
 		logError("Failed to call: Call stack at maximum\n");
@@ -62,9 +65,10 @@ int cif_la(ChipEmu *emu, ChipInst instruction) {
 
 // jo - jump with offset
 int cif_jo(ChipEmu *emu, ChipInst instruction) {
-	assert(instruction.atype.reserved == 0xB);
+	ChipInst_AType inst = instruction.atype;
+	assert(inst.reserved == 0xB);
 
-	emu->dp.pc = instruction.atype.addr + emu->dp.regs[0];
+	emu->dp.pc = inst.addr + emu->dp.regs[0];
 
 	return INST_SUCCESS;
 }

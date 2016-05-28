@@ -13,4 +13,6 @@ ChipInstFunc chipemu_decode(ChipInst instruction);
 
 void chipemu_destroy(ChipEmu *emu);
 
+void chipemu_reset(ChipEmu *emu);
+
 #endif
