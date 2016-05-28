@@ -13,7 +13,7 @@
 
 ChipEmu* chipemu_create() {
     ChipEmu *emu = (ChipEmu*)malloc(sizeof(ChipEmu));
-    emu->dp = CHIPDP_INIT;
+    
     emu->dp.pc = CHIP_PRGM_START;
 
     chipmem_init(&emu->memory);

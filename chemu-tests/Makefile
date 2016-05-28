@@ -24,6 +24,8 @@ memtest: $(addprefix $(OBJDIR)/,chip_mem.o chip_mem_test.o)
 stacktest: $(addprefix $(OBJDIR)/,chip_stack.o chip_stack_test.o)
 	$(CC) -o $(BINDIR)/$@ $+
 
+repltest: $(addprefix $(OBJDIR)/,repl_test.o emulation.o instructions.o memory.o stack.o)
+	$(CC) -o $(BINDIR)/$@ $+
 
 
 #.c.o:

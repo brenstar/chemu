@@ -13,6 +13,4 @@ typedef struct ChipDP_s {
 } ChipDP;
 
 
-const ChipDP CHIPDP_INIT = {0, 0, {}, 0, 0};
-
 #endif
