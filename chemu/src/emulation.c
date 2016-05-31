@@ -29,10 +29,7 @@ int chipemu_mainLoop(ChipEmu *emu) {
 
     for (;;) {
 
-        // fetch
-        ChipInst instruction = {
-            .instruction = 0
-        };
+
 
     }
 
@@ -206,4 +203,33 @@ void chipemu_reset(ChipEmu *emu) {
 
     // clear stack
     chipstack_init(&emu->stack);
+}
+
+int chipemu_step(ChipEmu *emu) {
+    int result = CHIP_STEP_SUCCESS;
+
+    // fetch
+    ChipInst instruction = {
+        .instruction = emu->memory.array[emu->dp.pc] << 8 |
+                       emu->memory.array[emu->dp.pc + 1];
+    };
+
+
+    // decode
+    ChipInstFunc func = chipemu_decode(instruction);
+
+    // execute
+    int instResult = (*func)(emu, instruction);
+    switch (instResult) {
+        case INST_SUCCESS:
+            break;
+        case INST_SUCCESS_INCR_PC:
+            emu->dp.pc += 2;
+            break;
+        case INST_FAILURE:
+            result = CHIP_STEP_FAILURE;
+            break;
+    }
+
+    return result;
 }

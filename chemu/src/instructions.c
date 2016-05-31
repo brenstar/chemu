@@ -193,6 +193,17 @@ int cif_font(ChipEmu *emu, ChipInst instruction) {
 
 // bcd - binary coded decimal
 int cif_bcd(ChipEmu *emu, ChipInst instruction) {
+	ChipInst_IType inst = instruction.itype;
+	assert(inst.reserved == 0xF && inst.immediate == 0x33);
+
+	uint8_t regX = emu->dp.regs[inst.rnum];
+	uint16_t addr = emu->dp.addrReg + 2;
+
+	for (int i = 0; i < 3; ++i) {
+		emu->memory.array[addr - i] = regX % 10;
+		regX /= 10;
+	}
+
 	return 0;
 }
 

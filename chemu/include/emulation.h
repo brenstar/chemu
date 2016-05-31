@@ -4,6 +4,8 @@
 #include "ChipEmu.h"
 #include "instructions.h"
 
+#define CHIP_STEP_SUCCESS 0
+#define CHIP_STEP_FAILURE 1
 
 ChipEmu* chipemu_create();
 
@@ -14,5 +16,7 @@ ChipInstFunc chipemu_decode(ChipInst instruction);
 void chipemu_destroy(ChipEmu *emu);
 
 void chipemu_reset(ChipEmu *emu);
+
+int chipemu_step(ChipEmu *emu);
 
 #endif

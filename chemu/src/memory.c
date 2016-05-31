@@ -25,14 +25,15 @@ static const uint8_t DIGITS[] = {
 };
 
 ChipMem* chipmem_create() {
-    ChipMem *mem = (ChipMem*)malloc(sizeof(struct ChipMem_s));
+    ChipMem *mem = (ChipMem*)malloc(sizeof(ChipMem));
     chipmem_init(mem);
     return mem;
 }
 
 void chipmem_init(ChipMem *mem) {
     memcpy(mem->reserved.fontset, DIGITS, sizeof(DIGITS) / sizeof(uint8_t));
-
+    for (int i = CHIP_FONTSET_LEN; i < CHIP_END; ++i)
+        mem->array[i] = 0;
 }
 
 void chipmem_destroy(ChipMem *mem) {

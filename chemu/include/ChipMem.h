@@ -30,9 +30,12 @@ typedef union ChipMem_reserved_u {
 typedef uint8_t ChipMem_data[CHIPMEM_DATA_LEN];
 
 
-typedef struct ChipMem_s {
-    ChipMem_reserved reserved;
-    ChipMem_data data;
+typedef union ChipMem_u {
+    uint8_t array[CHIPMEM_RESERVED_LEN + CHIPMEM_DATA_LEN];
+    struct {
+        ChipMem_reserved reserved;
+        ChipMem_data data;
+    };
 } ChipMem;
 
 
