@@ -8,7 +8,7 @@ ChipMem* chipmem_create();
 
 void chipmem_init(ChipMem *mem);
 
-uint8_t* chipmem_get_font(ChipMem *mem, char digit);
+uint16_t chipmem_get_font(ChipMem *mem, uint8_t digit);
 
 void chipmem_destroy(ChipMem *mem);
 

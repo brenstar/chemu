@@ -188,7 +188,14 @@ int cif_ii(ChipEmu *emu, ChipInst instruction) {
 
 // font - set address register to font sprite
 int cif_font(ChipEmu *emu, ChipInst instruction) {
-	return 0;
+	ChipInst_IType inst = instruction.itype;
+	assert(inst.reserved == 0xF && inst.immediate == 0x29);
+
+	uint8_t vx = emu->dp.regs[inst.rnum];
+	if (vx < 16)
+		emu->dp.addrReg = CHIPMEM_FONTSET_START + (vx * 5);
+
+	return INST_SUCCESS_INCR_PC;
 }
 
 // bcd - binary coded decimal
@@ -204,17 +211,37 @@ int cif_bcd(ChipEmu *emu, ChipInst instruction) {
 		regX /= 10;
 	}
 
-	return 0;
+	return INST_SUCCESS_INCR_PC;
 }
 
 // save - save registers in memory
 int cif_save(ChipEmu *emu, ChipInst instruction) {
-	return 0;
+	ChipInst_IType inst = instruction.itype;
+	assert(inst.reserved == 0xF && inst.immediate == 0x55);
+
+	uint16_t addr = emu->dp.addrReg;
+	for (int i = 0; i <= inst.rnum; ++i) {
+		emu->memory.array[addr] = emu->dp.regs[i];
+		if (++addr > CHIP_END)
+			return INST_FAILURE; // address register is out of bounds
+	}
+
+	return INST_SUCCESS_INCR_PC;
 }
 
 // rest - restore registers from memory
 int cif_rest(ChipEmu *emu, ChipInst instruction) {
-	return 0;
+	ChipInst_IType inst = instruction.itype;
+	assert(inst.reserved == 0xF && inst.immediate == 0x65);
+
+	uint16_t addr = emu->dp.addrReg;
+	for (int i = 0; i <= inst.rnum; ++i) {
+		emu->dp.regs[i] = emu->memory.array[addr];
+		if (++addr > CHIP_END)
+			return INST_FAILURE; // address register is out of bounds
+	}
+
+	return INST_SUCCESS_INCR_PC;
 }
 
 // ============================================================================

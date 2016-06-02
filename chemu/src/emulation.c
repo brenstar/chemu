@@ -29,7 +29,11 @@ int chipemu_mainLoop(ChipEmu *emu) {
 
     for (;;) {
 
+        // execute cycle
 
+        // poll input callback
+
+        // redraw callback
 
     }
 
@@ -210,8 +214,8 @@ int chipemu_step(ChipEmu *emu) {
 
     // fetch
     ChipInst instruction = {
-        .instruction = emu->memory.array[emu->dp.pc] << 8 |
-                       emu->memory.array[emu->dp.pc + 1];
+        .instruction = (uint16_t)(emu->memory.array[emu->dp.pc] << 8 |
+                                  emu->memory.array[emu->dp.pc + 1])
     };
 
 

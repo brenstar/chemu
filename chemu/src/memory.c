@@ -32,7 +32,7 @@ ChipMem* chipmem_create() {
 
 void chipmem_init(ChipMem *mem) {
     memcpy(mem->reserved.fontset, DIGITS, sizeof(DIGITS) / sizeof(uint8_t));
-    for (int i = CHIP_FONTSET_LEN; i < CHIP_END; ++i)
+    for (int i = CHIPMEM_FONTSET_LEN; i < CHIP_END; ++i)
         mem->array[i] = 0;
 }
 
@@ -40,7 +40,7 @@ void chipmem_destroy(ChipMem *mem) {
     free(mem);
 }
 
-uint8_t* chipmem_get_font(ChipMem *mem, char digit) {
+uint16_t chipmem_get_font(ChipMem *mem, uint8_t digit) {
     //return mem->reserved + CHIP_FONTSET_START + (digit * 5);
-    return mem->reserved.fontset + (digit * 5);
+    return CHIPMEM_FONTSET_START + digit * 5;
 }
