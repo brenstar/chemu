@@ -12,7 +12,7 @@
 
 ChipEmu* chipemu_create();
 
-int chipemu_mainLoop(ChipEmu *emu, DisplayRedrawCallback drc, PollInputCallback pic);
+int chipemu_mainLoop(ChipEmu *emu);
 
 ChipInstFunc chipemu_decode(ChipInst instruction);
 

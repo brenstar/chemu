@@ -15,6 +15,8 @@ ChipEmu* chipemu_create() {
     ChipEmu *emu = (ChipEmu*)malloc(sizeof(ChipEmu));
 
     emu->dp.pc = CHIP_PRGM_START;
+    emu->pollKeyHandler = NULL;
+    emu->pollInputHandler = NULL;
 
     chipmem_init(&emu->memory);
 
@@ -23,17 +25,18 @@ ChipEmu* chipemu_create() {
     return emu;
 }
 
-int chipemu_mainLoop(ChipEmu *emu, DisplayRedrawCallback drc, PollInputCallback pic) {
+int chipemu_mainLoop(ChipEmu *emu) {
 
     int exitStatus = EXIT_SUCCESS;
 
     for (;;) {
 
-        // execute cycle
+        // emulate cycle
         chipemu_step(emu);
 
-        // poll input callback
-        pic(&emu->input);
+        // poll inputs if a handler has been assigned
+        if (emu->pollInputHandler != NULL)
+            emu->pollInputHandler(&emu->input);
 
         // redraw callback
 

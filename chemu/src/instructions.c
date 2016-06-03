@@ -81,9 +81,31 @@ int cif_jo(ChipEmu *emu, ChipInst instruction) {
 
 // draw - draw sprite
 int cif_draw(ChipEmu *emu, ChipInst instruction) {
-	assert(instruction.dtype.reserved == 0xD);
+	ChipInst_DType inst = instruction.dtype;
+	assert(inst.reserved == 0xD);
 
-	// TODO: Draw function
+	ChipSprite *sprite = (ChipSprite*)malloc(sizeof(ChipSprite));
+	sprite->x = emu->dp.regs[inst.rx_num];
+	sprite->y = emu->dp.regs[inst.ry_num];
+	sprite->rows = inst.rows;
+
+	// copy sprite data from memory starting at I
+	// memcpy was not used because bounds checking is needed for cases
+	// when addr exceeds 0xFFF (or end of ChipMem's array)
+	uint16_t addr = emu->dp.addrReg;
+	for (int i = 0; i < inst.rows; ++i) {
+		sprite->data[i] = emu->memory.array[addr];
+		if (++addr > CHIP_END) {
+			logError("Bounds reached when drawing sprite\n");
+			break;
+		}
+	}
+
+	// invoke callback with draw operation DRAW_SPRITE
+	emu->drawHandler(CHIP_DRAW_SPRITE, sprite);
+
+	free(sprite);
+
 
 	return INST_SUCCESS_INCR_PC;
 }
@@ -176,7 +198,12 @@ int cif_ld(ChipEmu *emu, ChipInst inst) {
 
 // lk - wait and load key press
 int cif_lk(ChipEmu *emu, ChipInst instruction) {
-	return 0;
+	ChipInst_IType inst = instruction.itype;
+	assert(inst.reserved == 0xF && inst.immediate == 0x0A);
+
+	emu->dp.regs[inst.rnum] = emu->pollKeyHandler();
+
+	return INST_SUCCESS_INCR_PC;
 }
 
 // del - set delay timer
@@ -280,8 +307,6 @@ int cif_se(ChipEmu *emu, ChipInst inst) {
 
 	return INST_SUCCESS_INCR_PC;
 }
-
-
 
 // move - sets register value to another register
 int cif_move(ChipEmu *emu, ChipInst inst) {
@@ -398,9 +423,9 @@ int cif_sn(ChipEmu *emu, ChipInst inst) {
 int cif_cls(ChipEmu *emu, ChipInst instruction) {
 	assert(instruction.instruction == 0x00E0);
 
-	// TODO: clear screen
+	// invoke callback for the DRAW_CLEAR operation
+	emu->drawHandler(CHIP_DRAW_CLEAR, NULL);
 
-	//emu->pc += 2;
 	return INST_SUCCESS_INCR_PC;
 }
 
