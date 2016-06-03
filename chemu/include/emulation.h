@@ -7,9 +7,12 @@
 #define CHIP_STEP_SUCCESS 0
 #define CHIP_STEP_FAILURE 1
 
+
+
+
 ChipEmu* chipemu_create();
 
-int chipemu_mainLoop(ChipEmu *emu);
+int chipemu_mainLoop(ChipEmu *emu, DisplayRedrawCallback drc, PollInputCallback pic);
 
 ChipInstFunc chipemu_decode(ChipInst instruction);
 

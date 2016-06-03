@@ -4,9 +4,11 @@
 
 #include "instructions.h"
 #include "stack.h"
+#include "input.h"
 
 #include "debug.h"
 
+static bool sip_helper(ChipEmu *emu, ChipInst_IType inst, ChipKeyState state);
 
 // ============================================================================
 // A-Type (address)
@@ -140,19 +142,25 @@ int cif_rnd(ChipEmu *emu, ChipInst inst) {
 // constant immediate instructions --------------------------------------------
 
 // sip - skip next instruction if pressed
-int cif_sip(ChipEmu *emu, ChipInst inst) {
-	assert(inst.itype.reserved == 0xE && inst.itype.immediate == 0x9E);
+int cif_sip(ChipEmu *emu, ChipInst instruction) {
+	ChipInst_IType inst = instruction.itype;
+	assert(inst.reserved == 0xE && inst.immediate == 0x9E);
 
-	// TODO: input handling
+	//uint8_t regVal = emu->dp.regs[inst.rnum];
+	//if (regVal < 16 && chipin_keystate(&emu->input, (ChipKey)regVal) == CHIP_KEYSTATE_PRESSED)
+	if (sip_helper(emu, inst, CHIP_KEYSTATE_PRESSED))
+		emu->dp.pc += 2;
 
 	return INST_SUCCESS_INCR_PC;
 }
 
 // snip - skip next instruction if not pressed
-int cif_snip(ChipEmu *emu, ChipInst inst) {
-	assert(inst.itype.reserved == 0xE && inst.itype.immediate == 0xA1);
+int cif_snip(ChipEmu *emu, ChipInst instruction) {
+	ChipInst_IType inst = instruction.itype;
+	assert(inst.reserved == 0xE && inst.immediate == 0xA1);
 
-	// TODO: input handling
+	if (sip_helper(emu, inst, CHIP_KEYSTATE_RELEASED))
+		emu->dp.pc += 2;
 
 	return INST_SUCCESS_INCR_PC;
 }
@@ -173,17 +181,32 @@ int cif_lk(ChipEmu *emu, ChipInst instruction) {
 
 // del - set delay timer
 int cif_del(ChipEmu *emu, ChipInst instruction) {
-	return 0;
+	ChipInst_IType inst = instruction.itype;
+	assert(inst.reserved == 0xF && inst.immediate == 0x15);
+
+	emu->dp.delTimer = emu->dp.regs[inst.rnum];
+
+	return INST_SUCCESS_INCR_PC;
 }
 
 // snd - set sound timer
 int cif_snd(ChipEmu *emu, ChipInst instruction) {
-	return 0;
+	ChipInst_IType inst = instruction.itype;
+	assert(inst.reserved == 0xF && inst.immediate == 0x18);
+
+	emu->dp.sndTimer = emu->dp.regs[inst.rnum];
+
+	return INST_SUCCESS_INCR_PC;
 }
 
 // ii - increment address register
 int cif_ii(ChipEmu *emu, ChipInst instruction) {
-	return 0;
+	ChipInst_IType inst = instruction.itype;
+	assert(inst.reserved == 0xF && inst.immediate == 0x1E);
+
+	emu->dp.addrReg += emu->dp.regs[inst.rnum];
+
+	return INST_SUCCESS_INCR_PC;
 }
 
 // font - set address register to font sprite
@@ -403,4 +426,14 @@ int cif_ret(ChipEmu *emu, ChipInst instruction) {
 	}*/
 
 	return result;
+}
+
+// ----------------------------------------------------------------------------
+// Private helper functions
+
+// Determines if the key stored in rnum of inst has the given state
+// Note: if the value in register rnum is >= 16, false is returned
+static bool sip_helper(ChipEmu *emu, ChipInst_IType inst, ChipKeyState state) {
+	uint8_t regVal = emu->dp.regs[inst.rnum];
+	return regVal < 16 && chipin_keystate(&emu->input, (ChipKey)regVal) == state;
 }

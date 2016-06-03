@@ -1,10 +1,3 @@
-#ifdef _WIN32
-    #include <conio.h>
-#endif
-
-#ifdef __linux__
-    #include <ncurses.h>
-#endif
 
 #include "input.h"
 

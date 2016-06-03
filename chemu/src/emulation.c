@@ -23,15 +23,17 @@ ChipEmu* chipemu_create() {
     return emu;
 }
 
-int chipemu_mainLoop(ChipEmu *emu) {
+int chipemu_mainLoop(ChipEmu *emu, DisplayRedrawCallback drc, PollInputCallback pic) {
 
     int exitStatus = EXIT_SUCCESS;
 
     for (;;) {
 
         // execute cycle
+        chipemu_step(emu);
 
         // poll input callback
+        pic(&emu->input);
 
         // redraw callback
 
