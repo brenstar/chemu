@@ -12,7 +12,7 @@ vpath %.c $(SRCDIR)
 
 CC =			gcc
 CFLAGS =		-std=c11 -Wextra -Wall -pedantic -fPIC
-OBJFILES =		$(addprefix $(OBJDIR)/,emulation.o instructions.o stack.o memory.o)
+OBJFILES =		$(addprefix $(OBJDIR)/,emulation.o instructions.o stack.o input.o memory.o)
 LDFLAGS=		-shared
 
 # targets

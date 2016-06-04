@@ -3,6 +3,10 @@
 #chemu-tests/bin/*
 #chemu-tests/obj/*
 
+# compiled python files
+*.pyc
+*.pyo
+
 # Object files
 *.o
 *.ko

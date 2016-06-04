@@ -38,7 +38,6 @@ int chipemu_mainLoop(ChipEmu *emu) {
         if (emu->pollInputHandler != NULL)
             emu->pollInputHandler(&emu->input);
 
-        // redraw callback
 
     }
 
