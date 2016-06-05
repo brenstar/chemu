@@ -102,7 +102,8 @@ int cif_draw(ChipEmu *emu, ChipInst instruction) {
 	}
 
 	// invoke callback with draw operation DRAW_SPRITE
-	emu->drawHandler(CHIP_DRAW_SPRITE, sprite);
+	int result = emu->drawHandler(CHIP_DRAW_SPRITE, sprite);
+	emu->dp.regs[15] = result;  // 1 for collision, 0 otherwise
 
 	free(sprite);
 

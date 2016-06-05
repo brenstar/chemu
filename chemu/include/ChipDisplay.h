@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#define CHIP_DRAW_COLLISION 1
+
 typedef struct ChipSprite_s {
     uint8_t x:6;        // x coordinate to draw sprite (0-63)
     uint8_t y:5;        // y coordinate to draw sprite (0-31)
@@ -15,7 +17,7 @@ typedef enum ChipDrawOp_e {
     CHIP_DRAW_SPRITE
 } ChipDrawOp;
 
-typedef void (*DrawHandler)(ChipDrawOp, ChipSprite*);
+typedef int (*DrawHandler)(ChipDrawOp, ChipSprite*);
 
 
 //typedef uint32_t ChipDisplay[64];

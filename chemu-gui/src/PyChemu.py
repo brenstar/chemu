@@ -80,7 +80,7 @@ ChipDrawOp = enum(
     CHIP_DRAW_SPRITE = 1
 )
 
-DrawHandler = CFUNCTYPE(None, c_int, POINTER(ChipSprite))
+DrawHandler = CFUNCTYPE(c_int, c_int, POINTER(ChipSprite))
 
 # ChipInput.h ================================================================
 
