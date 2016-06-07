@@ -18,10 +18,10 @@ CFLAGS =	-std=c11 -Wextra -Wall -pedantic
 
 # targets
 
-memtest: $(addprefix $(OBJDIR)/,chip_mem.o chip_mem_test.o)
+memtest: $(addprefix $(OBJDIR)/,memory.o chip_mem_test.o)
 	$(CC) -o $(BINDIR)/$@ $+
 
-stacktest: $(addprefix $(OBJDIR)/,chip_stack.o chip_stack_test.o)
+stacktest: $(addprefix $(OBJDIR)/,stack.o chip_stack_test.o)
 	$(CC) -o $(BINDIR)/$@ $+
 
 repltest: $(addprefix $(OBJDIR)/,repl_test.o emulation.o instructions.o memory.o stack.o)

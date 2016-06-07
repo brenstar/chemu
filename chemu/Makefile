@@ -7,8 +7,15 @@ INCDIR=			include
 
 vpath %.c $(SRCDIR)
 #vpath %.h $(SRCDIR)
+#VPATH=$(SRCDIR)
 
 # Variables
+
+ifeq ($(OS),Windows_NT)
+	DLLEXT=dll
+else
+	DLLEXT=so
+endif
 
 CC =			gcc
 CFLAGS =		-std=c11 -Wextra -Wall -pedantic -fPIC
@@ -20,7 +27,7 @@ LDFLAGS=		-shared
 all: chemu
 
 chemu: $(OBJFILES)
-	$(CC) $(LDFLAGS) -o $(BINDIR)/$@.so $+
+	$(CC) $(LDFLAGS) -o $(BINDIR)/$@.$(DLLEXT) $+
 
 #.c.o:
 $(OBJDIR)/%.o: %.c
@@ -30,8 +37,7 @@ $(OBJDIR)/%.o: %.c
 # utils
 
 clean:
-	cd $(BINDIR) && \
-	/bin/rm -f *.o
+	rm -f -v $(OBJDIR)/*.o
 
 realclean:        clean
 	cd $(BINDIR) && \

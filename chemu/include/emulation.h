@@ -7,10 +7,13 @@
 #define CHIP_STEP_SUCCESS 0
 #define CHIP_STEP_FAILURE 1
 
-
+#define CHIP_LOAD_SUCCESS 1
+#define CHIP_LOAD_FAILURE 1
 
 
 ChipEmu* chipemu_create();
+
+int chipemu_loadROM(ChipEmu *emu, const char *path);
 
 int chipemu_mainLoop(ChipEmu *emu);
 

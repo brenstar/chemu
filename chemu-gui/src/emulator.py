@@ -1,5 +1,6 @@
 from PyQt4 import QtCore, QtGui
 import PyChemu
+from ctypes import pointer
 
 
 class ChipDisplayWidget(QtGui.QWidget):
@@ -154,12 +155,35 @@ class EmulatorWindow(QtGui.QMainWindow):
         # execution control dock
         self.__exeCtrlDock = QtGui.QDockWidget("Execution Control", self)
         self.__currentInstLabel = QtGui.QLabel()
+        self.__testLabel = QtGui.QLabel()
         exeWidget = QtGui.QWidget(self.__exeCtrlDock)
         layout = QtGui.QGridLayout(exeWidget)
         layout.addWidget(QtGui.QLabel("Next Instruction:"), 0, 0)
         layout.addWidget(self.__currentInstLabel, 0, 1)
+        layout.addWidget(self.__testLabel, 1, 0)
         self.__exeCtrlDock.setWidget(exeWidget)
         self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.__exeCtrlDock)
+
+        # map of keycodes to chip key
+        self.__keymap = {
+            QtCore.Qt.Key_1 : PyChemu.ChipKey.CHIP_KEY_1,
+            QtCore.Qt.Key_2 : PyChemu.ChipKey.CHIP_KEY_2,
+            QtCore.Qt.Key_3 : PyChemu.ChipKey.CHIP_KEY_3,
+            QtCore.Qt.Key_4 : PyChemu.ChipKey.CHIP_KEY_C,
+            QtCore.Qt.Key_Q : PyChemu.ChipKey.CHIP_KEY_4,
+            QtCore.Qt.Key_W : PyChemu.ChipKey.CHIP_KEY_5,
+            QtCore.Qt.Key_E : PyChemu.ChipKey.CHIP_KEY_6,
+            QtCore.Qt.Key_R : PyChemu.ChipKey.CHIP_KEY_D,
+            QtCore.Qt.Key_A : PyChemu.ChipKey.CHIP_KEY_7,
+            QtCore.Qt.Key_S : PyChemu.ChipKey.CHIP_KEY_8,
+            QtCore.Qt.Key_D : PyChemu.ChipKey.CHIP_KEY_9,
+            QtCore.Qt.Key_F : PyChemu.ChipKey.CHIP_KEY_E,
+            QtCore.Qt.Key_Z : PyChemu.ChipKey.CHIP_KEY_A,
+            QtCore.Qt.Key_X : PyChemu.ChipKey.CHIP_KEY_0,
+            QtCore.Qt.Key_C : PyChemu.ChipKey.CHIP_KEY_B,
+            QtCore.Qt.Key_V : PyChemu.ChipKey.CHIP_KEY_F
+        }
+        self.__input = PyChemu.ChipInput()
 
 
 
@@ -175,14 +199,43 @@ class EmulatorWindow(QtGui.QMainWindow):
 
         return PyChemu.DrawHandler(callback)
 
+    def __updateTestLabel(self):
+        self.__testLabel.setText("{0:016b}".format(self.__input.value))
+
+    def keyPressEvent(self, e):
+        if e.isAutoRepeat():
+            return
+
+        key = e.key()
+        if key in self.__keymap:
+            chipkey = self.__keymap[key]
+            PyChemu.chipin_set(pointer(self.__input), chipkey,
+                               PyChemu.ChipKeyState.CHIP_KEYSTATE_PRESSED)
+            self.__updateTestLabel()
+            #print(self.__input)
+            #print("Key %d is pressed" % chipkey)
+
+
+    def keyReleaseEvent(self, e):
+        if e.isAutoRepeat():
+            return
+        key = e.key()
+        if key in self.__keymap:
+            chipkey = self.__keymap[key]
+            PyChemu.chipin_set(pointer(self.__input), chipkey,
+                               PyChemu.ChipKeyState.CHIP_KEYSTATE_RELEASED)
+            self.__updateTestLabel()
+            #print("Key %d is released" % chipkey)
+            #print(self.__input)
+
 
 
 if __name__ == "__main__":
     app = QtGui.QApplication([])
 
-    #emu = PyChemu.chipemu_create()
+    emu = PyChemu.chipemu_create()
 
-    win = EmulatorWindow(None)
+    win = EmulatorWindow(emu)
     win.show()
 
     #widget = ChipDisplayWidget()
@@ -192,4 +245,4 @@ if __name__ == "__main__":
 
     app.exec_()
 
-    #PyChemu.chipemu_destroy(emu)
+    PyChemu.chipemu_destroy(emu)

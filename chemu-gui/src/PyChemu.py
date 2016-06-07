@@ -1,9 +1,10 @@
 from ctypes import *
 import sys
 
-
 if sys.platform == "linux" or sys.platform == "linux2":
     _libchemu = cdll.LoadLibrary("./chemu.so")
+elif sys.platform == "win32":
+    _libchemu = cdll.LoadLibrary("chemu.dll")
 
 
 def enum(**vals):
@@ -158,14 +159,22 @@ class ChipEmu(Structure):
         ("drawHandler", DrawHandler)
     ]
 
-# chipemu_create = _libchemu.chipemu_create
-# chipemu_create.argtypes = []
-# chipemu_create.restype = POINTER(ChipEmu)
-#
-# chipemu_destroy = _libchemu.chipemu_destroy
-# chipemu_destroy.argtypes = [POINTER(ChipEmu)]
-# chipemu_destroy.restype = None
-#
-# chipemu_mainLoop = _libchemu.chipemu_mainLoop
-# chipemu_mainLoop.argtypes = [POINTER(ChipEmu)]
-# chipemu_mainLoop.restype = c_int
+chipemu_create = _libchemu.chipemu_create
+chipemu_create.argtypes = []
+chipemu_create.restype = POINTER(ChipEmu)
+
+chipemu_destroy = _libchemu.chipemu_destroy
+chipemu_destroy.argtypes = [POINTER(ChipEmu)]
+chipemu_destroy.restype = None
+
+chipemu_mainLoop = _libchemu.chipemu_mainLoop
+chipemu_mainLoop.argtypes = [POINTER(ChipEmu)]
+chipemu_mainLoop.restype = c_int
+
+chipin_keystate = _libchemu.chipin_keystate
+chipin_keystate.argtypes = [POINTER(ChipInput), c_int]
+chipin_keystate.restype = c_int
+
+chipin_set = _libchemu.chipin_set
+chipin_set.argtypes = [POINTER(ChipInput), c_int, c_int]
+chipin_set.restype = c_int

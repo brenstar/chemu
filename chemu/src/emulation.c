@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <time.h>
 #include <string.h>
 
@@ -23,6 +24,16 @@ ChipEmu* chipemu_create() {
     chipstack_init(&emu->stack);
 
     return emu;
+}
+
+int chipemu_loadROM(ChipEmu *emu, const char *path) {
+    FILE *fp = fopen(path, "rb");
+    if (fp != NULL) {
+        fread(emu->memory.data, 1, CHIPMEM_DATA_LEN, fp);
+        fclose(fp);
+        return CHIP_LOAD_SUCCESS;
+    }
+    return CHIP_LOAD_FAILURE;
 }
 
 int chipemu_mainLoop(ChipEmu *emu) {
