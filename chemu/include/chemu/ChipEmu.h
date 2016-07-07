@@ -7,7 +7,7 @@
 #include "ChipMem.h"
 #include "ChipStack.h"
 #include "ChipInput.h"
-#include "ChipDisplay.h"
+#include "ChipDrawCallback.h"
 
 typedef void (*DisplayRedrawCallback)();
 
@@ -24,11 +24,7 @@ typedef struct ChipEmu_s {
     ChipInput input;
     PollKeyHandler pollKeyHandler;
     PollInputHandler pollInputHandler;
-    DrawHandler drawHandler;
+    ChipDrawCallback drawCallback;
 } ChipEmu;
-
-
-
-
 
 #endif

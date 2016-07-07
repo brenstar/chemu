@@ -1,5 +1,6 @@
 
-#include "input.h"
+#include "chemu/input.h"
+#include "chemu/ChipInput.h"
 
 
 ChipKeyState chipin_keystate(ChipInput *input, ChipKey key) {

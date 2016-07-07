@@ -1,7 +1,7 @@
 #include <assert.h>
 #include <stdio.h>
 
-#include "memory.h"
+#include "chemu/memory.h"
 
 
 int main() {

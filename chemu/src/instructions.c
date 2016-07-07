@@ -15,7 +15,7 @@ static bool sip_helper(ChipEmu *emu, ChipInst_IType inst, ChipKeyState state);
 // ============================================================================
 
 // sys - system call
-int cif_sys(ChipEmu *emu, ChipInst instruction) {
+ChipInstResult cif_sys(ChipEmu *emu, ChipInst instruction) {
 	ChipInst_AType inst = instruction.atype;
 	assert(inst.reserved == 0);
 	(void)emu;
@@ -27,7 +27,7 @@ int cif_sys(ChipEmu *emu, ChipInst instruction) {
 }
 
 // j - Jump to address
-int cif_j(ChipEmu *emu, ChipInst instruction) {
+ChipInstResult cif_j(ChipEmu *emu, ChipInst instruction) {
 	ChipInst_AType inst = instruction.atype;
 	assert(inst.reserved == 1);
 
@@ -37,13 +37,13 @@ int cif_j(ChipEmu *emu, ChipInst instruction) {
 }
 
 // call - Call subroutine
-int cif_call(ChipEmu *emu, ChipInst instruction) {
+ChipInstResult cif_call(ChipEmu *emu, ChipInst instruction) {
 	ChipInst_AType inst = instruction.atype;
 	assert(inst.reserved == 2);
 
 	// add pc to stack
 
-	int result;
+	ChipInstResult result;
 	if (chipstack_can_push(&emu->stack)) {
 		chipstack_push(&emu->stack, emu->dp.pc);
 		emu->dp.pc = inst.addr;
@@ -57,7 +57,7 @@ int cif_call(ChipEmu *emu, ChipInst instruction) {
 }
 
 // la - load address
-int cif_la(ChipEmu *emu, ChipInst instruction) {
+ChipInstResult cif_la(ChipEmu *emu, ChipInst instruction) {
 	assert(instruction.atype.reserved == 0xA);
 
 	emu->dp.addrReg = instruction.atype.addr;
@@ -66,7 +66,7 @@ int cif_la(ChipEmu *emu, ChipInst instruction) {
 }
 
 // jo - jump with offset
-int cif_jo(ChipEmu *emu, ChipInst instruction) {
+ChipInstResult cif_jo(ChipEmu *emu, ChipInst instruction) {
 	ChipInst_AType inst = instruction.atype;
 	assert(inst.reserved == 0xB);
 
@@ -80,7 +80,7 @@ int cif_jo(ChipEmu *emu, ChipInst instruction) {
 // ============================================================================
 
 // draw - draw sprite
-int cif_draw(ChipEmu *emu, ChipInst instruction) {
+ChipInstResult cif_draw(ChipEmu *emu, ChipInst instruction) {
 	ChipInst_DType inst = instruction.dtype;
 	assert(inst.reserved == 0xD);
 
@@ -116,7 +116,7 @@ int cif_draw(ChipEmu *emu, ChipInst instruction) {
 // ============================================================================
 
 // sei - Skip next if equal to immediate
-int cif_sei(ChipEmu *emu, ChipInst inst) {
+ChipInstResult cif_sei(ChipEmu *emu, ChipInst inst) {
 	assert(inst.itype.reserved == 0x3);
 
 	if (emu->dp.regs[inst.itype.rnum] == inst.itype.immediate)
@@ -126,17 +126,17 @@ int cif_sei(ChipEmu *emu, ChipInst inst) {
 }
 
 // sni - Skip next if not equal to immediate
-int cif_sni(ChipEmu *emu, ChipInst instruction) {
+ChipInstResult cif_sni(ChipEmu *emu, ChipInst instruction) {
 	assert(instruction.itype.reserved == 0x4);
 
-	if (emu->dp.regs[instruction.itype.rnum] == instruction.itype.immediate)
+	if (emu->dp.regs[instruction.itype.rnum] != instruction.itype.immediate)
 		emu->dp.pc += 2;
 
 	return INST_SUCCESS_INCR_PC;
 }
 
 // li - load immediate
-int cif_li(ChipEmu *emu, ChipInst instruction) {
+ChipInstResult cif_li(ChipEmu *emu, ChipInst instruction) {
 	assert(instruction.itype.reserved == 0x6);
 
 	emu->dp.regs[instruction.itype.rnum] = instruction.itype.immediate;
@@ -145,7 +145,7 @@ int cif_li(ChipEmu *emu, ChipInst instruction) {
 }
 
 // addi - add immediate
-int cif_addi(ChipEmu *emu, ChipInst instruction) {
+ChipInstResult cif_addi(ChipEmu *emu, ChipInst instruction) {
 	assert(instruction.itype.reserved == 0x7);
 
 	emu->dp.regs[instruction.itype.rnum] += instruction.itype.immediate;
@@ -154,7 +154,7 @@ int cif_addi(ChipEmu *emu, ChipInst instruction) {
 }
 
 // rnd - random
-int cif_rnd(ChipEmu *emu, ChipInst inst) {
+ChipInstResult cif_rnd(ChipEmu *emu, ChipInst inst) {
 	assert(inst.itype.reserved == 0xC);
 
 	emu->dp.regs[inst.itype.rnum] = (uint8_t)(rand() % 255) & inst.itype.immediate;
@@ -165,7 +165,7 @@ int cif_rnd(ChipEmu *emu, ChipInst inst) {
 // constant immediate instructions --------------------------------------------
 
 // sip - skip next instruction if pressed
-int cif_sip(ChipEmu *emu, ChipInst instruction) {
+ChipInstResult cif_sip(ChipEmu *emu, ChipInst instruction) {
 	ChipInst_IType inst = instruction.itype;
 	assert(inst.reserved == 0xE && inst.immediate == 0x9E);
 
@@ -178,7 +178,7 @@ int cif_sip(ChipEmu *emu, ChipInst instruction) {
 }
 
 // snip - skip next instruction if not pressed
-int cif_snip(ChipEmu *emu, ChipInst instruction) {
+ChipInstResult cif_snip(ChipEmu *emu, ChipInst instruction) {
 	ChipInst_IType inst = instruction.itype;
 	assert(inst.reserved == 0xE && inst.immediate == 0xA1);
 
@@ -189,7 +189,7 @@ int cif_snip(ChipEmu *emu, ChipInst instruction) {
 }
 
 // ld - load delay timer
-int cif_ld(ChipEmu *emu, ChipInst inst) {
+ChipInstResult cif_ld(ChipEmu *emu, ChipInst inst) {
 	assert(inst.itype.reserved == 0xF && inst.itype.immediate == 0x07);
 
 	emu->dp.regs[inst.itype.rnum] = emu->dp.delTimer;
@@ -198,7 +198,7 @@ int cif_ld(ChipEmu *emu, ChipInst inst) {
 }
 
 // lk - wait and load key press
-int cif_lk(ChipEmu *emu, ChipInst instruction) {
+ChipInstResult cif_lk(ChipEmu *emu, ChipInst instruction) {
 	ChipInst_IType inst = instruction.itype;
 	assert(inst.reserved == 0xF && inst.immediate == 0x0A);
 
@@ -208,7 +208,7 @@ int cif_lk(ChipEmu *emu, ChipInst instruction) {
 }
 
 // del - set delay timer
-int cif_del(ChipEmu *emu, ChipInst instruction) {
+ChipInstResult cif_del(ChipEmu *emu, ChipInst instruction) {
 	ChipInst_IType inst = instruction.itype;
 	assert(inst.reserved == 0xF && inst.immediate == 0x15);
 
@@ -218,7 +218,7 @@ int cif_del(ChipEmu *emu, ChipInst instruction) {
 }
 
 // snd - set sound timer
-int cif_snd(ChipEmu *emu, ChipInst instruction) {
+ChipInstResult cif_snd(ChipEmu *emu, ChipInst instruction) {
 	ChipInst_IType inst = instruction.itype;
 	assert(inst.reserved == 0xF && inst.immediate == 0x18);
 
@@ -228,7 +228,7 @@ int cif_snd(ChipEmu *emu, ChipInst instruction) {
 }
 
 // ii - increment address register
-int cif_ii(ChipEmu *emu, ChipInst instruction) {
+ChipInstResult cif_ii(ChipEmu *emu, ChipInst instruction) {
 	ChipInst_IType inst = instruction.itype;
 	assert(inst.reserved == 0xF && inst.immediate == 0x1E);
 
@@ -238,7 +238,7 @@ int cif_ii(ChipEmu *emu, ChipInst instruction) {
 }
 
 // font - set address register to font sprite
-int cif_font(ChipEmu *emu, ChipInst instruction) {
+ChipInstResult cif_font(ChipEmu *emu, ChipInst instruction) {
 	ChipInst_IType inst = instruction.itype;
 	assert(inst.reserved == 0xF && inst.immediate == 0x29);
 
@@ -250,7 +250,7 @@ int cif_font(ChipEmu *emu, ChipInst instruction) {
 }
 
 // bcd - binary coded decimal
-int cif_bcd(ChipEmu *emu, ChipInst instruction) {
+ChipInstResult cif_bcd(ChipEmu *emu, ChipInst instruction) {
 	ChipInst_IType inst = instruction.itype;
 	assert(inst.reserved == 0xF && inst.immediate == 0x33);
 
@@ -266,7 +266,7 @@ int cif_bcd(ChipEmu *emu, ChipInst instruction) {
 }
 
 // save - save registers in memory
-int cif_save(ChipEmu *emu, ChipInst instruction) {
+ChipInstResult cif_save(ChipEmu *emu, ChipInst instruction) {
 	ChipInst_IType inst = instruction.itype;
 	assert(inst.reserved == 0xF && inst.immediate == 0x55);
 
@@ -281,7 +281,7 @@ int cif_save(ChipEmu *emu, ChipInst instruction) {
 }
 
 // rest - restore registers from memory
-int cif_rest(ChipEmu *emu, ChipInst instruction) {
+ChipInstResult cif_rest(ChipEmu *emu, ChipInst instruction) {
 	ChipInst_IType inst = instruction.itype;
 	assert(inst.reserved == 0xF && inst.immediate == 0x65);
 
@@ -300,7 +300,7 @@ int cif_rest(ChipEmu *emu, ChipInst instruction) {
 // ============================================================================
 
 // se - Skip next if equal
-int cif_se(ChipEmu *emu, ChipInst inst) {
+ChipInstResult cif_se(ChipEmu *emu, ChipInst inst) {
 	assert(inst.rtype.reserved_hi == 0x5 && inst.rtype.reserved_lo == 0x0);
 
 	if (emu->dp.regs[inst.rtype.rs_num] == emu->dp.regs[inst.rtype.ra_num])
@@ -310,7 +310,7 @@ int cif_se(ChipEmu *emu, ChipInst inst) {
 }
 
 // move - sets register value to another register
-int cif_move(ChipEmu *emu, ChipInst inst) {
+ChipInstResult cif_move(ChipEmu *emu, ChipInst inst) {
 	assert(inst.rtype.reserved_hi == 0x8 && inst.rtype.reserved_lo == 0x0);
 
 	emu->dp.regs[inst.rtype.rs_num] = emu->dp.regs[inst.rtype.ra_num];
@@ -319,7 +319,7 @@ int cif_move(ChipEmu *emu, ChipInst inst) {
 }
 
 // or - bitwise or
-int cif_or(ChipEmu *emu, ChipInst inst) {
+ChipInstResult cif_or(ChipEmu *emu, ChipInst inst) {
 	assert(inst.rtype.reserved_hi == 0x8 && inst.rtype.reserved_lo == 0x1);
 
 	emu->dp.regs[inst.rtype.rs_num] |= emu->dp.regs[inst.rtype.ra_num];
@@ -328,7 +328,7 @@ int cif_or(ChipEmu *emu, ChipInst inst) {
 }
 
 // and - bitwise and
-int cif_and(ChipEmu *emu, ChipInst inst) {
+ChipInstResult cif_and(ChipEmu *emu, ChipInst inst) {
 	assert(inst.rtype.reserved_hi == 0x8 && inst.rtype.reserved_lo == 0x2);
 
 	emu->dp.regs[inst.rtype.rs_num] &= emu->dp.regs[inst.rtype.ra_num];
@@ -337,7 +337,7 @@ int cif_and(ChipEmu *emu, ChipInst inst) {
 }
 
 // xor - bitwise xor
-int cif_xor(ChipEmu *emu, ChipInst inst) {
+ChipInstResult cif_xor(ChipEmu *emu, ChipInst inst) {
 	assert(inst.rtype.reserved_hi == 0x8 && inst.rtype.reserved_lo == 0x3);
 
 	emu->dp.regs[inst.rtype.rs_num] ^= emu->dp.regs[inst.rtype.ra_num];
@@ -346,7 +346,7 @@ int cif_xor(ChipEmu *emu, ChipInst inst) {
 }
 
 // add - addition
-int cif_add(ChipEmu *emu, ChipInst inst) {
+ChipInstResult cif_add(ChipEmu *emu, ChipInst inst) {
 	assert(inst.rtype.reserved_hi == 0x8 && inst.rtype.reserved_lo == 0x4);
 
 	uint8_t vx = inst.rtype.rs_num, vy = inst.rtype.ra_num;
@@ -360,7 +360,7 @@ int cif_add(ChipEmu *emu, ChipInst inst) {
 }
 
 // sub - subtraction
-int cif_sub(ChipEmu *emu, ChipInst inst) {
+ChipInstResult cif_sub(ChipEmu *emu, ChipInst inst) {
 	assert(inst.rtype.reserved_hi == 0x8 && inst.rtype.reserved_lo == 0x5);
 
 	uint8_t vx = inst.rtype.rs_num, vy = inst.rtype.ra_num;
@@ -374,7 +374,7 @@ int cif_sub(ChipEmu *emu, ChipInst inst) {
 }
 
 // shr - shift right by 1
-int cif_shr(ChipEmu *emu, ChipInst inst) {
+ChipInstResult cif_shr(ChipEmu *emu, ChipInst inst) {
 	assert(inst.rtype.reserved_hi == 0x8 && inst.rtype.reserved_lo == 0x6);
 
 	emu->dp.regs[15] = emu->dp.regs[inst.rtype.rs_num] & 1;
@@ -384,7 +384,7 @@ int cif_shr(ChipEmu *emu, ChipInst inst) {
 }
 
 // subn - subtraction, operands swapped
-int cif_subn(ChipEmu *emu, ChipInst inst) {
+ChipInstResult cif_subn(ChipEmu *emu, ChipInst inst) {
 	assert(inst.rtype.reserved_hi == 0x8 && inst.rtype.reserved_lo == 0x7);
 
 	// xor swap, swap rs_num and ra_num of inst
@@ -397,7 +397,7 @@ int cif_subn(ChipEmu *emu, ChipInst inst) {
 }
 
 // shift left by 1
-int cif_shl(ChipEmu *emu, ChipInst inst) {
+ChipInstResult cif_shl(ChipEmu *emu, ChipInst inst) {
 	assert(inst.rtype.reserved_hi == 0x8 && inst.rtype.reserved_lo == 0xE);
 
 	emu->dp.regs[15] = emu->dp.regs[inst.rtype.rs_num] >> 7;
@@ -407,7 +407,7 @@ int cif_shl(ChipEmu *emu, ChipInst inst) {
 }
 
 // sn - skip if not equal
-int cif_sn(ChipEmu *emu, ChipInst inst) {
+ChipInstResult cif_sn(ChipEmu *emu, ChipInst inst) {
 	assert(inst.rtype.reserved_hi == 0x9 && inst.rtype.reserved_lo == 0x0);
 
 	if (emu->dp.regs[inst.rtype.rs_num] != emu->dp.regs[inst.rtype.ra_num])
@@ -421,7 +421,7 @@ int cif_sn(ChipEmu *emu, ChipInst inst) {
 // ============================================================================
 
 // cls - Clear screen
-int cif_cls(ChipEmu *emu, ChipInst instruction) {
+ChipInstResult cif_cls(ChipEmu *emu, ChipInst instruction) {
 	assert(instruction.instruction == 0x00E0);
 
 	// invoke callback for the DRAW_CLEAR operation
@@ -431,10 +431,10 @@ int cif_cls(ChipEmu *emu, ChipInst instruction) {
 }
 
 // ret - Return from subroutine
-int cif_ret(ChipEmu *emu, ChipInst instruction) {
+ChipInstResult cif_ret(ChipEmu *emu, ChipInst instruction) {
 	assert(instruction.instruction == 0x00EE);
 
-	int result;
+	ChipInstResult result;
 	if (chipstack_can_pop(&emu->stack)) {
 		emu->dp.pc = chipstack_pop(&emu->stack);
 		result = INST_SUCCESS_INCR_PC;
