@@ -10,7 +10,42 @@
 #include "stack.h"
 #include "debug.h"
 
+// decoder functions for instructions whose most significant nibble is
+// 0, 8, E and F, respectively
+static ChipInstResult cif_cat0(ChipEmu *emu, ChipInst inst);
+static ChipInstResult cif_cat8(ChipEmu *emu, ChipInst inst);
+static ChipInstResult cif_cate(ChipEmu *emu, ChipInst inst);
+static ChipInstResult cif_catf(ChipEmu *emu, ChipInst inst);
 
+
+// typedef union {
+//     ChipInstFunc decoded;       // pointer to the chip instruction function
+//     ChipInstFunc (*decoderFunc)(ChipInst);
+// } ChipDecodeFunc;
+//
+// typedef struct {
+//     ChipDecodeFunc func;
+//     bool decoded;
+// } ChipDecoder;
+
+const static ChipInstFunc FUNC_TABLE[] = {
+    cif_cat0,   // 0: sys, cls, ret
+    cif_j,      // 1: j
+    cif_call,   // 2: call
+    cif_sei,    // 3: sei
+    cif_sni,    // 4: sni
+    cif_se,     // 5: se
+    cif_li,     // 6: li
+    cif_addi,   // 7: addi
+    cif_cat8,   // 8: move, or, and, xor, add, sub, shr, subn, shl
+    cif_sn,     // 9: sn
+    cif_la,     // A: la
+    cif_jo,     // B: jo
+    cif_rnd,    // C: rnd
+    cif_draw,   // D: draw
+    cif_cate,   // E: sip, snip
+    cif_catf    // F: ld, lk, del, snd, ii, font, bcd, save, rest
+};
 
 ChipEmu* chipemu_create() {
     ChipEmu *emu = (ChipEmu*)malloc(sizeof(ChipEmu));
@@ -251,4 +286,62 @@ int chipemu_step(ChipEmu *emu) {
     }
 
     return result;
+}
+
+static ChipInstResult cif_cat0(ChipEmu *emu, ChipInst inst) {
+    switch (inst.instruction) {
+        case 0x00E0:
+            return cif_cls(emu, inst);
+            break;
+        case 0x00EE:
+            return cif_ret(emu, inst);
+            break;
+        default:
+            return cif_sys(emu, inst);
+            break;
+    }
+}
+
+static ChipInstResult cif_cat8(ChipEmu *emu, ChipInst inst) {
+    int nibble = inst.instruction & 0xF;
+    switch (nibble) {
+        case 0:
+            return cif_move(emu, inst);
+            break;
+        case 1:
+            return cif_or(emu, inst);
+        case 2:
+            return cif_and(emu, inst);
+        case 3:
+            return cif_xor(emu, inst);
+        case 4:
+            return cif_add(emu, inst);
+        case 5:
+            return cif_sub(emu, inst);
+        case 6:
+            return cif_shr(emu, inst);
+        case 7:
+            return cif_subn(emu, inst);
+        default:
+            if (nibble == 0xE)
+                return cif_shl(emu, inst);
+            else
+                return INST_ILLEGAL;
+    }
+
+}
+
+static ChipInstResult cif_cate(ChipEmu *emu, ChipInst inst) {
+    switch (inst.instruction & 0xFF) {
+        case 0x9E:
+            return cif_sip(emu, inst);
+        case 0xA1:
+            return cif_snip(emu, inst);
+        default:
+            return INST_ILLEGAL;
+    }
+}
+
+static ChipInstResult cif_catf(ChipEmu *emu, ChipInst inst) {
+
 }

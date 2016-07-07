@@ -5,6 +5,24 @@
 
 #include "ChipEmu.h"
 
+
+
+typedef enum {
+	INST_SUCCESS,			// successful execution
+	INST_SUCCESS_INCR_PC,	// successful execution, increment program counter
+	INST_FAILURE,			// failed exectuion
+	INST_ILLEGAL			// illegal opcode (occurs during decoding)
+} ChipInstResult;
+
+typedef enum {
+	INST_CLASS_A,			// address class
+	INST_CLASS_D,			// draw class
+	INST_CLASS_I,			// immediate class
+	INST_CLASS_R,			// register class
+	INST_CLASS_V,			// void class
+	INST_CLASS_FUNC			// function class
+} ChipInstClass;
+
 typedef struct ChipInst_AType_s {
 	uint16_t addr:12;
 	uint16_t reserved:4;
@@ -46,6 +64,14 @@ typedef union {
 
 /* typedef for a function pointer
  */
-typedef int (*ChipInstFunc)(ChipEmu*, ChipInst);
+//typedef ChipInstResult (*ChipInstFunc)(ChipEmu*, ChipInst);
+
+// typedef int (*ChipInstFunc_AType)(ChipEmu*, uint16_t);
+//
+// typedef int (*ChipInstFunc_IType)(ChipEmu*, ChipReg, uint8_t);
+//
+// typedef int (*ChipInstFunc_RType)(ChipEmu*, ChipReg, ChipReg);
+//
+// typedef int (*ChipInstFunc_DType)(ChipEmu*, )
 
 #endif

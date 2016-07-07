@@ -1,7 +1,6 @@
 #ifndef _STACK_H
 #define _STACK_H
 
-#include <stdint.h>
 #include <stdbool.h>
 
 #include "ChipStack.h"
@@ -12,9 +11,9 @@ bool chipstack_can_push(ChipStack *stack);
 
 bool chipstack_can_pop(ChipStack *stack);
 
-void chipstack_push(ChipStack *stack, uint16_t element);
+void chipstack_push(ChipStack *stack, ChipAddress element);
 
-uint16_t chipstack_pop(ChipStack *stack);
+ChipAddress chipstack_pop(ChipStack *stack);
 
 
 

@@ -29,6 +29,16 @@ typedef union ChipMem_reserved_u {
     uint8_t fontset[CHIPMEM_FONTSET_LEN];
 } ChipMem_reserved;
 
+// typedef union {
+//     uint8_t array[CHIPMEM_RESERVED_LEN];
+//     struct {
+//         ChipDP dp;
+//         ChipStack stack;
+//         ChipInput input;
+//
+//     }
+// }
+
 typedef uint8_t ChipMem_data[CHIPMEM_DATA_LEN];
 
 

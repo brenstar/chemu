@@ -6,8 +6,6 @@ SRCDIR=			src
 INCDIR=			include
 
 vpath %.c $(SRCDIR)
-#vpath %.h $(SRCDIR)
-#VPATH=$(SRCDIR)
 
 # Variables
 
@@ -18,9 +16,13 @@ else
 endif
 
 CC =			gcc
-CFLAGS =		-std=c11 -Wextra -Wall -pedantic -fPIC
+CFLAGS_BASE =	-std=c11 -Wextra -Wall -pedantic -fPIC
+CFLAGS =		$(CFLAGS_BASE)
 OBJFILES =		$(addprefix $(OBJDIR)/,emulation.o instructions.o stack.o input.o memory.o)
 LDFLAGS=		-shared
+
+chemu: CFLAGS = $(CFLAGS_BASE) -D NDEBUG
+chemu-debug: CFLAGS = $(CFLAGS_BASE)
 
 # targets
 
@@ -28,6 +30,8 @@ all: chemu
 
 chemu: $(OBJFILES)
 	$(CC) $(LDFLAGS) -o $(BINDIR)/$@.$(DLLEXT) $+
+
+chemu-debug: clean chemu
 
 #.c.o:
 $(OBJDIR)/%.o: %.c
@@ -37,8 +41,7 @@ $(OBJDIR)/%.o: %.c
 # utils
 
 clean:
-	rm -f -v $(OBJDIR)/*.o
+	rm -f $(OBJDIR)/*.o
 
 realclean:        clean
-	cd $(BINDIR) && \
-	/bin/rm -f chemu display
+	rm -f $(BINDIR)/chemu.$(DLLEXT)

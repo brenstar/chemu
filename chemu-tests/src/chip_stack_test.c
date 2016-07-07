@@ -1,8 +1,8 @@
 
 #include <stdio.h>
 
-#include "stack.h"
-
+#include "chemu/stack.h"
+#include "chemu/ChipAddress.h"
 
 int main() {
     printf("chipstack size: %d\n", sizeof(ChipStack));
@@ -15,7 +15,7 @@ int main() {
 
     printf("\nTesting push...\n");
 
-    uint16_t sampleData = 0x0F00;
+    ChipAddress sampleData = 0x0F00;
     while(chipstack_can_push(&stack)) {
 
         printf("Pushing 0x%03x at location %p\n", sampleData, stack.sp);

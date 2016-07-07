@@ -1,11 +1,30 @@
 
-#include <stdlib.h>
+
 #include <string.h>
 
-#include "memory.h"
+#include "chemu/memory.h"
 
-// digit sprites representing digits 0-F as 8x5 sprites.
-static const uint8_t DIGITS[] = {
+// // digit sprites representing digits 0-F as 8x5 sprites.
+// static const uint8_t DIGITS[] = {
+//     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
+//     0x20, 0x60, 0x20, 0x20, 0x70, // 1
+//     0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
+//     0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
+//     0x90, 0x90, 0xF0, 0x10, 0x10, // 4
+//     0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
+//     0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
+//     0xF0, 0x10, 0x20, 0x40, 0x40, // 7
+//     0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
+//     0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
+//     0xF0, 0x90, 0xF0, 0x90, 0x90, // A
+//     0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
+//     0xF0, 0x80, 0x80, 0x80, 0xF0, // C
+//     0xE0, 0x90, 0x90, 0x90, 0xE0, // D
+//     0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
+//     0xF0, 0x80, 0xF0, 0x80, 0x80  // F
+// };
+
+const uint8_t FONTSET[] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
     0x20, 0x60, 0x20, 0x20, 0x70, // 1
     0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
@@ -24,23 +43,15 @@ static const uint8_t DIGITS[] = {
     0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 };
 
-ChipMem* chipmem_create() {
-    ChipMem *mem = (ChipMem*)malloc(sizeof(ChipMem));
-    chipmem_init(mem);
-    return mem;
-}
-
 void chipmem_init(ChipMem *mem) {
-    memcpy(mem->reserved.fontset, DIGITS, sizeof(DIGITS) / sizeof(uint8_t));
-    for (int i = CHIPMEM_FONTSET_LEN; i < CHIP_END; ++i)
-        mem->array[i] = 0;
+    memcpy(mem->reserved.fontset, FONTSET, sizeof(FONTSET) / sizeof(uint8_t));
+    memset(mem->array + CHIPMEM_FONTSET_LEN, 0, CHIP_END - CHIPMEM_FONTSET_LEN);
+    // for (int i = CHIPMEM_FONTSET_LEN; i < CHIP_END; ++i)
+    //     mem->array[i] = 0;
 }
 
-void chipmem_destroy(ChipMem *mem) {
-    free(mem);
-}
 
-uint16_t chipmem_get_font(ChipMem *mem, uint8_t digit) {
+ChipAddress chipmem_get_font(ChipMem *mem, uint8_t digit) {
     //return mem->reserved + CHIP_FONTSET_START + (digit * 5);
     return CHIPMEM_FONTSET_START + digit * 5;
 }

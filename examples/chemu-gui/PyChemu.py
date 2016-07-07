@@ -1,10 +1,15 @@
 from ctypes import *
+from enum import Enum
 import sys
 
 if sys.platform == "linux" or sys.platform == "linux2":
     _libchemu = cdll.LoadLibrary("./chemu.so")
 elif sys.platform == "win32":
     _libchemu = cdll.LoadLibrary("chemu.dll")
+
+
+CHIP_STEP_FAILURE = 1
+CHIP_STEP_SUCCESS = 0
 
 
 def enum(**vals):
@@ -76,10 +81,19 @@ class ChipSprite(Structure):
                 ("rows", c_uint8, 4),
                 ("data", c_uint8 * 15)]
 
-ChipDrawOp = enum(
-    CHIP_DRAW_CLEAR = 0,
+    def __eq__(self, val):
+        if self.x != val.x or self.y != val.y or self.rows != val.rows:
+            return False
+        for row in range(self.rows):
+            if self.data[row] != val.data[row]:
+                return False
+        return True
+
+
+class ChipDrawOp(Enum):
+    CHIP_DRAW_CLEAR = 0
     CHIP_DRAW_SPRITE = 1
-)
+
 
 DrawHandler = CFUNCTYPE(c_int, c_int, POINTER(ChipSprite))
 
@@ -170,6 +184,14 @@ chipemu_destroy.restype = None
 chipemu_mainLoop = _libchemu.chipemu_mainLoop
 chipemu_mainLoop.argtypes = [POINTER(ChipEmu)]
 chipemu_mainLoop.restype = c_int
+
+chipemu_step = _libchemu.chipemu_step
+chipemu_step.argtypes = [POINTER(ChipEmu)]
+chipemu_step.restype = c_int
+
+chipemu_loadROM = _libchemu.chipemu_loadROM
+chipemu_loadROM.argtypes = [POINTER(ChipEmu), c_char_p]
+chipemu_loadROM.restype = c_int
 
 chipin_keystate = _libchemu.chipin_keystate
 chipin_keystate.argtypes = [POINTER(ChipInput), c_int]

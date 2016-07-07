@@ -1,5 +1,5 @@
 
-#include "stack.h"
+#include "chemu/stack.h"
 
 
 inline void chipstack_init(ChipStack *stack) {
@@ -14,12 +14,12 @@ inline bool chipstack_can_push(ChipStack *stack) {
     return stack->sp != stack->data;
 }
 
-void chipstack_push(ChipStack *stack, uint16_t element) {
+void chipstack_push(ChipStack *stack, ChipAddress element) {
     //stack->data[stack->sp--] = element;
     *(stack->sp--) = element;
 }
 
-uint16_t chipstack_pop(ChipStack *stack) {
+ChipAddress chipstack_pop(ChipStack *stack) {
     return *(++stack->sp);
     //return stack->data[--(stack->sp)];
 }
