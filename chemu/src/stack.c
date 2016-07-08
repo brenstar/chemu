@@ -3,23 +3,21 @@
 
 
 inline void chipstack_init(ChipStack *stack) {
-    stack->sp = stack->data + CHIP_STACK_SIZE;
+    stack->index = CHIP_STACK_SIZE;
 }
 
 inline bool chipstack_can_pop(ChipStack *stack) {
-    return stack->sp != stack->data + CHIP_STACK_SIZE;
+    return stack->index != CHIP_STACK_SIZE;
 }
 
 inline bool chipstack_can_push(ChipStack *stack) {
-    return stack->sp != stack->data;
+    return stack->index != 0;
 }
 
 void chipstack_push(ChipStack *stack, ChipAddress element) {
-    //stack->data[stack->sp--] = element;
-    *(stack->sp--) = element;
+    stack->data[stack->index--] = element;
 }
 
 ChipAddress chipstack_pop(ChipStack *stack) {
-    return *(++stack->sp);
-    //return stack->data[--(stack->sp)];
+    return stack->data[++(stack->index)];
 }

@@ -1,3 +1,4 @@
+
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,6 +22,7 @@ static const TestCase TESTS[] = {
 
 int main() {
 
+    printf("Size of ChipMem: %d\n\n", sizeof(ChipMem));
     ChipMem *mem = (ChipMem*)malloc(sizeof(ChipMem));
 
     chipmem_init(mem);
