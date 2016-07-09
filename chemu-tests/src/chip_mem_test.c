@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stddef.h>
 
 #include "chemu/memory.h"
 
@@ -22,17 +23,30 @@ static const TestCase TESTS[] = {
 
 int main() {
 
-    printf("Size of ChipMem: %d\n\n", sizeof(ChipMem));
+    printf("Size of ChipMem: %d (expected: %d)\n", sizeof(ChipMem), CHIPMEM_LEN);
+    assert(sizeof(ChipMem) == CHIPMEM_LEN);
+
+    printf("Size of ChipMem_reserved: %d (must be <= 512)\n\n", sizeof(ChipMem_reserved));
+    assert(sizeof(ChipMem_reserved) <= CHIPMEM_RESERVED_LEN);
+
     ChipMem *mem = (ChipMem*)malloc(sizeof(ChipMem));
 
     chipmem_init(mem);
 
+    size_t fontsetOffset = offsetof(ChipMem_reserved, fontset);
     printf("Checking fontset\n");
-    for (int i = 0; i < CHIPMEM_FONTSET_LEN; ++i)
+    for (int i = fontsetOffset; i < CHIPMEM_FONTSET_LEN; ++i)
         assert(mem->array[i] == FONTSET[i]);
 
+
+    printf("Fontset is located at 0x%03X\n", fontsetOffset);
+    for (uint8_t i = 0; i < 16; ++i) {
+        ChipAddress addr = chipmem_get_font(mem, i);
+        printf("Digit %X is located at 0x%03X\n", i, addr);
+    }
+
     printf("Checking memory contents\n");
-    for (int i = CHIPMEM_FONTSET_LEN; i < CHIP_END; ++i)
+    for (int i = sizeof(ChipMem_reserved); i < CHIP_END; ++i)
         assert(mem->array[i] == 0);
 
     for (size_t i = 0; i < 3; ++i) {

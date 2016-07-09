@@ -11,7 +11,7 @@
  * Constant definition containing the fontset. The fontset contains 16 sprites,
  * numbers 0-9 and letters A-F. Each sprite is 5 bytes long.
  */
-extern const uint8_t FONTSET[];
+extern const uint8_t FONTSET[CHIPMEM_FONTSET_LEN];
 
 /**
  * Initializes the ChipMem object. The fontset is copied into the reserved

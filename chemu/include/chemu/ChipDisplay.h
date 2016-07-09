@@ -1,5 +1,3 @@
-// DEPRECATED: use ChipDrawCallback.h
-
 #ifndef _CHIPDISPLAY_H
 #define _CHIPDISPLAY_H
 

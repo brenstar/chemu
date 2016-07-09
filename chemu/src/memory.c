@@ -1,6 +1,7 @@
 #include "chemu/memory.h"
 
 #include <string.h>
+#include <stddef.h>
 
 const uint8_t FONTSET[] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -22,8 +23,10 @@ const uint8_t FONTSET[] = {
 };
 
 void chipmem_init(ChipMem *mem) {
+    // copy the fontset
     memcpy(mem->reserved.fontset, FONTSET, sizeof(FONTSET) / sizeof(uint8_t));
-    memset(mem->array + CHIPMEM_FONTSET_LEN, 0, CHIP_END - CHIPMEM_FONTSET_LEN);
+    // clear the rest
+    memset(mem->array + sizeof(ChipMem_reserved), 0, CHIP_END - sizeof(ChipMem_reserved));
 }
 
 inline uint8_t chipmem_read(ChipMem *mem, ChipAddress addr) {
@@ -41,6 +44,5 @@ inline bool chipmem_write(ChipMem *mem, ChipAddress addr, uint8_t value) {
 
 
 ChipAddress chipmem_get_font(ChipMem *mem, uint8_t digit) {
-    //return mem->reserved + CHIP_FONTSET_START + (digit * 5);
-    return CHIPMEM_FONTSET_START + digit * 5;
+    return offsetof(ChipMem_reserved, fontset) + (digit * 5);
 }
