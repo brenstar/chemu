@@ -27,6 +27,9 @@ stacktest: $(addprefix $(OBJDIR)/,stack.o chip_stack_test.o)
 repltest: $(addprefix $(OBJDIR)/,repl_test.o emulation.o instructions.o memory.o input.o stack.o)
 	$(CC) -o $(BINDIR)/$@ $+
 
+displaytest: $(addprefix $(OBJDIR)/,chip_display_test.o display.o)
+	$(CC) -o $(BINDIR)/$@ $+
+
 
 #.c.o:
 $(OBJDIR)/%.o: %.c
@@ -41,3 +44,4 @@ realclean: clean
 	rm -f $(BINDIR)/memtest*
 	rm -f $(BINDIR)/stacktest*
 	rm -f $(BINDIR)/repltest*
+	rm -f $(BINDIR)/displaytest*

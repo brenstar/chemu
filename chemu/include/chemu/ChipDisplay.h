@@ -4,14 +4,23 @@
 #define CHIP_DISPLAY_ROWS 32
 #define CHIP_DISPLAY_COLS 64
 
+// required size (in bytes) of the ChipDisplay type
+#define CHIP_DISPLAY_SIZE 256
+
 #include <stdint.h>
 
-/**
- * Typedef for a CHIP-8 framebuffer as an array of 64 32-bit unsigned intgers.
- * Each integer represents a column in the buffer, with each bit representing
- * the state of a pixel.
+
+/*
+ * Typedef for a CHIP-8 framebuffer. The ChipDisplay type is a struct with one
+ * member, buffer. The buffer member is a 2D array of 32-bit integers with
+ * dimensions 32 (number of rows in a CHIP-8 display) and 2.
  */
-typedef int64_t ChipDisplay[CHIP_DISPLAY_ROWS];
+typedef struct {
+    int32_t buffer[CHIP_DISPLAY_ROWS][2];
+} ChipDisplay;
+
+
+//typedef int64_t ChipDisplay[CHIP_DISPLAY_ROWS];
 //typedef uint32_t ChipDisplay[CHIP_DISPLAY_COLS];
 
 #endif
