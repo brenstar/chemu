@@ -30,6 +30,11 @@ repltest: $(addprefix $(OBJDIR)/,repl_test.o emulation.o instructions.o memory.o
 displaytest: $(addprefix $(OBJDIR)/,chip_display_test.o display.o)
 	$(CC) -o $(BINDIR)/$@ $+
 
+displaytest-curses: $(addprefix $(OBJDIR)/,displaytest_curses.o display.o)
+	$(CC) -o $(BINDIR)/$@ $+ -lncurses
+
+decodetest: $(addprefix $(OBJDIR)/,decode.o decodetest.o instructions.o)
+	$(CC) -o $(BINDIR)/$@ $+
 
 #.c.o:
 $(OBJDIR)/%.o: %.c

@@ -1,42 +1,187 @@
 #include "chemu/decode.h"
 
 #include "chemu/instructions.h"
+#include <stdlib.h>
 
-#define op(name, cls) {(void*)cif_ ## name, INST_CLASS_ ## cls}
+const ChipOp CHIP_OPTABLE[] = {
+    {.func = cif_sys,   .cls = INST_CLASS_A},
+    {.func = cif_cls,	.cls = INST_CLASS_V},
+    {.func = cif_ret,	.cls = INST_CLASS_V},
+    {.func = cif_j,		.cls = INST_CLASS_A},
+    {.func = cif_call,	.cls = INST_CLASS_A},
+    {.func = cif_sei,	.cls = INST_CLASS_I},
+    {.func = cif_sni,	.cls = INST_CLASS_I},
+    {.func = cif_se,	.cls = INST_CLASS_R},
+    {.func = cif_li,	.cls = INST_CLASS_I},
+    {.func = cif_addi,	.cls = INST_CLASS_I},
+    {.func = cif_move,	.cls = INST_CLASS_R},
+    {.func = cif_or,	.cls = INST_CLASS_R},
+    {.func = cif_and,	.cls = INST_CLASS_R},
+    {.func = cif_xor,	.cls = INST_CLASS_R},
+    {.func = cif_add,	.cls = INST_CLASS_R},
+    {.func = cif_sub,	.cls = INST_CLASS_R},
+    {.func = cif_shr,	.cls = INST_CLASS_R},
+    {.func = cif_subn,	.cls = INST_CLASS_R},
+    {.func = cif_shl,	.cls = INST_CLASS_R},
+    {.func = cif_sn,	.cls = INST_CLASS_R},
+    {.func = cif_la,	.cls = INST_CLASS_A},
+    {.func = cif_jo,	.cls = INST_CLASS_A},
+    {.func = cif_rnd,	.cls = INST_CLASS_I},
+    {.func = cif_draw,	.cls = INST_CLASS_R},
+    {.func = cif_sip,	.cls = INST_CLASS_I},
+    {.func = cif_snip,	.cls = INST_CLASS_I},
+    {.func = cif_ld,	.cls = INST_CLASS_I},
+    {.func = cif_lk,	.cls = INST_CLASS_I},
+    {.func = cif_del,	.cls = INST_CLASS_I},
+    {.func = cif_snd,	.cls = INST_CLASS_I},
+    {.func = cif_ii,	.cls = INST_CLASS_I},
+    {.func = cif_font,	.cls = INST_CLASS_I},
+    {.func = cif_bcd,	.cls = INST_CLASS_I},
+    {.func = cif_save,	.cls = INST_CLASS_I},
+    {.func = cif_rest,	.cls = INST_CLASS_I}
+};
 
-// const ChipInstFunc CHIP_OPTABLE[] = {
-//     {cif_sys,   INST_CLASS_A},
-//     {cif_cls,   INST_CLASS_V},
-//     {cif_ret,   INST_CLASS_V},
-//     {cif_j,     INST_CLASS_A},
-//     {cif_call,  INST_CLASS_A},
-//     {cif_sei,   INST_CLASS_I},
-//     {cif_sni,   INST_CLASS_I},
-//     {cif_se,    INST_CLASS_R},
-//     {cif_li,    INST_CLASS_I},
-//     {cif_addi,  INST_CLASS_I},
-//     {cif_move,  INST_CLASS_R},
-//     {cif_or,    INST_CLASS_R},
-//     {cif_and,   INST_CLASS_R},
-//     {cif_xor,   INST_CLASS_R},
-//     {cif_add,   INST_CLASS_R},
-//     {cif_sub,   INST_CLASS_R},
-//     {cif_shr,   INST_CLASS_R},
-//     {cif_subn,  INST_CLASS_R},
-//     {cif_shl,   INST_CLASS_R}
-//
-// };
+// decoder function, takes an instruction and returns an offset
+typedef int (*DecoderFunc)(ChipInst);
 
-const ChipInstFunc CHIP_OPTABLE[] = {
-    op(sys, A),
-    op(cls, V),
-    op(ret, V),
-    op(j, A),
+static int decoder0(ChipInst inst);
+static int decoder5(ChipInst inst);
+static int decoder8(ChipInst inst);
+static int decoder9(ChipInst inst);
+static int decoderE(ChipInst inst);
+static int decoderF(ChipInst inst);
 
+
+typedef struct {
+    int index;
+    DecoderFunc func;
+} Decoder;
+
+static const Decoder DEC_TABLE[] = {
+    {0, decoder0},      // sys, cls, ret
+    {3, NULL},          // j
+    {4, NULL},          // call
+    {5, NULL},          // sei
+    {6, NULL},          // sni
+    {7, decoder5},      // se
+    {8, NULL},          // li
+    {9, NULL},          // addi
+    {10, decoder8},     // move, or, and, xor, add, sub, shr, subn, shl
+    {19, decoder9},     // sn
+    {20, NULL},         // la
+    {21, NULL},         // jo
+    {22, NULL},         // rnd
+    {23, NULL},         // draw
+    {24, decoderE},     // sip, snip
+    {26, decoderF},     // ld, lk, del, snd, ii, font, bcd, save, rest
+};
+
+
+
+ChipInstDec chipdec_decode(ChipInst instruction, ChipInstClass cls) {
+    ChipInstDec decoded;
+    switch (cls) {
+        case INST_CLASS_A:
+            decoded.a.literal = nibble4(instruction);
+            decoded.a.addr = addr(instruction);
+            break;
+        case INST_CLASS_I:
+            decoded.i.literal = nibble4(instruction);
+            decoded.i.rnum = nibble3(instruction);
+            decoded.i.immediate = lowerbyte(instruction);
+            break;
+        case INST_CLASS_R:
+            decoded.r.literal_hi = nibble4(instruction);
+            decoded.r.rnum_dest = nibble3(instruction);
+            decoded.r.rnum_src = nibble2(instruction);
+            decoded.r.literal_lo = nibble1(instruction);
+            break;
+        case INST_CLASS_V:
+            decoded.instruction = instruction;
+            break;
+    }
+    return decoded;
 }
 
-ChipInstFunc chipdec_decode(ChipInst instruction) {
-    ChipInstFunc f = op(sys, V);
 
-    return f;
+int chipdec_index(ChipInst instruction) {
+    int i = nibble4(instruction);
+    Decoder dec = DEC_TABLE[i];
+    int index = dec.index;
+
+    if (dec.func != NULL) {
+        int offset = dec.func(instruction);
+        if (offset == NO_INSTRUCTION)
+            return NO_INSTRUCTION;
+        index += offset;
+    }
+
+    return index;
+}
+
+// ChipInstFunc chipdec_decode(ChipInst instruction) {
+//     int i = chipdec_index(instruction);
+//     return (i == -1) ? NULL : CHIP_OPTABLE[i];
+// }
+
+static int decoder0(ChipInst inst) {
+    switch (inst) {
+        case 0x00E0:
+            return 1;
+        case 0x00EE:
+            return 2;
+        default:
+            return 0;
+    }
+}
+
+static int decoder5(ChipInst inst) {
+    return nibble1(inst) == 0 ? 0 : NO_INSTRUCTION;
+}
+
+static int decoder8(ChipInst inst) {
+    int offset = inst & 0xF;
+    if (offset > 7 && offset != 0xE)
+        return NO_INSTRUCTION;
+    return offset;
+}
+
+static int decoder9(ChipInst inst) {
+    return nibble1(inst) == 0 ? 0 : NO_INSTRUCTION;
+}
+
+static int decoderE(ChipInst inst) {
+    switch (inst & 0xFF) {
+        case 0x9E:
+            return 0;
+        case 0xA1:
+            return 1;
+        default:
+            return NO_INSTRUCTION;
+    }
+}
+
+static int decoderF(ChipInst inst) {
+    switch (inst & 0xFF) {
+        case 0x07:
+            return 0;
+        case 0x0A:
+            return 1;
+        case 0x15:
+            return 2;
+        case 0x18:
+            return 3;
+        case 0x1E:
+            return 4;
+        case 0x29:
+            return 5;
+        case 0x33:
+            return 6;
+        case 0x55:
+            return 7;
+        case 0x65:
+            return 8;
+        default:
+            return NO_INSTRUCTION;
+    }
 }
