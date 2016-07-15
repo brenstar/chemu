@@ -3,13 +3,19 @@
 
 #include <stdint.h>
 
-#define CHIPMEM_RESERVED_LEN 512   // length in bytes of reserved memory
-#define CHIPMEM_DATA_LEN 3584      // length in bytes of data memory
+#include "ChipDisplay.h"
+#include "ChipStack.h"
+#include "ChipAddress.h"
+#include "ChipReg.h"
+#include "ChipInput.h"
+
 
 // total length (bytes) of memory used by CHIP-8
-#define CHIPMEM_LEN CHIPMEM_RESERVED_LEN + CHIPMEM_DATA_LEN
+#define CHIPMEM_LEN 4096
 
-#define CHIPMEM_FONTSET_START 0
+#define CHIPMEM_RESERVED_LEN 512
+
+#define CHIPMEM_DATA_LEN CHIPMEM_LEN - CHIPMEM_RESERVED_LEN
 
 // fontset: 16 sprites, each 5 bytes long, 80 total
 #define CHIPMEM_FONTSET_LEN 80    // length (bytes) of the fontset
@@ -20,35 +26,21 @@
 #define CHIP_ETIPRGM_START 0x600
 #define CHIP_END 0xFFF
 
-// only the fontset is stored in the reserved section at offset 0
-/*
- * Type representing the reserved portion of CHIP-8 memory, as a union.
- */
-typedef union ChipMem_reserved_u {
-    uint8_t array[CHIPMEM_RESERVED_LEN];
-    uint8_t fontset[CHIPMEM_FONTSET_LEN];
-} ChipMem_reserved;
+typedef struct {
+    ChipDisplay display;                    // 0    (256 bytes)
+    ChipAddress pc;                         // 256  (2 bytes)
+    ChipAddress addrReg;                    // 258  (2 bytes)
+    ChipInput input;                        // 260  (2 bytes)
+    ChipStack stack;                        // 262  (34 bytes)
+    ChipReg regs[16];                       // 296  (16 bytes)
+    ChipReg sndTimer;                       // 312  (1 byte)
+    ChipReg delTimer;                       // 313  (1 byte)
+    uint8_t fontset[CHIPMEM_FONTSET_LEN];   // 315  (80 bytes)
+} ChipMem_reserved;                         // Total: 394, with 118 bytes left for padding
 
-// typedef union {
-//     uint8_t array[CHIPMEM_RESERVED_LEN];
-//     struct {
-//         ChipDP dp;
-//         ChipStack stack;
-//         ChipInput input;
-//
-//     }
-// }
-
-typedef uint8_t ChipMem_data[CHIPMEM_DATA_LEN];
-
-
-typedef union ChipMem_u {
-    uint8_t array[CHIPMEM_RESERVED_LEN + CHIPMEM_DATA_LEN];
-    struct {
-        ChipMem_reserved reserved;
-        ChipMem_data data;
-    };
+typedef union {
+    uint8_t array[CHIPMEM_LEN];
+    ChipMem_reserved reserved;
 } ChipMem;
-
 
 #endif

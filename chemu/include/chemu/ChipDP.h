@@ -1,3 +1,5 @@
+// DEPRECATED: See ChipMem.h
+
 #ifndef _CHIPDP_H
 #define _CHIPDP_H
 

@@ -1,0 +1,55 @@
+#include "chemu/display.h"
+
+
+void chipdisplay_clear(ChipDisplay *display) {
+    for (int i = 0; i < CHIP_DISPLAY_ROWS; ++i) {
+        // inner for loop not used for optimization
+        display->buffer[i][0] = 0;
+        display->buffer[i][1] = 0;
+    }
+}
+
+bool chipdisplay_draw(ChipDisplay *display, ChipSprite sprite) {
+    bool collision = false;
+
+    int x = sprite.x & 31;
+    for (int row = 0; row < sprite.rows; ++row) {
+
+        // get the sprite data to draw
+        uint8_t spriteData = sprite.data[row];
+
+        // row of data to draw, 0=left 1=right
+        int32_t spriteRow[] = {0, 0};
+
+        int i = sprite.x >= 32; // left or right?
+        // shift sprite data by x
+        spriteRow[i] = spriteData << x;
+        // rotate if necessary onto other side
+        if (x > 24)
+            spriteRow[!i] = spriteData >> (32 - x);
+
+        // a & b is equal to a % b when b = 2^k - 1 for any k
+        // calculate y, wrap if necessary
+        int y = (sprite.y + row) & (CHIP_DISPLAY_ROWS - 1);
+
+        // iterate both sides of the row
+        for (int i = 0; i != 2; ++i) {
+            int32_t oldRow = display->buffer[y][i];  // get the old row
+            int32_t newRow = oldRow ^ spriteRow[i];  // calculate new row
+            display->buffer[y][i] = newRow;         // update the row
+            // collision checking, a collision occurred if any pixels were
+            // erased, 1 -> 0. A Bitwise AND of the old row and the new row
+            // indicates a collison if the result is not equal to the old row
+            if (!collision)
+                collision = (oldRow & newRow) != oldRow;
+        }
+    }
+
+    return collision;
+
+}
+
+int chipdisplay_get(ChipDisplay *display, int x, int y) {
+    // bounds checking omitted
+    return (display->buffer[y][x >> 5] >> (x & 31)) & 1;
+}

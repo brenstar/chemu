@@ -3,11 +3,12 @@
 
 #include <stdint.h>
 
-#include "ChipDP.h"
 #include "ChipMem.h"
-#include "ChipStack.h"
-#include "ChipInput.h"
+//#include "ChipStack.h"
+//#include "ChipInput.h"
 #include "ChipDrawCallback.h"
+
+#define CARRY_REG 15
 
 typedef void (*DisplayRedrawCallback)();
 
@@ -18,10 +19,10 @@ typedef void (*PollInputHandler)(ChipInput *input);
 typedef ChipKey (*PollKeyHandler)();
 
 typedef struct ChipEmu_s {
-    ChipDP dp;
-    ChipStack stack;
+    //ChipDP dp;
+    //ChipStack stack;
     ChipMem memory;
-    ChipInput input;
+    //ChipInput input;
     PollKeyHandler pollKeyHandler;
     PollInputHandler pollInputHandler;
     ChipDrawCallback drawCallback;

@@ -3,6 +3,9 @@
 #chemu-tests/bin/*
 #chemu-tests/obj/*
 
+# CHIP-8 ROMs
+*.c8
+
 # compiled python files
 *.pyc
 *.pyo

@@ -4,67 +4,55 @@
 #include <time.h>
 #include <string.h>
 
-#include "emulation.h"
-#include "instructions.h"
-#include "memory.h"
-#include "stack.h"
+#include "chemu/emulation.h"
+#include "chemu/decode.h"
+#include "chemu/display.h"
+#include "chemu/memory.h"
+#include "chemu/stack.h"
 #include "debug.h"
 
-// decoder functions for instructions whose most significant nibble is
-// 0, 8, E and F, respectively
-static ChipInstResult cif_cat0(ChipEmu *emu, ChipInst inst);
-static ChipInstResult cif_cat8(ChipEmu *emu, ChipInst inst);
-static ChipInstResult cif_cate(ChipEmu *emu, ChipInst inst);
-static ChipInstResult cif_catf(ChipEmu *emu, ChipInst inst);
-
-
-// typedef union {
-//     ChipInstFunc decoded;       // pointer to the chip instruction function
-//     ChipInstFunc (*decoderFunc)(ChipInst);
-// } ChipDecodeFunc;
-//
-// typedef struct {
-//     ChipDecodeFunc func;
-//     bool decoded;
-// } ChipDecoder;
-
-const static ChipInstFunc FUNC_TABLE[] = {
-    cif_cat0,   // 0: sys, cls, ret
-    cif_j,      // 1: j
-    cif_call,   // 2: call
-    cif_sei,    // 3: sei
-    cif_sni,    // 4: sni
-    cif_se,     // 5: se
-    cif_li,     // 6: li
-    cif_addi,   // 7: addi
-    cif_cat8,   // 8: move, or, and, xor, add, sub, shr, subn, shl
-    cif_sn,     // 9: sn
-    cif_la,     // A: la
-    cif_jo,     // B: jo
-    cif_rnd,    // C: rnd
-    cif_draw,   // D: draw
-    cif_cate,   // E: sip, snip
-    cif_catf    // F: ld, lk, del, snd, ii, font, bcd, save, rest
-};
 
 ChipEmu* chipemu_create() {
     ChipEmu *emu = (ChipEmu*)malloc(sizeof(ChipEmu));
 
-    emu->dp.pc = CHIP_PRGM_START;
     emu->pollKeyHandler = NULL;
     emu->pollInputHandler = NULL;
 
     chipmem_init(&emu->memory);
 
-    chipstack_init(&emu->stack);
+    chipstack_init(&emu->memory.reserved.stack);
 
     return emu;
+}
+
+void chipemu_init(ChipEmu *emu) {
+    // set callbacks to NULL
+    emu->pollKeyHandler = NULL;
+    emu->pollInputHandler = NULL;
+    emu->drawCallback = NULL;
+
+    chipmem_init(&emu->memory);
+    chipstack_init(&emu->memory.reserved.stack);
+
+    // clear datapath
+    emu->memory.reserved.pc = CHIP_PRGM_START;
+    emu->memory.reserved.addrReg = 0;
+    for (int i = 0; i < 16; ++i)
+        emu->memory.reserved.regs[i] = 0;
+    emu->memory.reserved.sndTimer = 0;
+    emu->memory.reserved.delTimer = 0;
+
+    // clear input
+    emu->memory.reserved.input = 0;
+
+    // clear framebuffer
+    chipdisplay_clear(&emu->memory.reserved.display);
 }
 
 int chipemu_loadROM(ChipEmu *emu, const char *path) {
     FILE *fp = fopen(path, "rb");
     if (fp != NULL) {
-        fread(emu->memory.data, 1, CHIPMEM_DATA_LEN, fp);
+        fread(emu->memory.array + CHIP_PRGM_START, 1, CHIPMEM_DATA_LEN, fp);
         fclose(fp);
         return CHIP_LOAD_SUCCESS;
     }
@@ -81,8 +69,8 @@ int chipemu_mainLoop(ChipEmu *emu) {
         chipemu_step(emu);
 
         // poll inputs if a handler has been assigned
-        if (emu->pollInputHandler != NULL)
-            emu->pollInputHandler(&emu->input);
+        // if (emu->pollInputHandler != NULL)
+        //     emu->pollInputHandler(&emu->input);
 
 
     }
@@ -90,195 +78,52 @@ int chipemu_mainLoop(ChipEmu *emu) {
     return exitStatus;
 }
 
-ChipInstFunc chipemu_decode(ChipInst inst) {
-    ChipInstFunc func = NULL;
 
-    uint16_t instruction = inst.instruction;
-    // macro for assigning the func pointer by mnemonic name of instruction
-    // ex: assignByMnemonic(foo)
-    //    --> debug(...); func = &cif_foo;
-    #define assignByMnemonic(name) debug("Decoded 0x%04x as " #name "\n", instruction); \
-                                   func = &cif_ ## name
-
-
-    switch ((instruction & 0xF000) >> 12) {
-        case 0x0:
-            switch (instruction) {
-                case 0x00E0:
-                    assignByMnemonic(cls);
-                    break;
-                case 0x00EE:
-                    assignByMnemonic(ret);
-                    break;
-                default:
-                    assignByMnemonic(sys);
-                    break;
-            }
-            break;
-        case 0x1:
-            assignByMnemonic(j);
-            break;
-        case 0x2:
-            assignByMnemonic(call);
-            break;
-        case 0x3:
-            assignByMnemonic(sei);
-            break;
-        case 0x4:
-            assignByMnemonic(sni);
-            break;
-        case 0x5:
-            if ((instruction & 0xF) == 0) {
-                assignByMnemonic(se);
-            }
-            break;
-        case 0x6:
-            assignByMnemonic(li);
-            break;
-        case 0x7:
-            assignByMnemonic(addi);
-            break;
-        case 0x8:
-            switch (instruction & 0xF) {
-                case 0x0:
-                    assignByMnemonic(move);
-                    break;
-                case 0x1:
-                    assignByMnemonic(or);
-                    break;
-                case 0x2:
-                    assignByMnemonic(and);
-                    break;
-                case 0x3:
-                    assignByMnemonic(xor);
-                    break;
-                case 0x4:
-                    assignByMnemonic(add);
-                    break;
-                case 0x5:
-                    assignByMnemonic(sub);
-                    break;
-                case 0x6:
-                    assignByMnemonic(shr);
-                    break;
-                case 0x7:
-                    assignByMnemonic(subn);
-                    break;
-                case 0xE:
-                    assignByMnemonic(shl);
-                    break;
-                default:
-                    break;
-            }
-            break;
-        case 0x9:
-            if ((instruction & 0xF) == 0x0) {
-                assignByMnemonic(sn);
-            }
-            break;
-        case 0xA:
-            assignByMnemonic(la);
-            break;
-        case 0xB:
-            assignByMnemonic(jo);
-            break;
-        case 0xC:
-            assignByMnemonic(rnd);
-            break;
-        case 0xD:
-            assignByMnemonic(draw);
-            break;
-        case 0xE:
-            switch (instruction & 0xFF) {
-                case 0x9E:
-                    assignByMnemonic(sip);
-                    break;
-                case 0xA1:
-                    assignByMnemonic(snip);
-                    break;
-                default:
-                    break;
-            }
-            break;
-        case 0xF:
-            switch (instruction & 0xFF) {
-                case 0x07:
-                    assignByMnemonic(ld);
-                    break;
-                case 0x0A:
-                    assignByMnemonic(lk);
-                    break;
-                case 0x15:
-                    assignByMnemonic(del);
-                    break;
-                case 0x18:
-                    assignByMnemonic(snd);
-                    break;
-                case 0x1E:
-                    assignByMnemonic(ii);
-                    break;
-                case 0x29:
-                    assignByMnemonic(font);
-                    break;
-                case 0x33:
-                    assignByMnemonic(bcd);
-                    break;
-                case 0x55:
-                    assignByMnemonic(save);
-                    break;
-                case 0x65:
-                    assignByMnemonic(rest);
-                    break;
-                default:
-                    break;
-            }
-            break;
-        default:
-            break;
-    }
-
-    return func;
-}
-
-void chipemu_destroy(ChipEmu *emu) {
-    free(emu);
-}
-
-void chipemu_reset(ChipEmu *emu) {
-    // clear datapath
-    emu->dp.pc = CHIP_PRGM_START;
-    emu->dp.addrReg = 0;
-    for (int i = 0; i < 16; ++i)
-        emu->dp.regs[i] = 0;
-    emu->dp.sndTimer = 0;
-    emu->dp.delTimer = 0;
-
-    // memory is left as is, must be cleared manually
-
-    // clear stack
-    chipstack_init(&emu->stack);
-}
+// void chipemu_reset(ChipEmu *emu) {
+//     // clear datapath
+//     emu->memory.reserved.pc = CHIP_PRGM_START;
+//     emu->memory.reserved.addrReg = 0;
+//     for (int i = 0; i < 16; ++i)
+//         emu->memory.reserved.regs[i] = 0;
+//     emu->memory.reserved.sndTimer = 0;
+//     emu->memory.reserved.delTimer = 0;
+//
+//     // clear input
+//     emu->memory.reserved.input = 0;
+//
+//     // clear framebuffer
+//     chipdisplay_clear(&emu->memory.reserved.display);
+//
+//     // memory is left as is, must be cleared manually
+//
+//     // clear stack
+//     chipstack_init(&emu->memory.reserved.stack);
+// }
 
 int chipemu_step(ChipEmu *emu) {
     int result = CHIP_STEP_SUCCESS;
 
     // fetch
-    ChipInst instruction = {
-        .instruction = (uint16_t)(emu->memory.array[emu->dp.pc] << 8 |
-                                  emu->memory.array[emu->dp.pc + 1])
-    };
+    ChipAddress *pc = &emu->memory.reserved.pc;
+    ChipInst instruction = (uint16_t)(emu->memory.array[*pc] << 8 |
+                                      emu->memory.array[*pc + 1]);
 
 
     // decode
-    ChipInstFunc func = chipemu_decode(instruction);
+    int i = chipdec_index(instruction);
+    if (i == NO_INSTRUCTION)
+        return CHIP_STEP_FAILURE;
+
+    ChipOp op = CHIP_OPTABLE[i];
+    ChipInstDec decoded = chipdec_decode(instruction, op.cls);
 
     // execute
-    int instResult = (*func)(emu, instruction);
+    ChipInstResult instResult = op.func(emu, decoded);
     switch (instResult) {
         case INST_SUCCESS:
             break;
         case INST_SUCCESS_INCR_PC:
-            emu->dp.pc += 2;
+            *pc += 2;
             break;
         case INST_FAILURE:
             result = CHIP_STEP_FAILURE;
@@ -286,62 +131,4 @@ int chipemu_step(ChipEmu *emu) {
     }
 
     return result;
-}
-
-static ChipInstResult cif_cat0(ChipEmu *emu, ChipInst inst) {
-    switch (inst.instruction) {
-        case 0x00E0:
-            return cif_cls(emu, inst);
-            break;
-        case 0x00EE:
-            return cif_ret(emu, inst);
-            break;
-        default:
-            return cif_sys(emu, inst);
-            break;
-    }
-}
-
-static ChipInstResult cif_cat8(ChipEmu *emu, ChipInst inst) {
-    int nibble = inst.instruction & 0xF;
-    switch (nibble) {
-        case 0:
-            return cif_move(emu, inst);
-            break;
-        case 1:
-            return cif_or(emu, inst);
-        case 2:
-            return cif_and(emu, inst);
-        case 3:
-            return cif_xor(emu, inst);
-        case 4:
-            return cif_add(emu, inst);
-        case 5:
-            return cif_sub(emu, inst);
-        case 6:
-            return cif_shr(emu, inst);
-        case 7:
-            return cif_subn(emu, inst);
-        default:
-            if (nibble == 0xE)
-                return cif_shl(emu, inst);
-            else
-                return INST_ILLEGAL;
-    }
-
-}
-
-static ChipInstResult cif_cate(ChipEmu *emu, ChipInst inst) {
-    switch (inst.instruction & 0xFF) {
-        case 0x9E:
-            return cif_sip(emu, inst);
-        case 0xA1:
-            return cif_snip(emu, inst);
-        default:
-            return INST_ILLEGAL;
-    }
-}
-
-static ChipInstResult cif_catf(ChipEmu *emu, ChipInst inst) {
-
 }
