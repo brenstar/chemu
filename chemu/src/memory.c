@@ -43,6 +43,6 @@ inline bool chipmem_write(ChipMem *mem, ChipAddress addr, uint8_t value) {
 }
 
 
-ChipAddress chipmem_get_font(ChipMem *mem, uint8_t digit) {
+ChipAddress chipmem_get_font(uint8_t digit) {
     return offsetof(ChipMem_reserved, fontset) + (digit * 5);
 }

@@ -18,7 +18,8 @@ endif
 CC =			gcc
 CFLAGS_BASE =	-std=c11 -Wextra -Wall -pedantic -fPIC
 CFLAGS =		$(CFLAGS_BASE)
-OBJFILES =		$(addprefix $(OBJDIR)/,emulation.o instructions.o stack.o input.o memory.o)
+OBJFN =			emulation.o display.o instructions_a.o input.o instructions_i.o instructions_r.o instructions_v.o memory.o stack.o
+OBJFILES =		$(addprefix $(OBJDIR)/,$(OBJFN))
 LDFLAGS=		-shared
 
 chemu: CFLAGS = $(CFLAGS_BASE) -D NDEBUG

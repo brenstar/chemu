@@ -9,7 +9,7 @@
 
 // sys - syscall
 ChipInstResult cif_sys(ChipEmu *emu, ChipInstDec instruction) {
-    //setup(instruction);
+    (void)emu; (void)instruction;
     // not implemented do nothing
 
     return INST_SUCCESS_INCR_PC;

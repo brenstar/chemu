@@ -9,6 +9,7 @@
 
 // cls - Clear screen
 ChipInstResult cif_cls(ChipEmu *emu, ChipInstDec instruction) {
+	(void)instruction;
 
 	chipdisplay_clear(&RESERVED.display);
 
@@ -17,6 +18,7 @@ ChipInstResult cif_cls(ChipEmu *emu, ChipInstDec instruction) {
 
 // ret - Return from subroutine
 ChipInstResult cif_ret(ChipEmu *emu, ChipInstDec instruction) {
+	(void)instruction;
 
 	ChipInstResult result;
 	if (chipstack_can_pop(&RESERVED.stack)) {

@@ -115,7 +115,7 @@ ChipInstResult cif_font(ChipEmu *emu, ChipInstDec inst) {
 
 	uint8_t vx = RESERVED.regs[inst.i.rnum];
 	if (vx < 16)
-		RESERVED.addrReg = chipmem_get_font(&emu->memory, vx);
+		RESERVED.addrReg = chipmem_get_font(vx);
 
 	return INST_SUCCESS_INCR_PC;
 }

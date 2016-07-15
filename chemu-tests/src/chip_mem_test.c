@@ -41,7 +41,7 @@ int main() {
 
     printf("Fontset is located at 0x%03X\n", fontsetOffset);
     for (uint8_t i = 0; i < 16; ++i) {
-        ChipAddress addr = chipmem_get_font(mem, i);
+        ChipAddress addr = chipmem_get_font(i);
         printf("Digit %X is located at 0x%03X\n", i, addr);
     }
 

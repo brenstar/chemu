@@ -40,6 +40,6 @@ bool chipmem_write(ChipMem *mem, ChipAddress addr, uint8_t value);
  * Gets the address of the font sprite for the given digit. The digit
  * parameter must be in the range of 0 to 15.
  */
-ChipAddress chipmem_get_font(ChipMem *mem, uint8_t digit);
+ChipAddress chipmem_get_font(uint8_t digit);
 
 #endif
