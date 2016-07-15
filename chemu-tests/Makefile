@@ -33,7 +33,7 @@ displaytest: $(addprefix $(OBJDIR)/,chip_display_test.o display.o)
 displaytest-curses: $(addprefix $(OBJDIR)/,displaytest_curses.o display.o)
 	$(CC) -o $(BINDIR)/$@ $+ -lncurses
 
-decodetest: $(addprefix $(OBJDIR)/,decode.o decodetest.o instructions.o)
+decodetest: $(addprefix $(OBJDIR)/,decode.o decodetest.o instructions_a.o instructions_i.o instructions_r.o instructions_v.o stack.o input.o memory.o display.o)
 	$(CC) -o $(BINDIR)/$@ $+
 
 #.c.o:

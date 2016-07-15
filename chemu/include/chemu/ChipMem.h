@@ -15,6 +15,8 @@
 
 #define CHIPMEM_RESERVED_LEN 512
 
+#define CHIPMEM_DATA_LEN CHIPMEM_LEN - CHIPMEM_RESERVED_LEN
+
 // fontset: 16 sprites, each 5 bytes long, 80 total
 #define CHIPMEM_FONTSET_LEN 80    // length (bytes) of the fontset
 

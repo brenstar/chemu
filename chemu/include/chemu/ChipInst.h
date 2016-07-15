@@ -10,8 +10,7 @@
 typedef enum {
 	INST_SUCCESS,			// successful execution
 	INST_SUCCESS_INCR_PC,	// successful execution, increment program counter
-	INST_FAILURE,			// failed exectuion
-	INST_ILLEGAL			// illegal opcode (occurs during decoding)
+	INST_FAILURE			// failed exectuion
 } ChipInstResult;
 
 typedef uint16_t ChipInst;

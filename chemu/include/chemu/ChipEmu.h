@@ -8,6 +8,8 @@
 //#include "ChipInput.h"
 #include "ChipDrawCallback.h"
 
+#define CARRY_REG 15
+
 typedef void (*DisplayRedrawCallback)();
 
 // callback for polling input

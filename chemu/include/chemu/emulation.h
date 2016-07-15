@@ -10,15 +10,17 @@
 #define CHIP_LOAD_FAILURE 1
 
 
-ChipEmu* chipemu_create();
+//ChipEmu* chipemu_create();
+
+void chipemu_init(ChipEmu *emu);
 
 int chipemu_loadROM(ChipEmu *emu, const char *path);
 
 int chipemu_mainLoop(ChipEmu *emu);
 
-void chipemu_destroy(ChipEmu *emu);
+//void chipemu_destroy(ChipEmu *emu);
 
-void chipemu_reset(ChipEmu *emu);
+//void chipemu_reset(ChipEmu *emu);
 
 int chipemu_step(ChipEmu *emu);
 

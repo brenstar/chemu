@@ -7,6 +7,8 @@
 
 #include <stdbool.h>
 
+#define checkAddr(addr) (addr >= CHIP_PRGM_START && addr <= CHIP_END)
+
 /**
  * Constant definition containing the fontset. The fontset contains 16 sprites,
  * numbers 0-9 and letters A-F. Each sprite is 5 bytes long.
