@@ -4,6 +4,7 @@
 
 #include "chemu/display.h"
 #include "chemu/stack.h"
+#include "chemu/emulation.h"
 
 #define RESERVED emu->memory.reserved
 
@@ -12,6 +13,8 @@ ChipInstResult cif_cls(ChipEmu *emu, ChipInstDec instruction) {
 	(void)instruction;
 
 	chipdisplay_clear(&RESERVED.display);
+	//emu->flags |= CHIP_REDRAW_FLAG;
+	chipemu_redraw(emu);
 
 	return INST_SUCCESS_INCR_PC;
 }

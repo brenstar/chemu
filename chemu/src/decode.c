@@ -144,7 +144,7 @@ static int decoder8(ChipInst inst) {
     int offset = inst & 0xF;
     if (offset > 7 && offset != 0xE)
         return NO_INSTRUCTION;
-    return offset;
+    return offset == 0xE ? 8 : offset;
 }
 
 static int decoder9(ChipInst inst) {

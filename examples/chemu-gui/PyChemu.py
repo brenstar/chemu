@@ -18,14 +18,14 @@ def enum(**vals):
 
 # ChipDP.h ====================================================================
 
-class ChipDP(Structure):
-    _fields_ = [
-        ("pc", c_uint16),
-        ("addrReg", c_uint16),
-        ("regs", c_uint8 * 16),
-        ("sndTimer", c_uint8),
-        ("delTimer", c_uint8)
-    ]
+# class ChipDP(Structure):
+#     _fields_ = [
+#         ("pc", c_uint16),
+#         ("addrReg", c_uint16),
+#         ("regs", c_uint8 * 16),
+#         ("sndTimer", c_uint8),
+#         ("delTimer", c_uint8)
+#     ]
 
 # ChipInst.h ==================================================================
 

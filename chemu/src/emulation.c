@@ -12,93 +12,62 @@
 #include "debug.h"
 
 
-ChipEmu* chipemu_create() {
-    ChipEmu *emu = (ChipEmu*)malloc(sizeof(ChipEmu));
-
-    emu->pollKeyHandler = NULL;
-    emu->pollInputHandler = NULL;
-
-    chipmem_init(&emu->memory);
-
-    chipstack_init(&emu->memory.reserved.stack);
-
-    return emu;
-}
+// ChipEmu* chipemu_create() {
+//     ChipEmu *emu = (ChipEmu*)malloc(sizeof(ChipEmu));
+//
+//     emu->pollKeyHandler = NULL;
+//     emu->pollInputHandler = NULL;
+//
+//     chipmem_init(&emu->memory);
+//
+//     chipstack_init(&emu->memory.reserved.stack);
+//
+//     return emu;
+// }
 
 void chipemu_init(ChipEmu *emu) {
     // set callbacks to NULL
     emu->pollKeyHandler = NULL;
-    emu->pollInputHandler = NULL;
-    emu->drawCallback = NULL;
+    emu->redrawCallback = NULL;
+
+    emu->running = false;
 
     chipmem_init(&emu->memory);
-    chipstack_init(&emu->memory.reserved.stack);
-
-    // clear datapath
-    emu->memory.reserved.pc = CHIP_PRGM_START;
-    emu->memory.reserved.addrReg = 0;
-    for (int i = 0; i < 16; ++i)
-        emu->memory.reserved.regs[i] = 0;
-    emu->memory.reserved.sndTimer = 0;
-    emu->memory.reserved.delTimer = 0;
-
-    // clear input
-    emu->memory.reserved.input = 0;
-
-    // clear framebuffer
-    chipdisplay_clear(&emu->memory.reserved.display);
+    chipemu_reset(emu);
 }
 
 int chipemu_loadROM(ChipEmu *emu, const char *path) {
+    int bytesRead = -1;
     FILE *fp = fopen(path, "rb");
     if (fp != NULL) {
-        fread(emu->memory.array + CHIP_PRGM_START, 1, CHIPMEM_DATA_LEN, fp);
+        uint8_t buffer[CHIPMEM_DATA_LEN];
+        bytesRead = fread(buffer, 1, CHIPMEM_DATA_LEN, fp);
+        if (bytesRead == CHIPMEM_DATA_LEN && !feof(fp))
+            return -1; // ROM file was too big
+        memcpy(emu->memory.array + CHIP_PRGM_START, buffer, bytesRead);
         fclose(fp);
-        return CHIP_LOAD_SUCCESS;
     }
-    return CHIP_LOAD_FAILURE;
+    return bytesRead;
 }
 
 int chipemu_mainLoop(ChipEmu *emu) {
 
     int exitStatus = EXIT_SUCCESS;
+    emu->running = true;
 
-    for (;;) {
+    do {
 
         // emulate cycle
-        chipemu_step(emu);
+        if (chipemu_step(emu) == CHIP_STEP_FAILURE) {
+            exitStatus = EXIT_FAILURE;
+            break;
+        }
 
-        // poll inputs if a handler has been assigned
-        // if (emu->pollInputHandler != NULL)
-        //     emu->pollInputHandler(&emu->input);
 
-
-    }
+    } while (emu->running);
 
     return exitStatus;
 }
-
-
-// void chipemu_reset(ChipEmu *emu) {
-//     // clear datapath
-//     emu->memory.reserved.pc = CHIP_PRGM_START;
-//     emu->memory.reserved.addrReg = 0;
-//     for (int i = 0; i < 16; ++i)
-//         emu->memory.reserved.regs[i] = 0;
-//     emu->memory.reserved.sndTimer = 0;
-//     emu->memory.reserved.delTimer = 0;
-//
-//     // clear input
-//     emu->memory.reserved.input = 0;
-//
-//     // clear framebuffer
-//     chipdisplay_clear(&emu->memory.reserved.display);
-//
-//     // memory is left as is, must be cleared manually
-//
-//     // clear stack
-//     chipstack_init(&emu->memory.reserved.stack);
-// }
 
 int chipemu_step(ChipEmu *emu) {
     int result = CHIP_STEP_SUCCESS;
@@ -131,4 +100,38 @@ int chipemu_step(ChipEmu *emu) {
     }
 
     return result;
+}
+
+
+void chipemu_redraw(ChipEmu *emu) {
+    if (emu->redrawCallback != NULL)
+        emu->redrawCallback();
+}
+
+void chipemu_reset(ChipEmu *emu) {
+    if (emu->running)
+        return;
+
+    // clear datapath
+    emu->memory.reserved.pc = CHIP_PRGM_START;
+    emu->memory.reserved.addrReg = 0;
+    for (int i = 0; i < 16; ++i)
+        emu->memory.reserved.regs[i] = 0;
+    emu->memory.reserved.sndTimer = 0;
+    emu->memory.reserved.delTimer = 0;
+
+    // clear stack
+    chipstack_init(&emu->memory.reserved.stack);
+
+    // clear input
+    emu->memory.reserved.input = 0;
+
+    // clear framebuffer
+    chipdisplay_clear(&emu->memory.reserved.display);
+}
+
+ChipKey chipemu_getKey(ChipEmu *emu) {
+    if (emu->pollKeyHandler != NULL)
+        return emu->pollKeyHandler();
+    return CHIP_KEY_0;
 }

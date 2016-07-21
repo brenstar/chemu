@@ -3,6 +3,7 @@
 #include "chemu/instructions.h"
 #include "chemu/input.h"
 #include "chemu/memory.h"
+#include "chemu/emulation.h"
 
 #include <stdlib.h>
 
@@ -81,7 +82,7 @@ ChipInstResult cif_ld(ChipEmu *emu, ChipInstDec inst) {
 
 // lk - wait and load key press
 ChipInstResult cif_lk(ChipEmu *emu, ChipInstDec inst) {
-	RESERVED.regs[inst.i.rnum] = emu->pollKeyHandler();
+	RESERVED.regs[inst.i.rnum] = chipemu_getKey(emu);
 
 	return INST_SUCCESS_INCR_PC;
 }

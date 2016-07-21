@@ -23,7 +23,7 @@ int main() {
     noecho();
     keypad(stdscr, TRUE);
 
-    WINDOW *displayWindow = newwin(CHIP_DISPLAY_ROWS + 2, CHIP_DISPLAY_COLS * 2 + 2, 2, 0);
+    WINDOW *displayWindow = newwin(CHIP_DISPLAY_ROWS + 2, CHIP_DISPLAY_COLS + 2, 2, 0);
     wborder(displayWindow, '|', '|', '-', '-', '+', '+', '+', '+');
 
     printw("Use arrow keys to move sprite. Press q to exit.");
@@ -96,7 +96,7 @@ static void printDisplay(ChipDisplay *display, WINDOW *win) {
         for (int x = 0; x < CHIP_DISPLAY_COLS; ++x) {
             int pixel = chipdisplay_get(display, x, y);
             wattrset(win, pixel ? A_STANDOUT : A_NORMAL);
-            waddstr(win, "  ");
+            waddstr(win, " ");
             //addstr(pixel ? ON_STR : OFF_STR);
         }
         //addch('|');

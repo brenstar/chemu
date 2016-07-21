@@ -3,6 +3,7 @@
 #include "chemu/instructions.h"
 #include "chemu/display.h"
 #include "chemu/memory.h"
+#include "chemu/emulation.h"
 
 #define RESERVED emu->memory.reserved
 
@@ -130,6 +131,8 @@ ChipInstResult cif_draw(ChipEmu *emu, ChipInstDec inst) {
     }
 
     RESERVED.regs[CARRY_REG] = chipdisplay_draw(&RESERVED.display, sprite);
+	//emu->flags |= CHIP_REDRAW_FLAG;
+	chipemu_redraw(emu);
 
     return INST_SUCCESS_INCR_PC;
 
