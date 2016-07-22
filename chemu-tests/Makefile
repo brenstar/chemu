@@ -36,6 +36,9 @@ displaytest-curses: $(addprefix $(OBJDIR)/,displaytest_curses.o display.o)
 decodetest: $(addprefix $(OBJDIR)/,decode.o decodetest.o instructions_a.o instructions_i.o instructions_r.o instructions_v.o stack.o input.o memory.o display.o)
 	$(CC) -o $(BINDIR)/$@ $+
 
+timertest: $(addprefix $(OBJDIR)/,timer.o timertest.o)
+	$(CC) -o $(BINDIR)/$@ $+ -lpthread
+
 #.c.o:
 $(OBJDIR)/%.o: %.c
 	$(CC) $(CFLAGS) -I$(UNIT_INC) -c $< -o $@

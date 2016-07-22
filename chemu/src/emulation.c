@@ -55,6 +55,10 @@ int chipemu_mainLoop(ChipEmu *emu) {
     int exitStatus = EXIT_SUCCESS;
     emu->running = true;
 
+    //ChipTimer soundTimer, delayTimer;
+
+    //timer_start(&soundTimer);
+    //timer_start(&delayTimer);
     do {
 
         // emulate cycle
@@ -63,8 +67,15 @@ int chipemu_mainLoop(ChipEmu *emu) {
             break;
         }
 
+        // update timers
+        //emu->memory.reserved.sndTimer = timer_value(&soundTimer);
+        //emu->memory.reserved.delTimer = timer_value(&delayTimer);
+
 
     } while (emu->running);
+
+    //timer_stop(&soundTimer);
+    //timer_stop(&delayTimer);
 
     return exitStatus;
 }
