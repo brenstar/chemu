@@ -9,21 +9,9 @@
 #include "chemu/display.h"
 #include "chemu/memory.h"
 #include "chemu/stack.h"
+#include "chemu/timer.h"
 #include "debug.h"
 
-
-// ChipEmu* chipemu_create() {
-//     ChipEmu *emu = (ChipEmu*)malloc(sizeof(ChipEmu));
-//
-//     emu->pollKeyHandler = NULL;
-//     emu->pollInputHandler = NULL;
-//
-//     chipmem_init(&emu->memory);
-//
-//     chipstack_init(&emu->memory.reserved.stack);
-//
-//     return emu;
-// }
 
 void chipemu_init(ChipEmu *emu) {
     // set callbacks to NULL
@@ -34,6 +22,12 @@ void chipemu_init(ChipEmu *emu) {
 
     chipmem_init(&emu->memory);
     chipemu_reset(emu);
+}
+
+ChipKey chipemu_getKey(ChipEmu *emu) {
+    if (emu->pollKeyHandler != NULL)
+        return emu->pollKeyHandler();
+    return CHIP_KEY_0;
 }
 
 int chipemu_loadROM(ChipEmu *emu, const char *path) {
@@ -55,12 +49,15 @@ int chipemu_mainLoop(ChipEmu *emu) {
     int exitStatus = EXIT_SUCCESS;
     emu->running = true;
 
-    //ChipTimer soundTimer, delayTimer;
+    ChipTimer soundTimer, delayTimer;
 
-    //timer_start(&soundTimer);
-    //timer_start(&delayTimer);
+    soundTimer = chiptimer_create(0);
+    delayTimer = chiptimer_create(0);
+
+    chiptimer_start(soundTimer);
+    chiptimer_start(delayTimer);
+
     do {
-
         // emulate cycle
         if (chipemu_step(emu) == CHIP_STEP_FAILURE) {
             exitStatus = EXIT_FAILURE;
@@ -68,14 +65,15 @@ int chipemu_mainLoop(ChipEmu *emu) {
         }
 
         // update timers
-        //emu->memory.reserved.sndTimer = timer_value(&soundTimer);
-        //emu->memory.reserved.delTimer = timer_value(&delayTimer);
+        emu->memory.reserved.sndTimer = chiptimer_get(soundTimer);
+        emu->memory.reserved.delTimer = chiptimer_get(delayTimer);
 
 
     } while (emu->running);
 
-    //timer_stop(&soundTimer);
-    //timer_stop(&delayTimer);
+    // timer_destroy calls timer_stop automatically
+    chiptimer_destroy(soundTimer);
+    chiptimer_destroy(delayTimer);
 
     return exitStatus;
 }
@@ -139,10 +137,4 @@ void chipemu_reset(ChipEmu *emu) {
 
     // clear framebuffer
     chipdisplay_clear(&emu->memory.reserved.display);
-}
-
-ChipKey chipemu_getKey(ChipEmu *emu) {
-    if (emu->pollKeyHandler != NULL)
-        return emu->pollKeyHandler();
-    return CHIP_KEY_0;
 }

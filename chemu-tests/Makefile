@@ -13,7 +13,7 @@ vpath %.c $(SRCDIR):$(UNIT_SRC)
 # Variables
 
 CC = 		gcc
-CFLAGS =	-std=c11 -Wextra -Wall -pedantic
+CFLAGS =	-std=c11 -Wextra -Wall -pedantic -ggdb
 
 
 # targets

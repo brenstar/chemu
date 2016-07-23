@@ -19,6 +19,9 @@
  */
 void chipemu_init(ChipEmu *emu);
 
+// invokes the pollKeyCallback
+ChipKey chipemu_getKey(ChipEmu *emu);
+
 /**
  * Loads a CHIP-8 ROM file into the emulator's memory in the data section.
  * The size of the ROM in bytes is returned on success. If any read error
@@ -44,9 +47,6 @@ void chipemu_redraw(ChipEmu *emu);
  *   5. The display is cleared
  */
 void chipemu_reset(ChipEmu *emu);
-
-// invokes the pollKeyCallback
-ChipKey chipemu_getKey(ChipEmu *emu);
 
 /**
  * Emulates a single cycle for the given emulator object.

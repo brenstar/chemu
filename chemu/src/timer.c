@@ -1,8 +1,17 @@
+#if __STDC_VERSION__ >= 199901L
+#   define _XOPEN_SOURCE 600
+#else
+#   define _XOPEN_SOURCE 500
+#endif /* __STDC_VERSION__ */
+
 #ifdef __unix__
     #include <pthread.h>
 #endif
 
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
 
 #define _CHIPTIMER_IMPL
 typedef struct ChipTimer_s {
@@ -15,9 +24,7 @@ typedef struct ChipTimer_s {
 } *ChipTimer;
 
 #include "chemu/timer.h"
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
+
 
 
 #ifdef __unix__
@@ -31,7 +38,7 @@ typedef struct ChipTimer_s {
 static void* timerloop(void* arg);
 
 
-ChipTimer timer_create(int initialValue) {
+ChipTimer chiptimer_create(int initialValue) {
     ChipTimer timer = (ChipTimer)malloc(sizeof(struct ChipTimer_s));
     timer->value = initialValue;
     timer->running = false;
@@ -43,16 +50,16 @@ ChipTimer timer_create(int initialValue) {
     return timer;
 }
 
-void timer_destroy(ChipTimer timer) {
+void chiptimer_destroy(ChipTimer timer) {
     if (timer->running)
-        timer_stop(timer);
+        chiptimer_stop(timer);
     #ifdef __unix__
         pthread_mutex_destroy(&timer->mutex);
     #endif
     free(timer);
 }
 
-int timer_get(ChipTimer timer) {
+int chiptimer_get(ChipTimer timer) {
     int val;
 
     timerMutexLock(timer);
@@ -62,13 +69,16 @@ int timer_get(ChipTimer timer) {
     return val;
 }
 
-void timer_set(ChipTimer timer, int value) {
+void chiptimer_set(ChipTimer timer, int value) {
     timerMutexLock(timer);
     timer->value = value;
     timerMutexUnlock(timer);
 }
 
-void timer_start(ChipTimer timer) {
+void chiptimer_start(ChipTimer timer) {
+    if (timer->running)
+        return; // timer already running
+
     timer->running = true;
 
     #ifdef __unix__
@@ -77,11 +87,15 @@ void timer_start(ChipTimer timer) {
     #endif
 }
 
-void timer_stop(ChipTimer timer) {
+void chiptimer_stop(ChipTimer timer) {
+    if (!timer->running)
+        return; // timer not running, no thread to join
+
     timer->running = false;
 
     #ifdef __unix__
-        pthread_cancel(timer->thread);
+        //void *result;
+        pthread_join(timer->thread, NULL);
     #endif
 }
 
@@ -95,7 +109,6 @@ static void* timerloop(void* arg) {
             --timer->value;
         timerMutexUnlock(timer);
 
-        printf("Timer value: %d\n", timer->value);
     } while (timer->running);
 
     return NULL;
