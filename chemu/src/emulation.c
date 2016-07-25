@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <unistd.h>
 #include <string.h>
 
 #include "chemu/emulation.h"
@@ -12,6 +13,8 @@
 #include "chemu/timer.h"
 #include "debug.h"
 
+static void mainLoop_noLimit(ChipEmu *emu, int *exitStatus);
+static void mainLoop_limit(ChipEmu *emu, int *exitStatus);
 
 void chipemu_init(ChipEmu *emu) {
     // set callbacks to NULL
@@ -20,13 +23,19 @@ void chipemu_init(ChipEmu *emu) {
 
     emu->running = false;
 
+    emu->speed = CHIPEMU_DEFAULT_SPEED;
+
+    // set timers to NULL
+    emu->soundTimer = NULL;
+    emu->delayTimer = NULL;
+
     chipmem_init(&emu->memory);
     chipemu_reset(emu);
 }
 
 ChipKey chipemu_getKey(ChipEmu *emu) {
     if (emu->pollKeyHandler != NULL)
-        return emu->pollKeyHandler();
+        return emu->pollKeyHandler(emu);
     return CHIP_KEY_0;
 }
 
@@ -49,31 +58,23 @@ int chipemu_mainLoop(ChipEmu *emu) {
     int exitStatus = EXIT_SUCCESS;
     emu->running = true;
 
-    ChipTimer soundTimer, delayTimer;
+    emu->soundTimer = chiptimer_create(0);
+    emu->delayTimer = chiptimer_create(0);
 
-    soundTimer = chiptimer_create(0);
-    delayTimer = chiptimer_create(0);
+    chiptimer_start(emu->soundTimer);
+    chiptimer_start(emu->delayTimer);
 
-    chiptimer_start(soundTimer);
-    chiptimer_start(delayTimer);
-
-    do {
-        // emulate cycle
-        if (chipemu_step(emu) == CHIP_STEP_FAILURE) {
-            exitStatus = EXIT_FAILURE;
-            break;
-        }
-
-        // update timers
-        emu->memory.reserved.sndTimer = chiptimer_get(soundTimer);
-        emu->memory.reserved.delTimer = chiptimer_get(delayTimer);
-
-
-    } while (emu->running);
+    if (emu->speed == 0)
+        mainLoop_noLimit(emu, &exitStatus);
+    else
+        mainLoop_limit(emu, &exitStatus);
 
     // timer_destroy calls timer_stop automatically
-    chiptimer_destroy(soundTimer);
-    chiptimer_destroy(delayTimer);
+    chiptimer_destroy(emu->soundTimer);
+    chiptimer_destroy(emu->delayTimer);
+
+    emu->soundTimer = NULL;
+    emu->delayTimer = NULL;
 
     return exitStatus;
 }
@@ -114,7 +115,7 @@ int chipemu_step(ChipEmu *emu) {
 
 void chipemu_redraw(ChipEmu *emu) {
     if (emu->redrawCallback != NULL)
-        emu->redrawCallback();
+        emu->redrawCallback(emu);
 }
 
 void chipemu_reset(ChipEmu *emu) {
@@ -137,4 +138,33 @@ void chipemu_reset(ChipEmu *emu) {
 
     // clear framebuffer
     chipdisplay_clear(&emu->memory.reserved.display);
+}
+
+
+#define mainloop(code)                                \
+    do {                                              \
+        if (chipemu_step(emu) == CHIP_STEP_FAILURE) { \
+            *exitStatus = EXIT_FAILURE;               \
+            break;                                    \
+        }                                             \
+        code                                          \
+    } while (emu->running)
+
+
+static void mainLoop_limit(ChipEmu *emu, int *exitStatus) {
+    const int interval = 1000000 / emu->speed;
+    clock_t currentTime, lastTime;
+    lastTime = clock();
+
+    mainloop(
+        currentTime = clock();
+        int sleepTime = interval - ((currentTime - lastTime) * 1000000 / CLOCKS_PER_SEC);
+        lastTime = currentTime;
+        if (sleepTime > 0)
+            usleep(sleepTime);
+    );
+}
+
+static void mainLoop_noLimit(ChipEmu *emu, int *exitStatus) {
+    mainloop();
 }

@@ -1,10 +1,7 @@
 #ifndef _TIMER_H
 #define _TIMER_H
 
-#ifndef _CHIPTIMER_IMPL
-#define _CHIPTIMER_IMPL
-typedef struct ChipTimer_s *ChipTimer;
-#endif
+#include "ChipTimer.h"
 
 // timer interval in microseconds (60Hz ~ 16,666 microseconds)
 #define CHIP_TIMER_INTERVAL 16666

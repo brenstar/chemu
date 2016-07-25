@@ -1,7 +1,9 @@
 #ifndef _CHIPREDRAWCALLBACK_H
 #define _CHIPREDRAWCALLBACK_H
 
-typedef void (*ChipRedrawCallback)();
+#include "ChipEmu.h"
+
+typedef void (*ChipRedrawCallback)(ChipEmu*);
 
 
 #endif

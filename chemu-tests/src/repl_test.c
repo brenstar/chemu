@@ -3,14 +3,19 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "emulation.h"
-#include "instructions.h"
+#include "chemu/emulation.h"
+#include "chemu/instructions.h"
+#include "chemu/decode.h"
+
+#define RESERVED(emu) emu->memory.reserved
 
 static void dumpRegisters(ChipEmu *emu);
 
 int main(int argc, const char* argv[]) {
 
-    ChipEmu *emu = chipemu_create();
+    puts("Enter an instruction in hexadecimal to execute");
+
+    ChipEmu *emu = (ChipEmu*)malloc(sizeof(ChipEmu));
 
     while (!feof(stdin)) {
 
@@ -20,14 +25,19 @@ int main(int argc, const char* argv[]) {
         if ((size = getline(&line, &bufsize, stdin)) != -1) {
             if (size - 1 == 4) {
                 //uint16_t inst = (uint16_t)strtol(line, NULL, 16);
-                ChipInst inst = { .instruction = (uint16_t)strtol(line, NULL, 16)};
-                ChipInstFunc func = chipemu_decode(inst);
-                if (func != NULL) {
-                    (*func)(emu, inst);
+                ChipInst inst = (ChipInst)strtol(line, NULL, 16);
+
+                int index = chipdec_index(inst);
+                if (index != NO_INSTRUCTION) {
+                    ChipOp op = CHIP_OPTABLE[index];
+                    ChipInstDec decoded = chipdec_decode(inst, op.cls);
+                    op.func(emu, decoded);
                     dumpRegisters(emu);
-                }
-                else
+                } else
                     printf("Illegal instruction\n");
+
+
+
             }
         }
 
@@ -60,7 +70,7 @@ int main(int argc, const char* argv[]) {
     //     printf("\n");
     // }
 
-    chipemu_destroy(emu);
+    free(emu);
 
     return 0;
 }
@@ -70,12 +80,12 @@ static void dumpRegisters(ChipEmu *emu) {
     for (int i = 0; i < 4; ++i) {
         for (int j = 0; j < 4; ++j) {
             int reg = (i * 4) + j;
-            printf("v%-2d: %3d        ", reg, emu->dp.regs[reg]);
+            printf("v%-2d: %3d        ", reg, RESERVED(emu).regs[reg]);
         }
         putchar('\n');
     }
 
-    printf("I: %03x\t", emu->dp.addrReg);
-    printf("st: %d\t", emu->dp.sndTimer);
-    printf("dt: %d\n", emu->dp.delTimer);
+    printf("I: %03x\t", RESERVED(emu).addrReg);
+    printf("st: %d\t", RESERVED(emu).sndTimer);
+    printf("dt: %d\n", RESERVED(emu).delTimer);
 }

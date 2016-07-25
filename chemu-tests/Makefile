@@ -24,8 +24,8 @@ memtest: $(addprefix $(OBJDIR)/,memory.o chip_mem_test.o)
 stacktest: $(addprefix $(OBJDIR)/,stack.o chip_stack_test.o)
 	$(CC) -o $(BINDIR)/$@ $+
 
-repltest: $(addprefix $(OBJDIR)/,repl_test.o emulation.o instructions.o memory.o input.o stack.o)
-	$(CC) -o $(BINDIR)/$@ $+
+repltest: $(addprefix $(OBJDIR)/,repl_test.o emulation.o decode.o display.o instructions_a.o input.o instructions_i.o instructions_r.o instructions_v.o memory.o stack.o timer.o)
+	$(CC) -o $(BINDIR)/$@ $+ -lpthread
 
 displaytest: $(addprefix $(OBJDIR)/,chip_display_test.o display.o)
 	$(CC) -o $(BINDIR)/$@ $+

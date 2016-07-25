@@ -13,15 +13,14 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#define _CHIPTIMER_IMPL
-typedef struct ChipTimer_s {
+struct ChipTimer_s {
     int value;
     bool running;
     #ifdef __unix__
         pthread_t thread;
         pthread_mutex_t mutex;
     #endif
-} *ChipTimer;
+};
 
 #include "chemu/timer.h"
 

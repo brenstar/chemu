@@ -4,6 +4,7 @@
 #include "chemu/input.h"
 #include "chemu/memory.h"
 #include "chemu/emulation.h"
+#include "chemu/timer.h"
 
 #include <stdlib.h>
 
@@ -74,8 +75,10 @@ ChipInstResult cif_snip(ChipEmu *emu, ChipInstDec inst) {
 
 // ld - load delay timer
 ChipInstResult cif_ld(ChipEmu *emu, ChipInstDec inst) {
+	if (emu->delayTimer == NULL)
+		return INST_FAILURE;
 
-	RESERVED.regs[inst.i.rnum] = RESERVED.delTimer;
+	RESERVED.regs[inst.i.rnum] = chiptimer_get(emu->delayTimer);
 
 	return INST_SUCCESS_INCR_PC;
 }
@@ -89,16 +92,22 @@ ChipInstResult cif_lk(ChipEmu *emu, ChipInstDec inst) {
 
 // del - set delay timer
 ChipInstResult cif_del(ChipEmu *emu, ChipInstDec inst) {
+	if (emu->delayTimer == NULL)
+		return INST_FAILURE;
 
-	RESERVED.delTimer = RESERVED.regs[inst.i.rnum];
+	//RESERVED.delTimer = RESERVED.regs[inst.i.rnum];
+	chiptimer_set(emu->delayTimer, RESERVED.regs[inst.i.rnum]);
 
 	return INST_SUCCESS_INCR_PC;
 }
 
 // snd - set sound timer
 ChipInstResult cif_snd(ChipEmu *emu, ChipInstDec inst) {
+	if (emu->soundTimer == NULL)
+		return INST_FAILURE;
 
-	RESERVED.sndTimer = RESERVED.regs[inst.i.rnum];
+	//RESERVED.sndTimer = RESERVED.regs[inst.i.rnum];
+	chiptimer_set(emu->soundTimer, RESERVED.regs[inst.i.rnum]);
 
 	return INST_SUCCESS_INCR_PC;
 }
