@@ -2,6 +2,7 @@
 #include <ncurses.h>
 #include <pthread.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "chemu.h"
 
@@ -13,8 +14,8 @@ static WINDOW *displayWindow;
 
 int main(int argc, const char * argv[]) {
 
-    if (argc != 2) {
-        fputs("usage: chemu-cli <romfile>", stderr);
+    if (argc != 3) {
+        fputs("usage: chemu-cli <romfile> <speed>", stderr);
         return EXIT_FAILURE;
     }
 
@@ -22,7 +23,10 @@ int main(int argc, const char * argv[]) {
     chipemu_init(emu);
 
     emu->redrawCallback = redrawHandler;
-    emu->pollKeyCallback = getKeyHandler;
+    emu->pollKeyHandler = getKeyHandler;
+
+    emu->speed = (int)strtol(argv[2], NULL, 10);
+
 
     int romsize = chipemu_loadROM(emu, argv[1]);
     if (romsize == -1) {
@@ -42,6 +46,8 @@ int main(int argc, const char * argv[]) {
     refresh();
     wrefresh(displayWindow);
 
+    //getch();
+    chipemu_mainLoop(emu);
     getch();
 
     delwin(displayWindow);
@@ -53,11 +59,19 @@ int main(int argc, const char * argv[]) {
 }
 
 static void redrawHandler(ChipEmu *emu) {
-
+    for (int y = 0; y < CHIP_DISPLAY_ROWS; ++y) {
+        wmove(displayWindow, y + 1, 1);
+        for (int x = 0; x < CHIP_DISPLAY_COLS; ++x) {
+            int pixel = chipdisplay_get(&emu->memory.reserved.display, x, y);
+            wattrset(displayWindow, pixel ? A_STANDOUT : A_NORMAL);
+            waddstr(displayWindow, "  ");
+        }
+    }
+    wrefresh(displayWindow);
 }
 
 static ChipKey getKeyHandler(ChipEmu *emu) {
-    
+    return CHIP_KEY_0;
 }
 
 // static void printDisplay(ChipDisplay *display, WINDOW *win) {

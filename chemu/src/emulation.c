@@ -105,6 +105,7 @@ int chipemu_step(ChipEmu *emu) {
             *pc += 2;
             break;
         case INST_FAILURE:
+            printf("Instruction index %d has failed.\n", i);
             result = CHIP_STEP_FAILURE;
             break;
     }

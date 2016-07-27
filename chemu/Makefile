@@ -35,7 +35,7 @@ chemu: $(OBJFILES)
 chemu-debug: clean chemu
 
 chemu-static: $(OBJFILES)
-	ar -cvq $(BINDIR)/libchemu.a $(OBJDIR)/*.o
+	ar -cvr $(BINDIR)/libchemu.a $(OBJDIR)/*.o
 
 #.c.o:
 $(OBJDIR)/%.o: %.c

@@ -12,7 +12,16 @@ void chipdisplay_clear(ChipDisplay *display) {
 bool chipdisplay_draw(ChipDisplay *display, ChipSprite sprite) {
     bool collision = false;
 
-    int x = sprite.x & 31;
+    const int x = sprite.x & 31;
+    //int xf_right = 32 - x;
+    //int xf_left = xf_right + 8;
+    const int i = sprite.x >= 32; // left or right?
+    const bool wrap = x > 24;
+
+    const int shift = wrap ? (x - 24) : (24 - x);
+
+    //int b = 31 - x;
+
     for (int row = 0; row < sprite.rows; ++row) {
 
         // get the sprite data to draw
@@ -21,12 +30,16 @@ bool chipdisplay_draw(ChipDisplay *display, ChipSprite sprite) {
         // row of data to draw, 0=left 1=right
         int32_t spriteRow[] = {0, 0};
 
-        int i = sprite.x >= 32; // left or right?
         // shift sprite data by x
-        spriteRow[i] = spriteData << x;
+        //spriteRow[i] = spriteData << xf;
         // rotate if necessary onto other side
-        if (x > 24)
-            spriteRow[!i] = spriteData >> (32 - x);
+        if (wrap) {
+            spriteRow[i] = spriteData >> shift;
+            spriteRow[!i] = spriteData << (32 - shift);
+        } else {
+           spriteRow[i] = spriteData << shift;
+        }
+            //spriteRow[!i] = spriteData >> (32);
 
         // a & b is equal to a % b when b = 2^k - 1 for any k
         // calculate y, wrap if necessary
@@ -51,5 +64,5 @@ bool chipdisplay_draw(ChipDisplay *display, ChipSprite sprite) {
 
 int chipdisplay_get(ChipDisplay *display, int x, int y) {
     // bounds checking omitted
-    return (display->buffer[y][x >> 5] >> (x & 31)) & 1;
+    return (display->buffer[y][x >> 5] >> (31 - (x & 31))) & 1;
 }

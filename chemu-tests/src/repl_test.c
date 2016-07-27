@@ -16,10 +16,11 @@ int main(int argc, const char* argv[]) {
     puts("Enter an instruction in hexadecimal to execute");
 
     ChipEmu *emu = (ChipEmu*)malloc(sizeof(ChipEmu));
+    ChipInstResult lastResult = INST_SUCCESS;
 
     while (!feof(stdin)) {
 
-        printf(">>> ");
+        printf("[%d]>>> ", lastResult);
         char *line = NULL;
         size_t bufsize, size;
         if ((size = getline(&line, &bufsize, stdin)) != -1) {
@@ -31,7 +32,7 @@ int main(int argc, const char* argv[]) {
                 if (index != NO_INSTRUCTION) {
                     ChipOp op = CHIP_OPTABLE[index];
                     ChipInstDec decoded = chipdec_decode(inst, op.cls);
-                    op.func(emu, decoded);
+                    lastResult = op.func(emu, decoded);
                     dumpRegisters(emu);
                 } else
                     printf("Illegal instruction\n");
