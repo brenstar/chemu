@@ -4,7 +4,10 @@
 #include "ChipTimer.h"
 
 // timer interval in microseconds (60Hz ~ 16,666 microseconds)
-#define CHIP_TIMER_INTERVAL 16666
+#define CHIP_TIMER_INTERVAL_US 16666
+
+// timer interval in milleseconds (60Hz ~ 17 ms)
+#define CHIP_TIMER_INTERVAL_MS 17
 
 ChipTimer chiptimer_create(int initialValue);
 
@@ -14,7 +17,7 @@ int chiptimer_get(ChipTimer timer);
 
 void chiptimer_set(ChipTimer timer, int value);
 
-void chiptimer_start(ChipTimer timer);
+bool chiptimer_start(ChipTimer timer);
 
 void chiptimer_stop(ChipTimer timer);
 

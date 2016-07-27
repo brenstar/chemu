@@ -6,12 +6,15 @@
 
 #ifdef __unix__
     #include <pthread.h>
+	#include <unistd.h>
+#elif defined(_WIN32)
+	#include <windows.h>
 #endif
 
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <unistd.h>
+
 
 struct ChipTimer_s {
     int value;
@@ -19,7 +22,11 @@ struct ChipTimer_s {
     #ifdef __unix__
         pthread_t thread;
         pthread_mutex_t mutex;
-    #endif
+	#elif defined(_WIN32)
+		DWORD threadId;
+		HANDLE thread;
+		HANDLE mutex;
+	#endif
 };
 
 #include "chemu/timer.h"
@@ -29,12 +36,15 @@ struct ChipTimer_s {
 #ifdef __unix__
     #define timerMutexLock(timer) pthread_mutex_lock(&timer->mutex)
     #define timerMutexUnlock(timer) pthread_mutex_unlock(&timer->mutex)
+	static void* timerloop(void* arg);
 #else
-    #define timerMutexLock(timer)
-    #define timerMutexUnlock(timer)
+    #define timerMutexLock(timer) WaitForSingleObject(timer->mutex, INFINITE)
+    #define timerMutexUnlock(timer) ReleaseMutex(timer->mutex)
+	static DWORD WINAPI timerloop(LPVOID lpParam);
 #endif
 
-static void* timerloop(void* arg);
+
+
 
 
 ChipTimer chiptimer_create(int initialValue) {
@@ -44,7 +54,9 @@ ChipTimer chiptimer_create(int initialValue) {
 
     #ifdef __unix__
         pthread_mutex_init(&timer->mutex, NULL);
-    #endif
+    #elif defined(_WIN32)
+		timer->mutex = CreateMutex(NULL, FALSE, NULL);
+	#endif
 
     return timer;
 }
@@ -54,7 +66,9 @@ void chiptimer_destroy(ChipTimer timer) {
         chiptimer_stop(timer);
     #ifdef __unix__
         pthread_mutex_destroy(&timer->mutex);
-    #endif
+    #elif defined(_WIN32)
+		CloseHandle(timer->mutex);
+	#endif
     free(timer);
 }
 
@@ -74,16 +88,26 @@ void chiptimer_set(ChipTimer timer, int value) {
     timerMutexUnlock(timer);
 }
 
-void chiptimer_start(ChipTimer timer) {
-    if (timer->running)
-        return; // timer already running
+bool chiptimer_start(ChipTimer timer) {
+	if (timer->running)
+		return false; // timer already running
 
-    timer->running = true;
+	timer->running = true;
 
     #ifdef __unix__
-        if (pthread_create(&timer->thread, NULL, timerloop, timer) != 0)
-            return; // failed to create thread
-    #endif
+        if (pthread_create(&timer->thread, NULL, timerloop, timer) != 0) {
+			timer->running = false;
+            return false; // failed to create thread
+		}
+    #elif defined(_WIN32)
+		timer->thread = CreateThread(NULL, 0, timerloop, timer, 0, &timer->threadId);
+		if (timer->thread == NULL) {
+			timer->running = false;
+			return false;
+		}
+	#endif
+
+	return true;
 }
 
 void chiptimer_stop(ChipTimer timer) {
@@ -98,17 +122,41 @@ void chiptimer_stop(ChipTimer timer) {
     #endif
 }
 
+
+#define decrementTimer(timer) \
+	if (timer->value > 0)     \
+		--timer->value;
+
+
+#if defined(__unix__)
+
 static void* timerloop(void* arg) {
     ChipTimer timer = (ChipTimer)arg;
     do {
-        usleep(CHIP_TIMER_INTERVAL);
+        usleep(CHIP_TIMER_INTERVAL_US);
 
         timerMutexLock(timer);
-        if (timer->value > 0)
-            --timer->value;
+		decrementTimer(timer);
         timerMutexUnlock(timer);
 
     } while (timer->running);
 
     return NULL;
 }
+#elif defined(_WIN32)
+
+static DWORD WINAPI timerloop(LPVOID lpParam) {
+	ChipTimer timer = (ChipTimer)lpParam;
+
+	do {
+		Sleep(CHIP_TIMER_INTERVAL_MS);
+
+		timerMutexLock(timer);
+		decrementTimer(timer);
+		timerMutexUnlock(timer);
+	} while (timer->running);
+
+	return 0;
+}
+
+#endif
