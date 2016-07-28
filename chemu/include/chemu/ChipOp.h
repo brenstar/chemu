@@ -3,7 +3,7 @@
 
 #include "ChipInstFunc.h"
 
-typedef struct {
+typedef struct ChipOp_s {
     ChipInstFunc func;
     ChipInstClass cls;
 } ChipOp;

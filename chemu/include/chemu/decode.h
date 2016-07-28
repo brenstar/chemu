@@ -51,14 +51,14 @@ extern const ChipOp CHIP_OPTABLE[];
 
 
 /**
- * Decodes the given instruction and returns a pointer to the corresponding
- * instruction function. Returns NULL if given instruction is illegal
+ * Decodes the given instruction as the given class. The returned value can
+ * then be used to execute a CHIP-8 instruction function.
  */
 ChipInstDec chipdec_decode(ChipInst instruction, ChipInstClass cls);
 
 /**
  * Decodes the given instruction and returns the index in the CHIP_OPTABLE.
- * Returns -1 if the instruction is illegal.
+ * Returns NO_INSTRUCTION if the instruction is illegal.
  */
 int chipdec_index(ChipInst instruction);
 

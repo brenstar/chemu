@@ -26,7 +26,7 @@
 #define CHIP_ETIPRGM_START 0x600
 #define CHIP_END 0xFFF
 
-typedef struct {
+typedef struct ChipMem_reserved_s {
     ChipDisplay display;                    // 0    (256 bytes)
     ChipAddress pc;                         // 256  (2 bytes)
     ChipAddress addrReg;                    // 258  (2 bytes)
@@ -38,7 +38,7 @@ typedef struct {
     uint8_t fontset[CHIPMEM_FONTSET_LEN];   // 315  (80 bytes)
 } ChipMem_reserved;                         // Total: 394, with 118 bytes left for padding
 
-typedef union {
+typedef union ChipMem_u {
     uint8_t array[CHIPMEM_LEN];
     ChipMem_reserved reserved;
 } ChipMem;

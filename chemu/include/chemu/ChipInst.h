@@ -7,7 +7,7 @@
 
 
 
-typedef enum {
+typedef enum ChipInstResult_e {
 	INST_SUCCESS,			// successful execution
 	INST_SUCCESS_INCR_PC,	// successful execution, increment program counter
 	INST_FAILURE			// failed exectuion

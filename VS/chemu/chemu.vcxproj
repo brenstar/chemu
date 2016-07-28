@@ -90,7 +90,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\..\chemu\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\chemu\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -148,45 +148,46 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\chemu\include\chemu.h" />
-    <ClInclude Include="..\..\..\chemu\include\chemu\ChipAddress.h" />
-    <ClInclude Include="..\..\..\chemu\include\chemu\ChipDisplay.h" />
-    <ClInclude Include="..\..\..\chemu\include\chemu\ChipDP.h" />
-    <ClInclude Include="..\..\..\chemu\include\chemu\ChipDrawCallback.h" />
-    <ClInclude Include="..\..\..\chemu\include\chemu\ChipEmu.h" />
-    <ClInclude Include="..\..\..\chemu\include\chemu\ChipInput.h" />
-    <ClInclude Include="..\..\..\chemu\include\chemu\ChipInst.h" />
-    <ClInclude Include="..\..\..\chemu\include\chemu\ChipInstDec.h" />
-    <ClInclude Include="..\..\..\chemu\include\chemu\ChipInstFunc.h" />
-    <ClInclude Include="..\..\..\chemu\include\chemu\ChipMem.h" />
-    <ClInclude Include="..\..\..\chemu\include\chemu\ChipOp.h" />
-    <ClInclude Include="..\..\..\chemu\include\chemu\ChipRedrawCallback.h" />
-    <ClInclude Include="..\..\..\chemu\include\chemu\ChipReg.h" />
-    <ClInclude Include="..\..\..\chemu\include\chemu\ChipSprite.h" />
-    <ClInclude Include="..\..\..\chemu\include\chemu\ChipStack.h" />
-    <ClInclude Include="..\..\..\chemu\include\chemu\ChipTimer.h" />
-    <ClInclude Include="..\..\..\chemu\include\chemu\decode.h" />
-    <ClInclude Include="..\..\..\chemu\include\chemu\display.h" />
-    <ClInclude Include="..\..\..\chemu\include\chemu\emulation.h" />
-    <ClInclude Include="..\..\..\chemu\include\chemu\input.h" />
-    <ClInclude Include="..\..\..\chemu\include\chemu\instructions.h" />
-    <ClInclude Include="..\..\..\chemu\include\chemu\memory.h" />
-    <ClInclude Include="..\..\..\chemu\include\chemu\stack.h" />
-    <ClInclude Include="..\..\..\chemu\include\chemu\timer.h" />
+    <ClCompile Include="..\..\chemu\src\decode.c" />
+    <ClCompile Include="..\..\chemu\src\display.c" />
+    <ClCompile Include="..\..\chemu\src\emulation.c" />
+    <ClCompile Include="..\..\chemu\src\input.c" />
+    <ClCompile Include="..\..\chemu\src\instructions.c" />
+    <ClCompile Include="..\..\chemu\src\instructions_a.c" />
+    <ClCompile Include="..\..\chemu\src\instructions_i.c" />
+    <ClCompile Include="..\..\chemu\src\instructions_r.c" />
+    <ClCompile Include="..\..\chemu\src\instructions_v.c" />
+    <ClCompile Include="..\..\chemu\src\memory.c" />
+    <ClCompile Include="..\..\chemu\src\stack.c" />
+    <ClCompile Include="..\..\chemu\src\timer.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\chemu\src\decode.c" />
-    <ClCompile Include="..\..\..\chemu\src\display.c" />
-    <ClCompile Include="..\..\..\chemu\src\emulation.c" />
-    <ClCompile Include="..\..\..\chemu\src\input.c" />
-    <ClCompile Include="..\..\..\chemu\src\instructions.c" />
-    <ClCompile Include="..\..\..\chemu\src\instructions_a.c" />
-    <ClCompile Include="..\..\..\chemu\src\instructions_i.c" />
-    <ClCompile Include="..\..\..\chemu\src\instructions_r.c" />
-    <ClCompile Include="..\..\..\chemu\src\instructions_v.c" />
-    <ClCompile Include="..\..\..\chemu\src\memory.c" />
-    <ClCompile Include="..\..\..\chemu\src\stack.c" />
-    <ClCompile Include="..\..\..\chemu\src\timer.c" />
+    <ClInclude Include="..\..\chemu\include\chemu.h" />
+    <ClInclude Include="..\..\chemu\include\chemu\ChipAddress.h" />
+    <ClInclude Include="..\..\chemu\include\chemu\ChipDisplay.h" />
+    <ClInclude Include="..\..\chemu\include\chemu\ChipDP.h" />
+    <ClInclude Include="..\..\chemu\include\chemu\ChipDrawCallback.h" />
+    <ClInclude Include="..\..\chemu\include\chemu\ChipEmu.h" />
+    <ClInclude Include="..\..\chemu\include\chemu\ChipInput.h" />
+    <ClInclude Include="..\..\chemu\include\chemu\ChipInst.h" />
+    <ClInclude Include="..\..\chemu\include\chemu\ChipInstDec.h" />
+    <ClInclude Include="..\..\chemu\include\chemu\ChipInstFunc.h" />
+    <ClInclude Include="..\..\chemu\include\chemu\ChipMem.h" />
+    <ClInclude Include="..\..\chemu\include\chemu\ChipOp.h" />
+    <ClInclude Include="..\..\chemu\include\chemu\ChipRedrawCallback.h" />
+    <ClInclude Include="..\..\chemu\include\chemu\ChipReg.h" />
+    <ClInclude Include="..\..\chemu\include\chemu\ChipSprite.h" />
+    <ClInclude Include="..\..\chemu\include\chemu\ChipStack.h" />
+    <ClInclude Include="..\..\chemu\include\chemu\ChipTimer.h" />
+    <ClInclude Include="..\..\chemu\include\chemu\decode.h" />
+    <ClInclude Include="..\..\chemu\include\chemu\display.h" />
+    <ClInclude Include="..\..\chemu\include\chemu\emulation.h" />
+    <ClInclude Include="..\..\chemu\include\chemu\input.h" />
+    <ClInclude Include="..\..\chemu\include\chemu\instructions.h" />
+    <ClInclude Include="..\..\chemu\include\chemu\memory.h" />
+    <ClInclude Include="..\..\chemu\include\chemu\stack.h" />
+    <ClInclude Include="..\..\chemu\include\chemu\timer.h" />
+    <ClInclude Include="..\..\chemu\include\debug.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

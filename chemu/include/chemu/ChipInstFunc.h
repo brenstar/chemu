@@ -10,7 +10,7 @@
  */
 typedef ChipInstResult (*ChipInstFunc)(ChipEmu*, ChipInstDec);
 
-typedef enum {
+typedef enum ChipInstClass_e {
 	INST_CLASS_A,			// address class
 	INST_CLASS_I,			// immediate class
 	INST_CLASS_R,			// register class

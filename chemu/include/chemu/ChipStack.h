@@ -13,7 +13,7 @@
 // 	ChipAddress data[CHIP_STACK_SIZE];
 // } ChipStack;
 
-typedef struct {
+typedef struct ChipStack_s {
     uint8_t index;
     ChipAddress data[CHIP_STACK_SIZE];
 } ChipStack;
