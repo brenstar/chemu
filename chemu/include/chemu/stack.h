@@ -15,6 +15,10 @@ void chipstack_push(ChipStack *stack, ChipAddress element);
 
 ChipAddress chipstack_pop(ChipStack *stack);
 
+#if defined(_INLINE_) && defined(_MSC_VER)
+#include "inline.h"
+#include "stack.ipp"
+#endif
 
 
 

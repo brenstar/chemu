@@ -134,5 +134,16 @@
     <ClInclude Include="..\..\chemu\include\chemu\timer.h">
       <Filter>Header Files\chemu</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\chemu\include\inline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\chemu\include\chemu\memory.ipp">
+      <Filter>Header Files\chemu</Filter>
+    </None>
+    <None Include="..\..\chemu\include\chemu\stack.ipp">
+      <Filter>Header Files\chemu</Filter>
+    </None>
   </ItemGroup>
 </Project>

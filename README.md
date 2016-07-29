@@ -25,6 +25,8 @@ compile as a static library use `make chemu-static` instead.
 | stack        | chemu/stack.h        | chipstack   | Routines for modifying a ChipStack struct |
 | timer        | chemu/timer.h        | chiptimer   | Encapsulates a CHIP-8 timer, which counts down at 60Hz |
 
+To include all modules in a source file use the chemu.h header
+
 # Naming conventions and style
 
 * Struct names are camel case followed by `_s`
@@ -36,6 +38,8 @@ compile as a static library use `make chemu-static` instead.
 * Function names are prefixed by their associated module name (see [Library Modules](#modules)) and an underscore. Following this prefix is a name in camel case or underscore delimited.
 * Each typedef should have its own header file
 * Typedefs should not define pointer types. The only exceptions are function pointers and opaque pointers (e.g. ChipTimer).
+* Inline functions must be implemented using an inline guard macro. This will
+allow for inline functions to be enabled/disabled at compile time
 
 # License
 

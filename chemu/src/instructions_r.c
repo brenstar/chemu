@@ -92,6 +92,7 @@ ChipInstResult cif_subn(ChipEmu *emu, ChipInstDec inst) {
 	inst.r.rnum_dest ^= inst.r.rnum_src;
 	inst.r.literal_lo = 5;
 
+	// TODO: make a static inline function for subtraction, which cif_sub and cif_subn will use
 	return cif_sub(emu, inst);
 }
 

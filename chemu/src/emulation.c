@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
-#include <unistd.h>
 #include <string.h>
 
 #include "chemu/emulation.h"
@@ -13,8 +12,13 @@
 #include "chemu/timer.h"
 #include "debug.h"
 
-static void mainLoop_noLimit(ChipEmu *emu, int *exitStatus);
-static void mainLoop_limit(ChipEmu *emu, int *exitStatus);
+#if defined(__unix__)
+#include <unistd.h>
+#elif defined(_WIN32)
+#endif
+
+//static void mainLoop_noLimit(ChipEmu *emu, int *exitStatus);
+//static void mainLoop_limit(ChipEmu *emu, int *exitStatus);
 
 void chipemu_init(ChipEmu *emu) {
     // set callbacks to NULL
@@ -41,7 +45,12 @@ ChipKey chipemu_getKey(ChipEmu *emu) {
 
 int chipemu_loadROM(ChipEmu *emu, const char *path) {
     int bytesRead = -1;
-    FILE *fp = fopen(path, "rb");
+	#ifdef _WIN32
+		FILE *fp;
+		fopen_s(&fp, path, "rb");
+	#else
+		FILE *fp = fopen(path, "rb");
+	#endif
     if (fp != NULL) {
         uint8_t buffer[CHIPMEM_DATA_LEN];
         bytesRead = fread(buffer, 1, CHIPMEM_DATA_LEN, fp);
@@ -56,25 +65,25 @@ int chipemu_loadROM(ChipEmu *emu, const char *path) {
 int chipemu_mainLoop(ChipEmu *emu) {
 
     int exitStatus = EXIT_SUCCESS;
-    emu->running = true;
+    //emu->running = true;
 
-    emu->soundTimer = chiptimer_create(0);
-    emu->delayTimer = chiptimer_create(0);
+    //emu->soundTimer = chiptimer_create(0);
+    //emu->delayTimer = chiptimer_create(0);
 
-    chiptimer_start(emu->soundTimer);
-    chiptimer_start(emu->delayTimer);
+    //chiptimer_start(emu->soundTimer);
+    //chiptimer_start(emu->delayTimer);
 
-    if (emu->speed == 0)
-        mainLoop_noLimit(emu, &exitStatus);
-    else
-        mainLoop_limit(emu, &exitStatus);
+    //if (emu->speed == 0)
+    //    mainLoop_noLimit(emu, &exitStatus);
+    //else
+    //    mainLoop_limit(emu, &exitStatus);
 
-    // timer_destroy calls timer_stop automatically
-    chiptimer_destroy(emu->soundTimer);
-    chiptimer_destroy(emu->delayTimer);
+    //// timer_destroy calls timer_stop automatically
+    //chiptimer_destroy(emu->soundTimer);
+    //chiptimer_destroy(emu->delayTimer);
 
-    emu->soundTimer = NULL;
-    emu->delayTimer = NULL;
+    //emu->soundTimer = NULL;
+    //emu->delayTimer = NULL;
 
     return exitStatus;
 }
@@ -142,30 +151,32 @@ void chipemu_reset(ChipEmu *emu) {
 }
 
 
-#define mainloop(code)                                \
-    do {                                              \
-        if (chipemu_step(emu) == CHIP_STEP_FAILURE) { \
-            *exitStatus = EXIT_FAILURE;               \
-            break;                                    \
-        }                                             \
-        code                                          \
-    } while (emu->running)
-
-
-static void mainLoop_limit(ChipEmu *emu, int *exitStatus) {
-    const int interval = 1000000 / emu->speed;
-    clock_t currentTime, lastTime;
-    lastTime = clock();
-
-    mainloop(
-        currentTime = clock();
-        int sleepTime = interval - ((currentTime - lastTime) * 1000000 / CLOCKS_PER_SEC);
-        lastTime = currentTime;
-        if (sleepTime > 0)
-            usleep(sleepTime);
-    );
-}
-
-static void mainLoop_noLimit(ChipEmu *emu, int *exitStatus) {
-    mainloop();
-}
+//#define mainloop(code)                                \
+//    do {                                              \
+//        if (chipemu_step(emu) == CHIP_STEP_FAILURE) { \
+//            *exitStatus = EXIT_FAILURE;               \
+//            break;                                    \
+//        }                                             \
+//        code                                          \
+//    } while (emu->running)
+//
+//
+//static void mainLoop_limit(ChipEmu *emu, int *exitStatus) {
+//    const int interval = 1000000 / emu->speed;
+//    clock_t currentTime, lastTime;
+//    lastTime = clock();
+//
+//    mainloop(
+//        currentTime = clock();
+//        int sleepTime = interval - ((currentTime - lastTime) * 1000000 / CLOCKS_PER_SEC);
+//        lastTime = currentTime;
+//		#ifdef __unix__
+//        if (sleepTime > 0)
+//            usleep(sleepTime);
+//		#endif
+//    );
+//}
+//
+//static void mainLoop_noLimit(ChipEmu *emu, int *exitStatus) {
+//    mainloop();
+//}

@@ -9,16 +9,16 @@
 
 #define checkAddr(addr) (addr >= CHIP_PRGM_START && addr <= CHIP_END)
 
-/**
- * Constant definition containing the fontset. The fontset contains 16 sprites,
- * numbers 0-9 and letters A-F. Each sprite is 5 bytes long.
- */
+//
+// Constant definition containing the fontset. The fontset contains 16 sprites,
+// numbers 0-9 and letters A-F. Each sprite is 5 bytes long.
+//
 extern const uint8_t FONTSET[CHIPMEM_FONTSET_LEN];
 
-/**
- * Initializes the ChipMem object. The fontset is copied into the reserved
- * section at location 0x0 and the rest of the array is set to 0
- */
+//
+// Initializes the ChipMem object. The fontset is copied into the reserved
+// section at location 0x0 and the rest of the array is set to 0
+//
 void chipmem_init(ChipMem *mem);
 
 /**
@@ -41,5 +41,10 @@ bool chipmem_write(ChipMem *mem, ChipAddress addr, uint8_t value);
  * parameter must be in the range of 0 to 15.
  */
 ChipAddress chipmem_get_font(uint8_t digit);
+
+#if defined(_INLINE_) && defined(_MSC_VER)
+#include "inline.h"
+#include "memory.ipp"
+#endif
 
 #endif
