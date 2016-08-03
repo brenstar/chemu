@@ -45,11 +45,11 @@ ChipKey chipemu_getKey(ChipEmu *emu) {
 
 int chipemu_loadROM(ChipEmu *emu, const char *path) {
     int bytesRead = -1;
+	FILE *fp;
 	#ifdef _WIN32
-		FILE *fp;
 		fopen_s(&fp, path, "rb");
 	#else
-		FILE *fp = fopen(path, "rb");
+		fp = fopen(path, "rb");
 	#endif
     if (fp != NULL) {
         uint8_t buffer[CHIPMEM_DATA_LEN];
@@ -99,8 +99,10 @@ int chipemu_step(ChipEmu *emu) {
 
     // decode
     int i = chipdec_index(instruction);
-    if (i == NO_INSTRUCTION)
-        return CHIP_STEP_FAILURE;
+	if (i == NO_INSTRUCTION) {
+		printf("Illegal instruction: %04X\n", instruction);
+		return CHIP_STEP_FAILURE;
+	}
 
     ChipOp op = CHIP_OPTABLE[i];
     ChipInstDec decoded = chipdec_decode(instruction, op.cls);

@@ -2,6 +2,7 @@
 #define _EMULATION_H
 
 #include "ChipEmu.h"
+#include "export.h"
 
 #define CHIP_STEP_SUCCESS 0
 #define CHIP_STEP_FAILURE 1
@@ -17,10 +18,10 @@
  * Initializes the emulator. Callbacks are set to NULL. Memory and Stack are
  * initialized. The datapath is reset. Input and display are cleared.
  */
-void chipemu_init(ChipEmu *emu);
+CHEMU_API void chipemu_init(ChipEmu *emu);
 
 // invokes the pollKeyCallback
-ChipKey chipemu_getKey(ChipEmu *emu);
+CHEMU_API ChipKey chipemu_getKey(ChipEmu *emu);
 
 /**
  * Loads a CHIP-8 ROM file into the emulator's memory in the data section.
@@ -28,12 +29,12 @@ ChipKey chipemu_getKey(ChipEmu *emu);
  * occurs or the ROM file was too big, -1 is returned and the emulator
  * is unmodified.
  */
-int chipemu_loadROM(ChipEmu *emu, const char *path);
+CHEMU_API int chipemu_loadROM(ChipEmu *emu, const char *path);
 
-int chipemu_mainLoop(ChipEmu *emu);
+CHEMU_API int chipemu_mainLoop(ChipEmu *emu);
 
 // invokes the redrawCallback associated with the given emulator object
-void chipemu_redraw(ChipEmu *emu);
+CHEMU_API void chipemu_redraw(ChipEmu *emu);
 
 /**
  * Resets the state of the emulator to the default state. If the emulator
@@ -46,11 +47,11 @@ void chipemu_redraw(ChipEmu *emu);
  *   4. The input is cleared
  *   5. The display is cleared
  */
-void chipemu_reset(ChipEmu *emu);
+CHEMU_API void chipemu_reset(ChipEmu *emu);
 
 /**
  * Emulates a single cycle for the given emulator object.
  */
-int chipemu_step(ChipEmu *emu);
+CHEMU_API int chipemu_step(ChipEmu *emu);
 
 #endif

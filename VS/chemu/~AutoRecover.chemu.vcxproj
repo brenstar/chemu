@@ -88,7 +88,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_INLINE_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_INLINE_;CHEMU_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>..\..\chemu\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
@@ -192,6 +192,7 @@
     <ClInclude Include="..\..\chemu\include\chemu\stack.h" />
     <ClInclude Include="..\..\chemu\include\chemu\timer.h" />
     <ClInclude Include="..\..\chemu\include\debug.h" />
+    <ClInclude Include="..\..\chemu\include\export.h" />
     <ClInclude Include="..\..\chemu\include\inline.h" />
   </ItemGroup>
   <ItemGroup>

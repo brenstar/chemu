@@ -29,6 +29,7 @@
 
 	#define TIMERLOOP_RETURN_TYPE void*
 	#define TIMERLOOP_PARAM_TYPE void*
+	#define TIMERLOOP_RETURN_VALUE NULL
 
 #elif defined(_WIN32)
 
@@ -54,6 +55,7 @@
 
 	#define TIMERLOOP_RETURN_TYPE DWORD WINAPI
 	#define TIMERLOOP_PARAM_TYPE LPVOID
+	#define TIMERLOOP_RETURN_VALUE 0
 
 #endif
 
@@ -151,5 +153,5 @@ static TIMERLOOP_RETURN_TYPE timerloop(TIMERLOOP_PARAM_TYPE param) {
 		timerMutexUnlock(timer);
 	} while (timer->running);
 
-	return NULL;
+	return TIMERLOOP_RETURN_VALUE;
 }
