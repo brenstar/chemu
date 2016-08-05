@@ -10,7 +10,8 @@
 #include "chemu/memory.h"
 #include "chemu/stack.h"
 #include "chemu/timer.h"
-#include "debug.h"
+#include "chemu/logger.h"
+
 
 #if defined(__unix__)
 #include <unistd.h>
@@ -92,15 +93,15 @@ int chipemu_step(ChipEmu *emu) {
     int result = CHIP_STEP_SUCCESS;
 
     // fetch
-    ChipAddress *pc = &emu->memory.reserved.pc;
-    ChipInst instruction = (uint16_t)(emu->memory.array[*pc] << 8 |
-                                      emu->memory.array[*pc + 1]);
+    ChipAddress pc = emu->memory.reserved.pc;
+    ChipInst instruction = (uint16_t)(emu->memory.array[pc] << 8 |
+                                      emu->memory.array[pc + 1]);
 
 
     // decode
     int i = chipdec_index(instruction);
 	if (i == NO_INSTRUCTION) {
-		printf("Illegal instruction: %04X\n", instruction);
+		chiplog_error("Illegal instruction: %04X\n", instruction);
 		return CHIP_STEP_FAILURE;
 	}
 
@@ -108,15 +109,16 @@ int chipemu_step(ChipEmu *emu) {
     ChipInstDec decoded = chipdec_decode(instruction, op.cls);
 
     // execute
+	chiplog_debug("Executing '%s' (0x%04X) at 0x%03X\n", op.name, instruction, pc);
     ChipInstResult instResult = op.func(emu, decoded);
     switch (instResult) {
         case INST_SUCCESS:
             break;
         case INST_SUCCESS_INCR_PC:
-            *pc += 2;
+            emu->memory.reserved.pc += 2;
             break;
         case INST_FAILURE:
-            printf("Instruction index %d has failed.\n", i);
+            chiplog_error("Instruction index %d has failed.\n", i);
             result = CHIP_STEP_FAILURE;
             break;
     }

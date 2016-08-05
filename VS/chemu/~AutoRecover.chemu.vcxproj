@@ -161,6 +161,7 @@
     <ClCompile Include="..\..\chemu\src\instructions_i.c" />
     <ClCompile Include="..\..\chemu\src\instructions_r.c" />
     <ClCompile Include="..\..\chemu\src\instructions_v.c" />
+    <ClCompile Include="..\..\chemu\src\logger.c" />
     <ClCompile Include="..\..\chemu\src\memory.c" />
     <ClCompile Include="..\..\chemu\src\stack.c" />
     <ClCompile Include="..\..\chemu\src\timer.c" />
@@ -188,6 +189,7 @@
     <ClInclude Include="..\..\chemu\include\chemu\emulation.h" />
     <ClInclude Include="..\..\chemu\include\chemu\input.h" />
     <ClInclude Include="..\..\chemu\include\chemu\instructions.h" />
+    <ClInclude Include="..\..\chemu\include\chemu\logger.h" />
     <ClInclude Include="..\..\chemu\include\chemu\memory.h" />
     <ClInclude Include="..\..\chemu\include\chemu\stack.h" />
     <ClInclude Include="..\..\chemu\include\chemu\timer.h" />

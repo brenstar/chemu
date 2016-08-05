@@ -54,12 +54,12 @@
     <ClCompile Include="..\..\chemu\src\decode.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\chemu\src\logger.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\chemu\include\chemu.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\chemu\include\debug.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\chemu\include\chemu\ChipAddress.h">
@@ -139,6 +139,9 @@
     </ClInclude>
     <ClInclude Include="..\..\chemu\include\export.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\chemu\include\chemu\logger.h">
+      <Filter>Header Files\chemu</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -3,13 +3,16 @@
 #include "chemu/instructions.h"
 #include "chemu/stack.h"
 
+#include "chemu/logger.h"
+
 
 #define RESERVED emu->memory.reserved
 
 
 // sys - syscall
-ChipInstResult cif_sys(ChipEmu *emu, ChipInstDec instruction) {
-    (void)emu; (void)instruction;
+ChipInstResult cif_sys(ChipEmu *emu, ChipInstDec inst) {
+    (void)emu; (void)inst;
+	chiplog_warn("Attempted system call: %d\n", inst.a.addr);
     // not implemented do nothing
 
     return INST_SUCCESS_INCR_PC;
@@ -32,6 +35,7 @@ ChipInstResult cif_call(ChipEmu *emu, ChipInstDec inst) {
         RESERVED.pc = inst.a.addr;
         result = INST_SUCCESS;
     } else {
+		chiplog_error("Failed to call subroutine: stack at limit\n");
         result = INST_FAILURE;
     }
 

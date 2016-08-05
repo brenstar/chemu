@@ -78,6 +78,7 @@ ChipInstResult cif_ld(ChipEmu *emu, ChipInstDec inst) {
 	if (emu->delayTimer == NULL)
 		return INST_FAILURE;
 
+
 	RESERVED.regs[inst.i.rnum] = chiptimer_get(emu->delayTimer);
 
 	return INST_SUCCESS_INCR_PC;
