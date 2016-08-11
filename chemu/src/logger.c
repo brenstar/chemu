@@ -72,7 +72,7 @@ void chiplog_log(LogLevel level, const char *fmt, ...) {
 		char timeStr[18];
 		strftime(timeStr, 18, "%y-%m-%d %H:%M:%S", tm_info);
 
-		fprintf(logger.stream, "[%s][%s] ", timeStr, levelNames[(int)level]);
+		fprintf(logger.stream, "[%s][%s]", timeStr, levelNames[(int)level]);
 		vfprintf(logger.stream, fmt, ap);
 		if (ferror(logger.stream))
 			logger.error = true;

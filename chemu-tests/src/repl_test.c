@@ -6,6 +6,7 @@
 #include "chemu/emulation.h"
 #include "chemu/instructions.h"
 #include "chemu/decode.h"
+#include "chemu/logger.h"
 
 #define RESERVED(emu) emu->memory.reserved
 
@@ -14,13 +15,17 @@ static void dumpRegisters(ChipEmu *emu);
 int main(int argc, const char* argv[]) {
 
     puts("Enter an instruction in hexadecimal to execute");
+    
+    chiplog_set(stderr);
+    chiplog_setLevel(CHIP_LOG_DEBUG);
 
     ChipEmu *emu = (ChipEmu*)malloc(sizeof(ChipEmu));
+    chipemu_init(emu);
     ChipInstResult lastResult = INST_SUCCESS;
 
     while (!feof(stdin)) {
 
-        printf("[%d]>>> ", lastResult);
+        printf("[PC: 0x%03X][%d]>>> ", emu->memory.reserved.pc, lastResult);
         char *line = NULL;
         size_t bufsize, size;
         if ((size = getline(&line, &bufsize, stdin)) != -1) {

@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "chemu.h"
+#include "chemu/logger.h"
 #include "worker.h"
 
 //static void printDisplay(ChipDisplay *display, WINDOW *win);
@@ -23,6 +24,9 @@ int main(int argc, const char * argv[]) {
         fputs("usage: chemu-cli <romfile> <speed>", stderr);
         return EXIT_FAILURE;
     }
+
+    chiplog_set(stderr);
+    //chiplog_setLevel(CHIP_LOG_DEBUG);
 
     ChipEmu *emu = (ChipEmu*)malloc(sizeof(ChipEmu));
     chipemu_init(emu);
@@ -45,6 +49,7 @@ int main(int argc, const char * argv[]) {
     initscr();
     raw();
     noecho();
+    timeout(0);
     keypad(stdscr, TRUE);
 
     displayWindow = newwin(CHIP_DISPLAY_ROWS + 2, CHIP_DISPLAY_COLS * 2 + 2, 0, 0);

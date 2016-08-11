@@ -1,3 +1,5 @@
+// NOTE: This file has stubs only, and is used for testing purposes only
+
 #include "chemu/instructions.h"
 
 ChipInstResult cif_sys(ChipEmu *emu, ChipInstDec instruction) {

@@ -1,11 +1,11 @@
 #include "stack.h"
 
 INLINE void chipstack_init(ChipStack *stack) {
-	stack->index = CHIP_STACK_SIZE;
+	stack->index = CHIP_STACK_SIZE - 1;
 }
 
 INLINE bool chipstack_can_pop(ChipStack *stack) {
-	return stack->index != CHIP_STACK_SIZE;
+	return stack->index != CHIP_STACK_SIZE - 1;
 }
 
 INLINE bool chipstack_can_push(ChipStack *stack) {

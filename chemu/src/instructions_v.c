@@ -6,6 +6,8 @@
 #include "chemu/stack.h"
 #include "chemu/emulation.h"
 
+#include "chemu/logger.h"
+
 #define RESERVED emu->memory.reserved
 
 // cls - Clear screen
@@ -26,8 +28,10 @@ ChipInstResult cif_ret(ChipEmu *emu, ChipInstDec instruction) {
 	ChipInstResult result;
 	if (chipstack_can_pop(&RESERVED.stack)) {
 		RESERVED.pc = chipstack_pop(&RESERVED.stack);
+		chiplog_debug("[Stack] Popped 0x%03X from call stack\n", RESERVED.pc);
 		result = INST_SUCCESS_INCR_PC;
 	} else {
+		chiplog_error("[Stack] Cannot return, stack is empty\n");
 		result = INST_FAILURE;
 	}
 

@@ -31,6 +31,7 @@ ChipInstResult cif_call(ChipEmu *emu, ChipInstDec inst) {
 
     ChipInstResult result;
     if (chipstack_can_push(&RESERVED.stack)) {
+		chiplog_debug("[Stack] Pushing 0x%03X onto call stack\n", RESERVED.pc);
         chipstack_push(&RESERVED.stack, RESERVED.pc);
         RESERVED.pc = inst.a.addr;
         result = INST_SUCCESS;

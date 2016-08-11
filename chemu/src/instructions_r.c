@@ -56,20 +56,22 @@ ChipInstResult cif_add(ChipEmu *emu, ChipInstDec inst) {
 	RESERVED.regs[vx] += RESERVED.regs[vy];
 
 	// carry detection
-	RESERVED.regs[CARRY_REG] = (temp > RESERVED.regs[vx]) ? 1 : 0;
+	RESERVED.regs[CARRY_REG] = temp > RESERVED.regs[vx];
 
 	return INST_SUCCESS_INCR_PC;
 }
 
-// sub - subtraction
+// If regs[vx] > regs[vy] then CARRY_REG is set 1, 0 otherwise (or NOT borrow)
+// regs[dest] = regs[vx] - regs[vy]
+#define cif_sub_helper(dest, vx, vy) \
+	RESERVED.regs[CARRY_REG] = RESERVED.regs[vx] > RESERVED.regs[vy]; \
+	RESERVED.regs[dest] = RESERVED.regs[vx] - RESERVED.regs[vy]
+
+// sub - subtraction, dest minus src
 ChipInstResult cif_sub(ChipEmu *emu, ChipInstDec inst) {
 
-	ChipReg vx = inst.r.rnum_dest, vy = inst.r.rnum_src;
-	ChipReg temp = RESERVED.regs[vx];
-	RESERVED.regs[vx] -= RESERVED.regs[vy];
-
-	// borrow detection
-	RESERVED.regs[CARRY_REG] = (temp < RESERVED.regs[vx] ? 1 : 0);
+	// dest = dest - src
+	cif_sub_helper(inst.r.rnum_dest, inst.r.rnum_dest, inst.r.rnum_src);
 
 	return INST_SUCCESS_INCR_PC;
 }
@@ -83,17 +85,13 @@ ChipInstResult cif_shr(ChipEmu *emu, ChipInstDec inst) {
 	return INST_SUCCESS_INCR_PC;
 }
 
-// subn - subtraction, operands swapped
+// subn - subtraction, src minus dest
 ChipInstResult cif_subn(ChipEmu *emu, ChipInstDec inst) {
 
-	// xor swap, swap rnum_dest and rnum_src of inst
-	inst.r.rnum_dest ^= inst.r.rnum_src;
-	inst.r.rnum_src ^= inst.r.rnum_dest;
-	inst.r.rnum_dest ^= inst.r.rnum_src;
-	inst.r.literal_lo = 5;
+	// dest = src - dest
+	cif_sub_helper(inst.r.rnum_dest, inst.r.rnum_src, inst.r.rnum_dest);
 
-	// TODO: make a static inline function for subtraction, which cif_sub and cif_subn will use
-	return cif_sub(emu, inst);
+	return INST_SUCCESS_INCR_PC;
 }
 
 // shift left by 1

@@ -18,7 +18,7 @@ endif
 CC =			gcc
 CFLAGS_BASE =	-std=c11 -Wextra -Wall -pedantic -fPIC
 CFLAGS =		$(CFLAGS_BASE)
-OBJFN =			emulation.o decode.o display.o instructions_a.o input.o instructions_i.o instructions_r.o instructions_v.o memory.o stack.o timer.o
+OBJFN =			emulation.o decode.o display.o instructions_a.o input.o instructions_i.o instructions_r.o instructions_v.o memory.o logger.o stack.o timer.o
 OBJFILES =		$(addprefix $(OBJDIR)/,$(OBJFN))
 LDFLAGS=		-shared
 DEFINES=		$(addprefix -D,NDEBUG _INLINE_)

@@ -40,11 +40,11 @@ CHEMU_API void chiplog_log(LogLevel level, const char *fmt, ...);
 
 #endif
 
-#define chiplog_debug(fmt, ...) chiplog_log(CHIP_LOG_DEBUG, fmt, __VA_ARGS__)
-#define chiplog_trace(fmt, ...) chiplog_log(CHIP_LOG_TRACE, fmt, __VA_ARGS__)
-#define chiplog_info(fmt, ...) chiplog_log(CHIP_LOG_INFO, fmt, __VA_ARGS__)
-#define chiplog_warn(fmt, ...) chiplog_log(CHIP_LOG_WARN, fmt, __VA_ARGS__)
-#define chiplog_error(fmt, ...) chiplog_log(CHIP_LOG_ERROR, fmt, __VA_ARGS__)
+#define chiplog_debug(fmt, ...) chiplog_log(CHIP_LOG_DEBUG, fmt, ##__VA_ARGS__)
+#define chiplog_trace(fmt, ...) chiplog_log(CHIP_LOG_TRACE, fmt, ##__VA_ARGS__)
+#define chiplog_info(fmt, ...) chiplog_log(CHIP_LOG_INFO, fmt, ##__VA_ARGS__)
+#define chiplog_warn(fmt, ...) chiplog_log(CHIP_LOG_WARN, fmt, ##__VA_ARGS__)
+#define chiplog_error(fmt, ...) chiplog_log(CHIP_LOG_ERROR, fmt, ##__VA_ARGS__)
 
 
 #endif
