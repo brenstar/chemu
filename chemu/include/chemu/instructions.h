@@ -1,20 +1,11 @@
 #ifndef _INSTRUCTIONS_H
 #define _INSTRUCTIONS_H
 
-//#include "chiptypes.h"
-
 #include <stdint.h>
 
 #include "ChipEmu.h"
 #include "ChipInstDec.h"
 #include "export.h"
-
-// // successful instruction execution
-// #define INST_SUCCESS            0
-// // successful instruction execution, increment program counter
-// #define INST_SUCCESS_INCR_PC    1
-// // instruction failed to execute
-// #define INST_FAILURE            2
 
 CHEMU_API ChipInstResult cif_sys(ChipEmu *emu, ChipInstDec instruction);
 

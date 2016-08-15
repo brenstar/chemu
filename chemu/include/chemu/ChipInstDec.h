@@ -30,6 +30,4 @@ typedef union ChipInstDec_u {
     ChipInst_RType r;
 } ChipInstDec;
 
-
-
 #endif

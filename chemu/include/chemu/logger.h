@@ -7,12 +7,12 @@
 #include <stdarg.h>
 
 typedef enum LogLevel_e {
-	CHIP_LOG_DEBUG = 0,
-	CHIP_LOG_TRACE = 1,
-	CHIP_LOG_INFO  = 2,
-	CHIP_LOG_WARN  = 3,
-	CHIP_LOG_ERROR = 4,
-	CHIP_LOG_NONE  = 5
+    CHIP_LOG_DEBUG = 0,
+    CHIP_LOG_TRACE = 1,
+    CHIP_LOG_INFO  = 2,
+    CHIP_LOG_WARN  = 3,
+    CHIP_LOG_ERROR = 4,
+    CHIP_LOG_NONE  = 5
 } LogLevel;
 
 #define LOG_LEVEL_DEFAULT CHIP_LOG_INFO
@@ -45,6 +45,5 @@ CHEMU_API void chiplog_log(LogLevel level, const char *fmt, ...);
 #define chiplog_info(fmt, ...) chiplog_log(CHIP_LOG_INFO, fmt, ##__VA_ARGS__)
 #define chiplog_warn(fmt, ...) chiplog_log(CHIP_LOG_WARN, fmt, ##__VA_ARGS__)
 #define chiplog_error(fmt, ...) chiplog_log(CHIP_LOG_ERROR, fmt, ##__VA_ARGS__)
-
 
 #endif

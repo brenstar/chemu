@@ -13,8 +13,10 @@
 // total length (bytes) of memory used by CHIP-8
 #define CHIPMEM_LEN 4096
 
+// length of the reserved memory in bytes
 #define CHIPMEM_RESERVED_LEN 512
 
+// length of the memory used for CHIP-8 programs
 #define CHIPMEM_DATA_LEN (CHIPMEM_LEN - CHIPMEM_RESERVED_LEN)
 
 // fontset: 16 sprites, each 5 bytes long, 80 total

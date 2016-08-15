@@ -1,0 +1,36 @@
+index,class,mnemonic,name
+0,A,SYS,system call
+1,V,CLS,clear display
+2,V,RET,return
+3,A,J,jump
+4,A,CALL,call routine
+5,I,SEI,skip if equal to immediate
+6,I,SNI,skip if not equal to immediate
+7,R,SE,skip if equal
+8,I,LI,Load immediate
+9,I,ADDI,Add immediate
+10,R,MOVE,move
+11,R,OR,bitwise or
+12,R,AND,bitwise and
+13,R,XOR,bitwise xor
+14,R,ADD,Addition
+15,R,SUB,Subtraction
+16,R,SHR,Shift right
+17,R,SUBN,Subtraction
+18,R,SHL,Shift left
+19,R,SN,skip if not equal
+20,A,LA,load address
+21,A,JO,jump with offset
+22,I,RND,random
+23,R,DRAW,Draw sprite
+24,I,SIP,skip next if pressed
+25,I,SNIP,skip next if not pressed
+26,I,LD,Load delay timer
+27,I,LK,Load key press
+28,I,DEL,set delay timer
+29,I,SND,set sound timer
+30,I,II,increment I
+31,I,FONT,Set I to font digit
+32,I,BCD,binary coded decimal
+33,I,SAVE,save registers
+34,I,REST,restore registers

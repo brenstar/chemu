@@ -46,12 +46,12 @@ ChipKey chipemu_getKey(ChipEmu *emu) {
 
 int chipemu_loadROM(ChipEmu *emu, const char *path) {
     int bytesRead = -1;
-	FILE *fp;
-	#ifdef _WIN32
-		fopen_s(&fp, path, "rb");
-	#else
-		fp = fopen(path, "rb");
-	#endif
+    FILE *fp;
+    #ifdef _WIN32
+        fopen_s(&fp, path, "rb");
+    #else
+        fp = fopen(path, "rb");
+    #endif
     if (fp != NULL) {
         uint8_t buffer[CHIPMEM_DATA_LEN];
         bytesRead = fread(buffer, 1, CHIPMEM_DATA_LEN, fp);
@@ -100,16 +100,16 @@ int chipemu_step(ChipEmu *emu) {
 
     // decode
     int i = chipdec_index(instruction);
-	if (i == NO_INSTRUCTION) {
-		chiplog_error("Illegal instruction: %04X\n", instruction);
-		return CHIP_STEP_FAILURE;
-	}
+    if (i == NO_INSTRUCTION) {
+        chiplog_error("Illegal instruction: %04X\n", instruction);
+        return CHIP_STEP_FAILURE;
+    }
 
     ChipOp op = CHIP_OPTABLE[i];
     ChipInstDec decoded = chipdec_decode(instruction, op.cls);
 
     // execute
-	chiplog_debug("Executing '%s' (0x%04X) at 0x%03X\n", op.name, instruction, pc);
+    chiplog_debug("Executing '%s' (0x%04X) at 0x%03X\n", op.name, instruction, pc);
     ChipInstResult instResult = op.func(emu, decoded);
     switch (instResult) {
         case INST_SUCCESS:

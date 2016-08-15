@@ -6,13 +6,6 @@
 
 #define CHIP_STACK_SIZE 16
 
-
-// typedef struct {
-//     ChipAddress *sp;  // stack pointer
-// 	//uint8_t index;
-// 	ChipAddress data[CHIP_STACK_SIZE];
-// } ChipStack;
-
 typedef struct ChipStack_s {
     uint8_t index;
     ChipAddress data[CHIP_STACK_SIZE];

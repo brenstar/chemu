@@ -120,11 +120,6 @@ int chipdec_index(ChipInst instruction) {
     return index;
 }
 
-// ChipInstFunc chipdec_decode(ChipInst instruction) {
-//     int i = chipdec_index(instruction);
-//     return (i == -1) ? NULL : CHIP_OPTABLE[i];
-// }
-
 static int decoder0(ChipInst inst) {
     switch (inst) {
         case 0x00E0:

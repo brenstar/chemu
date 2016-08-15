@@ -14,44 +14,48 @@
 #define chipemu_destroy(emu) free(emu);
 #define chipemu_stop(emu) emu->running = false;
 
-/**
- * Initializes the emulator. Callbacks are set to NULL. Memory and Stack are
- * initialized. The datapath is reset. Input and display are cleared.
- */
+//
+// Initializes the emulator. Callbacks are set to NULL. Memory and Stack are
+// initialized. The datapath is reset. Input and display are cleared.
+//
 CHEMU_API void chipemu_init(ChipEmu *emu);
 
-// invokes the pollKeyCallback
+//
+// Invokes the pollKeyCallback associated with the emulator
+//
 CHEMU_API ChipKey chipemu_getKey(ChipEmu *emu);
 
-/**
- * Loads a CHIP-8 ROM file into the emulator's memory in the data section.
- * The size of the ROM in bytes is returned on success. If any read error
- * occurs or the ROM file was too big, -1 is returned and the emulator
- * is unmodified.
- */
+//
+// Loads a CHIP-8 ROM file into the emulator's memory in the data section.
+// The size of the ROM in bytes is returned on success. If any read error
+// occurs or the ROM file was too big, -1 is returned and the emulator
+// is unmodified.
+//
 CHEMU_API int chipemu_loadROM(ChipEmu *emu, const char *path);
 
 CHEMU_API int chipemu_mainLoop(ChipEmu *emu);
 
-// invokes the redrawCallback associated with the given emulator object
+//
+// Invokes the redrawCallback associated with the given emulator object
+//
 CHEMU_API void chipemu_redraw(ChipEmu *emu);
 
-/**
- * Resets the state of the emulator to the default state. If the emulator
- * is running, this function does nothing.
- *
- * The default state is the following:
- *   1. The program counter is set to 0x200
- *   2. All registers and timers are set to 0
- *   3. The stack is cleared
- *   4. The input is cleared
- *   5. The display is cleared
- */
+//
+// Resets the state of the emulator to the default state. If the emulator
+// is running, this function does nothing.
+//
+// The default state is the following:
+//   1. The program counter is set to 0x200
+//   2. All registers and timers are set to 0
+//   3. The stack is cleared
+//   4. The input is cleared
+//   5. The display is cleared
+//
 CHEMU_API void chipemu_reset(ChipEmu *emu);
 
-/**
- * Emulates a single cycle for the given emulator object.
- */
+//
+// Emulates a single cycle for the given emulator object.
+//
 CHEMU_API int chipemu_step(ChipEmu *emu);
 
 #endif

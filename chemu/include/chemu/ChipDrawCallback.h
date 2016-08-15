@@ -1,3 +1,6 @@
+// DEPRECATED
+// framebuffer is now managed internally (see display.h)
+
 #ifndef _CHIPDRAWCALLBACK_H
 #define _CHIPDRAWCALLBACK_H
 
