@@ -49,7 +49,6 @@ int main(int argc, const char * argv[]) {
     initscr();
     raw();
     noecho();
-    timeout(0);
     keypad(stdscr, TRUE);
 
     displayWindow = newwin(CHIP_DISPLAY_ROWS + 2, CHIP_DISPLAY_COLS * 2 + 2, 0, 0);
