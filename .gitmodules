@@ -1,0 +1,3 @@
+[submodule "chemu/lib/c11threads"]
+	path = chemu/lib/c11threads
+	url = https://github.com/pedgeon/c11threads.git
