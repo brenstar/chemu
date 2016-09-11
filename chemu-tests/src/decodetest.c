@@ -9,12 +9,44 @@
 //     int expectedIndex;
 // } IndexTest;
 
+//typedef enum {
+//	RANGE_FIXED, RANGE_RANGED
+//} RangeType;
+//
+//struct FixedRange {
+//	ChipInst startInst;
+//	ChipInst stopInst;
+//	ChipInst step;
+//	int expectedIndex;
+//};
+//
+//struct RangedRange {
+//	struct FixedRange startRange;
+//	struct FixedRange endRange;
+//	ChipInst step;
+//};
+//
+//typedef struct {
+//	union {
+//		struct FixedRange fixed;
+//		struct RangedRange ranged;
+//	} range;
+//	RangeType type;
+//} RangeTest;
+
 typedef struct {
     ChipInst startInst;
     ChipInst stopInst;
     ChipInst step;
     int expectedIndex;
 } RangeTest;
+
+typedef struct IndexTest_s {
+	ChipInst base;
+	ChipInst mask;
+	int expectedIndex;
+	const char name[5];
+} IndexTest;
 
 typedef struct {
     ChipInst inst;
@@ -23,6 +55,63 @@ typedef struct {
     ChipInst_RType rExpected;
 } DecodeTest;
 
+//#define FRange(start, end, step, expected) {{start, end, step, expected}, RANGE_FIXED}
+//#define RRange(start, end, step) {{start, end, step}, RANGE_RANGED}
+//
+//static const RangeTest RANGE_TESTS[] = {
+//	FRange(0x0000, 0x00DF, 1, 0), // sys
+//	FRange(0x00E0, 0x00E0, 1, 1), // cls
+//	FRange(0x00E1, 0x00ED, 1, 0), // sys
+//	FRange(0x00EE, 0x00EE, 1, 2), // ret
+//	FRange(0x00EF, 0x0FFF, 1, 0), // sys
+//	FRange(0x1000, 0x1FFF, 1, 3), // j
+//	FRange(0x2000, 0x2FFF, 1, 4), // call
+//	FRange(0x3000, 0x3FFF, 1, 5), // sei
+//	FRange(0x4000, 0x4FFF, 1, 6), // sni
+//	RRange({0x5000, 0x5FF0, 16, 7}, {0x})
+//}
+ 
+
+static const IndexTest INDEX_TESTS[] = {
+	{0x0000, 0xF000, 0, "sys"}, // sys (instructions 0x0000 to 0x0FFF)
+	{0x00E0, 0xFFFF, 1, "cls"}, // cls (instruction 0x00E0 only)
+	{0x00EE, 0xFFFF, 2, "ret"}, // ret (instruction 0x00EE only)
+	{0x1000, 0xF000, 3, "j"}, // j   (instructions 0x1000 to 0x1FFF)
+	{0x2000, 0xF000, 4, "call"}, // call
+	{0x3000, 0xF000, 5, "sei"},
+	{0x4000, 0xF000, 6, "sni"},
+	{0x5000, 0xF00F, 7, "se"},
+	{0x6000, 0xF000, 8, "li"},
+	{0x7000, 0xF000, 9, "addi"},
+	{0x8000, 0xF00F, 10, "move"},
+	{0x8001, 0xF00F, 11, "or"},
+	{0x8002, 0xF00F, 12, "and"},
+	{0x8003, 0xF00F, 13, "xor"},
+	{0x8004, 0xF00F, 14, "add"},
+	{0x8005, 0xF00F, 15, "sub"},
+	{0x8006, 0xF00F, 16, "shr"},
+	{0x8007, 0xF00F, 17, "subn"},
+	{0x800E, 0xF00F, 18, "shl"},
+	{0x9000, 0xF00F, 19, "sn"},
+	{0xA000, 0xF000, 20, "la"},
+	{0xB000, 0xF000, 21, "jo"},
+	{0xC000, 0xF000, 22, "rnd"},
+	{0xD000, 0xF000, 23, "draw"},
+	{0xE09E, 0xF0FF, 24, "sip"},
+	{0xE0A1, 0xF0FF, 25, "snip"},
+	{0xF007, 0xF0FF, 26, "ld"},
+	{0xF00A, 0xF0FF, 27, "lk"},
+	{0xF015, 0xF0FF, 28, "del"},
+	{0xF018, 0xF0FF, 29, "snd"},
+	{0xF01E, 0xF0FF, 30, "ii"},
+	{0xF029, 0xF0FF, 31, "font"},
+	{0xF033, 0xF0FF, 32, "bcd"},
+	{0xF055, 0xF0FF, 33, "save"},
+	{0xF065, 0xF0FF, 34, "rest"}
+
+};
+
+/*
 static const RangeTest RANGE_TESTS[] = {
     {0x0000, 0x00DF, 1, 0}, // sys
     {0x00E0, 0x00E0, 1, 1}, // cls
@@ -34,7 +123,62 @@ static const RangeTest RANGE_TESTS[] = {
     {0x3000, 0x3FFF, 1, 5}, // sei
     {0x4000, 0x4FFF, 1, 6}, // sni
     {0x5000, 0x5FF0, 16, 7}, // se
-};
+	{0x5001, 0x5FF1, 16, NO_INSTRUCTION}, // illegal
+	{0x5002, 0x5FF2, 16, NO_INSTRUCTION}, // illegal
+	{0x5003, 0x5FF3, 16, NO_INSTRUCTION}, // illegal
+	{0x5004, 0x5FF4, 16, NO_INSTRUCTION}, // illegal
+	{0x5005, 0x5FF5, 16, NO_INSTRUCTION}, // illegal
+	{0x5006, 0x5FF6, 16, NO_INSTRUCTION}, // illegal
+	{0x5007, 0x5FF7, 16, NO_INSTRUCTION}, // illegal
+	{0x5008, 0x5FF8, 16, NO_INSTRUCTION}, // illegal
+	{0x5009, 0x5FF9, 16, NO_INSTRUCTION}, // illegal
+	{0x500A, 0x5FFA, 16, NO_INSTRUCTION}, // illegal
+	{0x500B, 0x5FFB, 16, NO_INSTRUCTION}, // illegal
+	{0x500C, 0x5FFC, 16, NO_INSTRUCTION}, // illegal
+	{0x500D, 0x5FFD, 16, NO_INSTRUCTION}, // illegal
+	{0x500E, 0x5FFE, 16, NO_INSTRUCTION}, // illegal
+	{0x500F, 0x5FFF, 16, NO_INSTRUCTION}, // illegal
+	{0x6000, 0x6FFF, 1, 8}, // li
+	{0x7000, 0x7FFF, 1, 9}, // addi
+	{0x8000, 0x8FF0, 16, 10}, // move
+	{0x8001, 0x8FF1, 16, 11}, // or
+	{0x8002, 0x8FF2, 16, 12}, // and
+	{0x8003, 0x8FF3, 16, 13}, // xor
+	{0x8004, 0x8FF4, 16, 14}, // add
+	{0x8005, 0x8FF5, 16, 15}, // sub
+	{0x8006, 0x8FF6, 16, 16}, // shr
+	{0x8007, 0x8FF7, 16, 17}, // subn
+	{0x8008, 0x8FF8, 16, NO_INSTRUCTION}, // illegal
+	{0x8009, 0x8FF9, 16, NO_INSTRUCTION}, // illegal
+	{0x800A, 0x8FFA, 16, NO_INSTRUCTION}, // illegal
+	{0x800B, 0x8FFB, 16, NO_INSTRUCTION}, // illegal
+	{0x800C, 0x8FFC, 16, NO_INSTRUCTION}, // illegal
+	{0x800D, 0x8FFD, 16, NO_INSTRUCTION}, // illegal
+	{0x800E, 0x8FFE, 16, 18}, // shl
+	{0x800F, 0x8FFF, 16, NO_INSTRUCTION}, // illegal
+	{0x9000, 0x9FF0, 16, 19}, // sn
+	{0x9001, 0x9FF1, 16, NO_INSTRUCTION}, // illegal
+	{0x9002, 0x9FF2, 16, NO_INSTRUCTION}, // illegal
+	{0x9003, 0x9FF3, 16, NO_INSTRUCTION}, // illegal
+	{0x9004, 0x9FF4, 16, NO_INSTRUCTION}, // illegal
+	{0x9005, 0x9FF5, 16, NO_INSTRUCTION}, // illegal
+	{0x9006, 0x9FF6, 16, NO_INSTRUCTION}, // illegal
+	{0x9007, 0x9FF7, 16, NO_INSTRUCTION}, // illegal
+	{0x9008, 0x9FF8, 16, NO_INSTRUCTION}, // illegal
+	{0x9009, 0x9FF9, 16, NO_INSTRUCTION}, // illegal
+	{0x900A, 0x9FFA, 16, NO_INSTRUCTION}, // illegal
+	{0x900B, 0x9FFB, 16, NO_INSTRUCTION}, // illegal
+	{0x900C, 0x9FFC, 16, NO_INSTRUCTION}, // illegal
+	{0x900D, 0x9FFD, 16, NO_INSTRUCTION}, // illegal
+	{0x900E, 0x9FFE, 16, NO_INSTRUCTION}, // illegal
+	{0x900F, 0x9FFF, 16, NO_INSTRUCTION}, // illegal
+	{0xA000, 0xAFFF, 1, 20}, // la
+	{0xB000, 0xBFFF, 1, 21}, // jo
+	{0xC000, 0xCFFF, 1, 22}, // rnd
+	{0xD000, 0xDFFF, 1, 23}, // draw
+
+
+};*/
 
 
 //#define makeDecTest(n4, n3, n2, n1) { 0x ## n4 ## n3 ## n2 ## n1, {0x ## n4, 0x ## n3 ## n2 ## n1}, {0x}}
@@ -47,11 +191,11 @@ static const RangeTest RANGE_TESTS[] = {
 
 
 static const DecodeTest DECODE_TESTS[] = {
-//    { 0xABCD, {0xA, 0xBCD}, {0xA, 0xB, 0xCD}, {0xA, 0xB, 0xC, 0xD} },
-    makeDecTest(A, B, C, D),
-    makeDecTest(F, 0, F, 0),
-    makeDecTest(A, E, E, A),
-    makeDecTest(5, 5, 5, F)
+	//    { 0xABCD, {0xA, 0xBCD}, {0xA, 0xB, 0xCD}, {0xA, 0xB, 0xC, 0xD} },
+		makeDecTest(A, B, C, D),
+		makeDecTest(F, 0, F, 0),
+		makeDecTest(A, E, E, A),
+		makeDecTest(5, 5, 5, F)
 };
 
 // static const IndexTest INDEX_TESTS[] = {
@@ -74,12 +218,37 @@ static int rangeTester(RangeTest test);
 
 int main() {
 
-    puts("\nStarting index tests.\n");
+	puts("\nStarting index tests.");
+    puts("Note that 'sys' will have two incorrect results, this is expected.\n");
+
+	size_t testCount = sizeof(INDEX_TESTS) / sizeof(IndexTest);
+	for (size_t i = 0; i < testCount; ++i) {
+		IndexTest test = INDEX_TESTS[i];
+		printf("Testing '%s'\n", test.name);
+		int hits = 0;
+		for (int j = 0; j <= 0xFFFF; ++j) {
+			ChipInst inst = (ChipInst)j;
+			int index = chipdec_index(inst);
+			bool match = index == test.expectedIndex;
+
+			if ((inst & test.mask) == test.base) {
+				if (!match)
+					printf("\t0x%04X. [Incorrect index] Got: %d Expected: %d\n", inst, index, test.expectedIndex);
+				else
+					++hits;
+			} else {
+				if (match)
+					printf("\t0x%04X. [Mismatch]\n", inst);
+			}
+
+		}
+		printf("\tHits: %d\n", hits);
+	}
 
     // puts("Testing instructions 0x000-0x00DF expecting 0...");
     // rangeTester(0x0000, 0x00DF, 0);
 
-    size_t testCount = sizeof(RANGE_TESTS) / sizeof(RangeTest);
+   /* size_t testCount = sizeof(RANGE_TESTS) / sizeof(RangeTest);
     for (size_t i = 0; i < testCount; ++i) {
         RangeTest test = RANGE_TESTS[i];
         printf("Testing instruction");
@@ -91,7 +260,7 @@ int main() {
         int errors = rangeTester(test);
         if (errors > 0)
             printf("Errors: %d/%d\n", errors, test.stopInst - test.startInst + 1);
-    }
+    }*/
 
     puts("\nStarting Decode tests.\n");
 

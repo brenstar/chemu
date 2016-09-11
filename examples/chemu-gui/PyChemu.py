@@ -16,16 +16,35 @@ def enum(**vals):
     return type("Enum", (), vals)
 
 
-# ChipDP.h ====================================================================
+# ChipAddress.h ===============================================================
 
-class ChipDP(Structure):
+ChipAddress = c_uint16
+
+# ChipDisplay.h ===============================================================
+
+CHIP_DISPLAY_ROWS = 32
+CHIP_DISPLAY_COLS = 64
+
+CHIP_DISPLAY_SIZE = 256
+
+class ChipDisplay(Structure):
     _fields_ = [
-        ("pc", c_uint16),
-        ("addrReg", c_uint16),
-        ("regs", c_uint8 * 16),
-        ("sndTimer", c_uint8),
-        ("delTimer", c_uint8)
+        ("buffer", (c_int32 * CHIP_DISPLAY_ROWS) * 2)
     ]
+
+# ChipEmu.h ===================================================================
+
+CARRY_REG = 15
+
+ChipEmu = None
+
+PollKeyHandler = CFUNCTYPE(c_void_p)
+ChipRedrawCallback = CFUNCTYPE(c_void_p)
+
+class ChipEmu(Structure):
+	_fields_ = [
+		("memory")
+	]
 
 # ChipInst.h ==================================================================
 

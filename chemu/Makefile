@@ -18,11 +18,12 @@ endif
 CC =			gcc
 CFLAGS_BASE =	-std=c11 -Wextra -Wall -pedantic -fPIC
 CFLAGS =		$(CFLAGS_BASE)
-OBJFN =			emulation.o display.o instructions_a.o input.o instructions_i.o instructions_r.o instructions_v.o memory.o stack.o
+OBJFN =			emulation.o decode.o display.o instructions_a.o input.o instructions_i.o instructions_r.o instructions_v.o memory.o logger.o stack.o timer.o
 OBJFILES =		$(addprefix $(OBJDIR)/,$(OBJFN))
 LDFLAGS=		-shared
+DEFINES=		$(addprefix -D,NDEBUG _INLINE_)
 
-chemu: CFLAGS = $(CFLAGS_BASE) -D NDEBUG
+chemu: CFLAGS = $(CFLAGS_BASE)
 chemu-debug: CFLAGS = $(CFLAGS_BASE)
 
 # targets
@@ -30,13 +31,16 @@ chemu-debug: CFLAGS = $(CFLAGS_BASE)
 all: chemu
 
 chemu: $(OBJFILES)
-	$(CC) $(LDFLAGS) -o $(BINDIR)/$@.$(DLLEXT) $+
+	$(CC) $(LDFLAGS) -o $(BINDIR)/$@.$(DLLEXT) $(DEFINES) $+
 
 chemu-debug: clean chemu
 
+chemu-static: $(OBJFILES)
+	ar -cvr $(BINDIR)/libchemu.a $(OBJDIR)/*.o
+
 #.c.o:
 $(OBJDIR)/%.o: %.c
-	$(CC) $(CFLAGS) -I$(INCDIR) -c $< -o $@
+	$(CC) $(CFLAGS) -I$(INCDIR) $(DEFINES) -c $< -o $@
 
 
 # utils

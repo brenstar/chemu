@@ -10,12 +10,12 @@
 #include <stdint.h>
 
 
-/*
- * Typedef for a CHIP-8 framebuffer. The ChipDisplay type is a struct with one
- * member, buffer. The buffer member is a 2D array of 32-bit integers with
- * dimensions 32 (number of rows in a CHIP-8 display) and 2.
- */
-typedef struct {
+//
+// Typedef for a CHIP-8 framebuffer. The ChipDisplay type is a struct with one
+// member, buffer. The buffer member is a 2D array of 32-bit integers with
+// dimensions 32 (number of rows in a CHIP-8 display) and 2.
+//
+typedef struct ChipDisplay_s {
     int32_t buffer[CHIP_DISPLAY_ROWS][2];
 } ChipDisplay;
 

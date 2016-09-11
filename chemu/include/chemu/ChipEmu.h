@@ -2,30 +2,37 @@
 #define _CHIPEMU_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "ChipMem.h"
+#include "ChipTimer.h"
 //#include "ChipStack.h"
 //#include "ChipInput.h"
-#include "ChipDrawCallback.h"
+//#include "ChipDrawCallback.h"
 
 #define CARRY_REG 15
 
-typedef void (*DisplayRedrawCallback)();
+#define CHIPEMU_DEFAULT_SPEED 500
 
-// callback for polling input
-typedef void (*PollInputHandler)(ChipInput *input);
+typedef struct ChipEmu_s ChipEmu;
+
 
 // callback called when a key press is awaited
-typedef ChipKey (*PollKeyHandler)();
+typedef ChipKey (*PollKeyHandler)(ChipEmu*);
 
-typedef struct ChipEmu_s {
-    //ChipDP dp;
-    //ChipStack stack;
+#include "ChipRedrawCallback.h"
+//typedef void (*ChipRedrawCallback)(ChipEmu*);
+
+struct ChipEmu_s {
     ChipMem memory;
-    //ChipInput input;
+    bool running;
+    // execution speed in instructions per second (0 for no limit)
+    unsigned int speed;
+    ChipTimer soundTimer;
+    ChipTimer delayTimer;
     PollKeyHandler pollKeyHandler;
-    PollInputHandler pollInputHandler;
-    ChipDrawCallback drawCallback;
-} ChipEmu;
+    ChipRedrawCallback redrawCallback;
+    //ChipDrawCallback drawCallback;
+};
 
 #endif

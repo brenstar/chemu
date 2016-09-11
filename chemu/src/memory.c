@@ -29,20 +29,21 @@ void chipmem_init(ChipMem *mem) {
     memset(mem->array + sizeof(ChipMem_reserved), 0, CHIP_END - sizeof(ChipMem_reserved));
 }
 
-inline uint8_t chipmem_read(ChipMem *mem, ChipAddress addr) {
-    return (addr <= CHIP_END) ? mem->array[addr] : 0;
-}
-
-inline bool chipmem_write(ChipMem *mem, ChipAddress addr, uint8_t value) {
-    // check if the address is not in the reserved portion of memory
-    if (addr >= CHIP_PRGM_START) {
-        mem->array[addr] = value;
-        return true;
-    }
-    return false;
-}
-
 
 ChipAddress chipmem_get_font(uint8_t digit) {
     return offsetof(ChipMem_reserved, fontset) + (digit * 5);
 }
+
+#ifdef __GNUC__
+#ifdef _INLINE_
+#include "chemu/internal/inline.h"
+#else
+#define INLINE
+#endif
+#include "chemu/memory.ipp"
+#endif
+
+#if !defined(_INLINE_) && defined(_MSC_VER)
+#define INLINE
+#include "chemu/memory.ipp"
+#endif

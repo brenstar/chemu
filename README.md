@@ -2,6 +2,45 @@
 
 Chemu is a C library for emulating CHIP-8 programs.
 
+# Build
+
+For compiling chemu as a shared library use:
+```shell
+cd chemu
+make chemu
+```
+This will output chemu.so (or chemu.dll on Windows) in the bin directory. To
+compile as a static library use `make chemu-static` instead.
+
+# Library Modules <a name="modules"></a>
+
+| Name         | Header file          | Function prefix | Description|
+|--------------|----------------------|-------------|------------|
+| decode       | chemu/decode.h       | chipdec     | Contains the OPTABLE and routines for decoding CHIP-8 instructions |
+| display      | chemu/display.h      | chipdisplay | Routines for drawing sprites on a ChipDisplay |
+| emulation    | chemu/emulation.h    | chipemu     | Contains the main loop |
+| input        | chemu/input.h        | chipinput   | Routines for modifying/accessing the ChipInput type |
+| instructions | chemu/instructions.h | cif         | Contains all instruction functions |
+| memory       | chemu/memory.h       | chipmem     | Routines for modifying/accessing a ChipMem struct |
+| stack        | chemu/stack.h        | chipstack   | Routines for modifying a ChipStack struct |
+| timer        | chemu/timer.h        | chiptimer   | Encapsulates a CHIP-8 timer, which counts down at 60Hz |
+
+To include all modules in a source file use the chemu.h header
+
+# Naming conventions and style
+
+* Struct names are camel case followed by `_s`
+* Similar to structs, union names are camel case followed by `_u`
+* Typedef names are camel case starting with an uppercase letter.
+* Macro constants and constant globals should be in uppercase with underscore spacing
+* All header files must have a guard
+* Header guards start with an underscore followed by the header file name in uppercase followed by `_H`
+* Function names are prefixed by their associated module name (see [Library Modules](#modules)) and an underscore. Following this prefix is a name in camel case or underscore delimited.
+* Each typedef should have its own header file
+* Typedefs should not define pointer types. The only exceptions are function pointers and opaque pointers (e.g. ChipTimer).
+* Inline functions must be implemented using an inline guard macro. This will
+allow for inline functions to be enabled/disabled at compile time
+
 # License
 
 The MIT License (MIT)

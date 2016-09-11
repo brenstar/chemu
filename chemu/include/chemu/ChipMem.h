@@ -13,9 +13,11 @@
 // total length (bytes) of memory used by CHIP-8
 #define CHIPMEM_LEN 4096
 
+// length of the reserved memory in bytes
 #define CHIPMEM_RESERVED_LEN 512
 
-#define CHIPMEM_DATA_LEN CHIPMEM_LEN - CHIPMEM_RESERVED_LEN
+// length of the memory used for CHIP-8 programs
+#define CHIPMEM_DATA_LEN (CHIPMEM_LEN - CHIPMEM_RESERVED_LEN)
 
 // fontset: 16 sprites, each 5 bytes long, 80 total
 #define CHIPMEM_FONTSET_LEN 80    // length (bytes) of the fontset
@@ -26,7 +28,7 @@
 #define CHIP_ETIPRGM_START 0x600
 #define CHIP_END 0xFFF
 
-typedef struct {
+typedef struct ChipMem_reserved_s {
     ChipDisplay display;                    // 0    (256 bytes)
     ChipAddress pc;                         // 256  (2 bytes)
     ChipAddress addrReg;                    // 258  (2 bytes)
@@ -38,7 +40,7 @@ typedef struct {
     uint8_t fontset[CHIPMEM_FONTSET_LEN];   // 315  (80 bytes)
 } ChipMem_reserved;                         // Total: 394, with 118 bytes left for padding
 
-typedef union {
+typedef union ChipMem_u {
     uint8_t array[CHIPMEM_LEN];
     ChipMem_reserved reserved;
 } ChipMem;

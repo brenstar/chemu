@@ -56,9 +56,10 @@ int main() {
     ChipSprite sprite = {
         .x = 0,
         .y = 0,
-        .rows = 7,
+        .rows = 9,
         .data = {
-            24, 60, 126, 255, 126, 60, 24, 0, 0, 0, 0, 0, 0, 0, 0
+            240, 128, 128, 128, 255, 1, 1, 1, 15
+            //24, 60, 126, 255, 126, 60, 24, 0, 0, 0, 0, 0, 0, 0, 0
         }
     };
 
@@ -82,17 +83,16 @@ int main() {
         blockSprite.y += 8;
     }
 
-
     while (!flag) {
         dumpDisplay(display);
         chipdisplay_draw(display, sprite);
-        sprite.x += 2;
-        sprite.y += 1;
+        sprite.x += 1;
+        //sprite.y += 1;
         bool collision = chipdisplay_draw(display, sprite);
         setCursor(38, 1);
-        printf("Collision: %d", collision);
+        printf("(%d, %d)\tCollision: %d", sprite.x, sprite.y, collision);
         fflush(stdout);
-        usleep(250000);
+        usleep(500000);
     }
 
 
