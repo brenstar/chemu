@@ -3,9 +3,9 @@
 
 #ifdef __GNUC__
 #ifdef _INLINE_
-#include "inline.h"
+#include "chemu/internal/inline.h"
 #else
-#define INLINE 
+#define INLINE
 #endif
 #include "chemu/stack.ipp"
 #endif
@@ -14,5 +14,3 @@
 #define INLINE
 #include "chemu/stack.ipp"
 #endif
-
-

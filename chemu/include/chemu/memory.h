@@ -4,7 +4,7 @@
 #include "ChipMem.h"
 #include "ChipDP.h"
 #include "ChipAddress.h"
-#include "export.h"
+#include "internal/export.h"
 
 #include <stdbool.h>
 
@@ -47,7 +47,7 @@ CHEMU_API bool chipmem_write(ChipMem *mem, ChipAddress addr, uint8_t value);
 CHEMU_API ChipAddress chipmem_get_font(uint8_t digit);
 
 #if defined(_INLINE_) && defined(_MSC_VER)
-#include "inline.h"
+#include "internal/inline.h"
 #include "memory.ipp"
 #endif
 

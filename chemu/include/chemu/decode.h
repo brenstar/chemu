@@ -6,7 +6,7 @@
 #include "ChipInst.h"
 #include "ChipInstDec.h"
 
-#include "export.h"
+#include "internal/export.h"
 
 // Constant return value for chipdec_index when the given instruction is not
 // a valid CHIP-8 instruction

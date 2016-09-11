@@ -3,7 +3,7 @@
 
 #include "ChipDisplay.h"
 #include "ChipSprite.h"
-#include "export.h"
+#include "internal/export.h"
 
 #include <stdbool.h>
 

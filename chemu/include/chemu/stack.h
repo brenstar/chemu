@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #include "ChipStack.h"
-#include "export.h"
+#include "internal/export.h"
 
 CHEMU_API void chipstack_init(ChipStack *stack);
 
@@ -17,7 +17,7 @@ CHEMU_API void chipstack_push(ChipStack *stack, ChipAddress element);
 CHEMU_API ChipAddress chipstack_pop(ChipStack *stack);
 
 #if defined(_INLINE_) && defined(_MSC_VER)
-#include "inline.h"
+#include "internal/inline.h"
 #include "stack.ipp"
 #endif
 

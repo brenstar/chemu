@@ -6,7 +6,7 @@
 
 #include "chemu.h"
 #include "chemu/logger.h"
-#include "worker.h"
+//#include "worker.h"
 
 //static void printDisplay(ChipDisplay *display, WINDOW *win);
 static void redrawHandler(ChipEmu* emu);

@@ -5,7 +5,7 @@
 
 #include "ChipEmu.h"
 #include "ChipInstDec.h"
-#include "export.h"
+#include "internal/export.h"
 
 CHEMU_API ChipInstResult cif_sys(ChipEmu *emu, ChipInstDec instruction);
 

@@ -89,6 +89,15 @@ int chipemu_mainLoop(ChipEmu *emu) {
     return exitStatus;
 }
 
+void chipemu_setKey(ChipEmu *emu, ChipKey key, ChipKeyState state) {
+
+	if (state == CHIP_KEYSTATE_PRESSED) {
+		// wake up emulator thread if needed
+	}
+
+	chipin_set(&emu->memory.reserved.input, key, state);
+}
+
 int chipemu_step(ChipEmu *emu) {
     int result = CHIP_STEP_SUCCESS;
 

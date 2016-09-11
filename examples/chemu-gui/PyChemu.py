@@ -25,10 +25,26 @@ ChipAddress = c_uint16
 CHIP_DISPLAY_ROWS = 32
 CHIP_DISPLAY_COLS = 64
 
+CHIP_DISPLAY_SIZE = 256
+
 class ChipDisplay(Structure):
     _fields_ = [
         ("buffer", (c_int32 * CHIP_DISPLAY_ROWS) * 2)
     ]
+
+# ChipEmu.h ===================================================================
+
+CARRY_REG = 15
+
+ChipEmu = None
+
+PollKeyHandler = CFUNCTYPE(c_void_p)
+ChipRedrawCallback = CFUNCTYPE(c_void_p)
+
+class ChipEmu(Structure):
+	_fields_ = [
+		("memory")
+	]
 
 # ChipInst.h ==================================================================
 

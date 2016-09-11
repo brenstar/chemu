@@ -16,19 +16,12 @@
 
 typedef struct ChipEmu_s ChipEmu;
 
-// #define CHIPEMU_RUNNING_FLAG 1
-// #define CHIPEMU_SET_ST_FLAG  2 // set sound timer flag
-// #define CHIPEMU_SET_DT_FLAG  4 // set delay timer flag
-//
-// #define flagget(emu, flag) ((emu->flags & flag) == flag)
-// #define flagset(emu, flag) emu->flags |= flag;
-// #define flagreset(emu, flag) emu->flags |= ~flag;
-
 
 // callback called when a key press is awaited
 typedef ChipKey (*PollKeyHandler)(ChipEmu*);
 
-typedef void (*ChipRedrawCallback)(ChipEmu*);
+#include "ChipRedrawCallback.h"
+//typedef void (*ChipRedrawCallback)(ChipEmu*);
 
 struct ChipEmu_s {
     ChipMem memory;

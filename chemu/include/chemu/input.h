@@ -2,7 +2,7 @@
 #define _INPUT_H
 
 #include "ChipInput.h"
-#include "export.h"
+#include "internal/export.h"
 
 //
 // Gets the keystate of a given key stored in the input parameter.

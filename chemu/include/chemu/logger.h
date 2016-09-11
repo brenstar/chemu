@@ -1,7 +1,7 @@
 #ifndef _LOGGER_H
 #define _LOGGER_H
 
-#include "export.h"
+#include "internal/export.h"
 
 #include <stdio.h>
 #include <stdarg.h>

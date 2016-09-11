@@ -36,9 +36,9 @@ ChipAddress chipmem_get_font(uint8_t digit) {
 
 #ifdef __GNUC__
 #ifdef _INLINE_
-#include "inline.h"
+#include "chemu/internal/inline.h"
 #else
-#define INLINE 
+#define INLINE
 #endif
 #include "chemu/memory.ipp"
 #endif

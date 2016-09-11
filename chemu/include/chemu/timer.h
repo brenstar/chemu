@@ -3,7 +3,7 @@
 
 #include "ChipTimer.h"
 #include <stdbool.h>
-#include "export.h"
+#include "internal/export.h"
 
 // timer interval in microseconds (60Hz ~ 16,666 microseconds)
 #define CHIP_TIMER_INTERVAL_US 16666

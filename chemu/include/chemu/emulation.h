@@ -2,7 +2,7 @@
 #define _EMULATION_H
 
 #include "ChipEmu.h"
-#include "export.h"
+#include "internal/export.h"
 
 #define CHIP_STEP_SUCCESS 0
 #define CHIP_STEP_FAILURE 1
@@ -21,7 +21,9 @@
 CHEMU_API void chipemu_init(ChipEmu *emu);
 
 //
-// Invokes the pollKeyCallback associated with the emulator
+// Invokes the pollKeyCallback associated with the emulator. If no callback is
+// associated with the emulator, the function does nothing except return
+// CHIP_KEY_0
 //
 CHEMU_API ChipKey chipemu_getKey(ChipEmu *emu);
 
@@ -33,10 +35,15 @@ CHEMU_API ChipKey chipemu_getKey(ChipEmu *emu);
 //
 CHEMU_API int chipemu_loadROM(ChipEmu *emu, const char *path);
 
+//
+// Starts the main loop
 CHEMU_API int chipemu_mainLoop(ChipEmu *emu);
 
+CHEMU_API void chipemu_setKey(ChipEmu *emu, ChipKey key, ChipKeyState state);
+
 //
-// Invokes the redrawCallback associated with the given emulator object
+// Invokes the redrawCallback associated with the given emulator. If no
+// callback is associated with the emulator, the function does nothing.
 //
 CHEMU_API void chipemu_redraw(ChipEmu *emu);
 
