@@ -2,6 +2,7 @@
 #define _TIMER_H
 
 #include "ChipTimer.h"
+#include "ChipTimerCallback.h"
 #include <stdbool.h>
 #include "internal/export.h"
 
@@ -11,15 +12,19 @@
 // timer interval in milleseconds (60Hz ~ 17 ms)
 #define CHIP_TIMER_INTERVAL_MS 17
 
-CHEMU_API ChipTimer chiptimer_create(int initialValue);
+#define CHIP_TIMER_INTERVAL_NS 16666000
 
-CHEMU_API void chiptimer_destroy(ChipTimer timer);
+//CHEMU_API ChipTimer chiptimer_create(int initialValue);
 
-CHEMU_API int chiptimer_get(ChipTimer timer);
+//CHEMU_API void chiptimer_init(ChipTimer *timer);
 
-CHEMU_API void chiptimer_set(ChipTimer timer, int value);
+//CHEMU_API void chiptimer_destroy(ChipTimer timer);
 
-CHEMU_API bool chiptimer_start(ChipTimer timer);
+//CHEMU_API int chiptimer_get(ChipTimer timer);
+
+//CHEMU_API void chiptimer_set(ChipTimer timer, int value);
+
+CHEMU_API ChipTimer chiptimer_start(ChipTimerCallback callback, void *callbackArg);
 
 CHEMU_API void chiptimer_stop(ChipTimer timer);
 

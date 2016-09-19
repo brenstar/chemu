@@ -28,8 +28,6 @@ struct ChipEmu_s {
     bool running;
     // execution speed in instructions per second (0 for no limit)
     unsigned int speed;
-    ChipTimer soundTimer;
-    ChipTimer delayTimer;
     PollKeyHandler pollKeyHandler;
     ChipRedrawCallback redrawCallback;
     //ChipDrawCallback drawCallback;

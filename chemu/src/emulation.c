@@ -30,10 +30,6 @@ void chipemu_init(ChipEmu *emu) {
 
     emu->speed = CHIPEMU_DEFAULT_SPEED;
 
-    // set timers to NULL
-    emu->soundTimer = NULL;
-    emu->delayTimer = NULL;
-
 	chipmem_init(&emu->memory);
     chipemu_reset(emu);
 }
