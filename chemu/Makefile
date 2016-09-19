@@ -2,31 +2,30 @@
 #==============================================================================
 # paths
 
-BINDIR=			bin
-OBJDIR=			obj
-SRCDIR=			src
-INCDIR=			include
+BINDIR=         bin
+OBJDIR=         obj
+SRCDIR=         src
+INCDIR=         include
 
 vpath %.c $(SRCDIR)
 
 #==============================================================================
 # Variables
 
-CC =			gcc
-CFLAGS_BASE =	-std=c11 -Wextra -Wall -pedantic -fPIC
-CFLAGS =		$(CFLAGS_BASE)
-OBJFN =			emulation.o decode.o display.o instructions_a.o input.o \
+CC =            gcc
+CFLAGS =        -std=c11 -Wextra -Wall -pedantic -fPIC
+OBJFN =         emulation.o decode.o display.o instructions_a.o input.o \
                 instructions_i.o instructions_r.o instructions_v.o memory.o \
-				logger.o stack.o timer.o
-OBJFILES =		$(addprefix $(OBJDIR)/,$(OBJFN))
-LDFLAGS=		-shared -lsthreads
+                logger.o stack.o timer.o
+OBJFILES =      $(addprefix $(OBJDIR)/,$(OBJFN))
+LDFLAGS=        -shared -lsthreads
 
-LIBSTHREADSDIR=lib/sthreads
-LIBSTHREADS=$(LIBSTHREADSDIR)/bin/libsthreads.a
+LIBSTHREADSDIR= lib/sthreads
+LIBSTHREADS=    $(LIBSTHREADSDIR)/bin/libsthreads.a
 
-INCLUDES=		-I$(INCDIR) -I$(LIBSTHREADSDIR)/include
+INCLUDES=       -I$(INCDIR) -I$(LIBSTHREADSDIR)/include
 
-LIBS=			-Llib/sthreads/bin
+LIBS=           -L$(LIBSTHREADSDIR)/bin
 
 #==============================================================================
 # Definitions
@@ -42,17 +41,17 @@ DEFINES += -D_INLINE_
 #==============================================================================
 # Targets
 
-.PHONY=all clean realclean
+.PHONY=chemu chemu-static clean realclean
 
-all: chemu
+chemu: $(BINDIR)/chemu.so
 
-chemu: $(OBJFILES) $(LIBSTHREADS)
-	$(CC) $(LDFLAGS) $(LIBS) -o $(BINDIR)/$@.so $(OBJFILES)
+chemu-static: $(BINDIR)/libchemu.a
 
-chemu-debug: clean chemu
+$(BINDIR)/chemu.so: $(OBJFILES) $(LIBSTHREADS)
+	$(CC) $(LDFLAGS) $(LIBS) -o $@ $(OBJFILES)
 
-chemu-static: $(OBJFILES)
-	ar -cvr $(BINDIR)/libchemu.a $(OBJDIR)/*.o
+$(BINDIR)/libchemu.a: $(OBJFILES)
+	ar -cvr $@ $+
 
 $(LIBSTHREADS):
 	cd $(LIBSTHREADSDIR) && $(MAKE)
@@ -70,4 +69,4 @@ clean:
 	rm -f $(OBJDIR)/*.o
 
 realclean:        clean
-	rm -f $(BINDIR)/chemu.$(DLLEXT)
+	rm -f $(BINDIR)/chemu.so
