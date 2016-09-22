@@ -8,6 +8,8 @@ SRCDIR=		src
 UNIT_SRC=	../chemu/src
 UNIT_INC=	../chemu/include
 
+INCLUDES=	-I../chemu/include -I../chemu/lib/sthreads/include
+
 vpath %.c $(SRCDIR):$(UNIT_SRC)
 
 # Variables
@@ -36,12 +38,12 @@ displaytest-curses: $(addprefix $(OBJDIR)/,displaytest_curses.o display.o)
 decodetest: $(addprefix $(OBJDIR)/,decode.o decodetest.o instructions.o)
 	$(CC) -o $(BINDIR)/$@ $+
 
-timertest: $(addprefix $(OBJDIR)/,timer.o timertest.o)
+timertest: $(addprefix $(OBJDIR)/,timer.o timertest.o) ../chemu/lib/sthreads/obj/threads.o
 	$(CC) -o $(BINDIR)/$@ $+ -lpthread
 
 #.c.o:
 $(OBJDIR)/%.o: %.c
-	$(CC) $(CFLAGS) -I$(UNIT_INC) -c $< -o $@
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 # utils:
 

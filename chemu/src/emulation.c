@@ -30,10 +30,6 @@ void chipemu_init(ChipEmu *emu) {
 
     emu->speed = CHIPEMU_DEFAULT_SPEED;
 
-    // set timers to NULL
-    emu->soundTimer = NULL;
-    emu->delayTimer = NULL;
-
 	chipmem_init(&emu->memory);
     chipemu_reset(emu);
 }
@@ -127,7 +123,7 @@ int chipemu_step(ChipEmu *emu) {
             emu->memory.reserved.pc += 2;
             break;
         case INST_FAILURE:
-            chiplog_error("Instruction index %d has failed.\n", i);
+            chiplog_error("Instruction %d:%s has failed.\n", i, op.name);
             result = CHIP_STEP_FAILURE;
             break;
     }

@@ -1,52 +1,72 @@
+
+#==============================================================================
 # paths
 
-BINDIR=			bin
-OBJDIR=			obj
-SRCDIR=			src
-INCDIR=			include
+BINDIR=         bin
+OBJDIR=         obj
+SRCDIR=         src
+INCDIR=         include
 
 vpath %.c $(SRCDIR)
 
+#==============================================================================
 # Variables
 
-ifeq ($(OS),Windows_NT)
-	DLLEXT=dll
-else
-	DLLEXT=so
-endif
+CC =            gcc
+CFLAGS =        -std=c11 -Wextra -Wall -pedantic -fPIC
+OBJFN =         emulation.o decode.o display.o instructions_a.o input.o \
+                instructions_i.o instructions_r.o instructions_v.o memory.o \
+                logger.o stack.o timer.o
+OBJFILES =      $(addprefix $(OBJDIR)/,$(OBJFN))
+LDFLAGS=        -shared -lsthreads
 
-CC =			gcc
-CFLAGS_BASE =	-std=c11 -Wextra -Wall -pedantic -fPIC
-CFLAGS =		$(CFLAGS_BASE)
-OBJFN =			emulation.o decode.o display.o instructions_a.o input.o instructions_i.o instructions_r.o instructions_v.o memory.o logger.o stack.o timer.o
-OBJFILES =		$(addprefix $(OBJDIR)/,$(OBJFN))
-LDFLAGS=		-shared
-DEFINES=		$(addprefix -D,NDEBUG _INLINE_)
+LIBSTHREADSDIR= lib/sthreads
+LIBSTHREADS=    $(LIBSTHREADSDIR)/bin/libsthreads.a
 
-chemu: CFLAGS = $(CFLAGS_BASE)
-chemu-debug: CFLAGS = $(CFLAGS_BASE)
+INCLUDES=       -I$(INCDIR) -I$(LIBSTHREADSDIR)/include
 
-# targets
+LIBS=           -L$(LIBSTHREADSDIR)/bin
 
-all: chemu
+#==============================================================================
+# Definitions
 
-chemu: $(OBJFILES)
-	$(CC) $(LDFLAGS) -o $(BINDIR)/$@.$(DLLEXT) $(DEFINES) $+
+DEFINES=
 
-chemu-debug: clean chemu
+# No debug, disables debug output
+DEFINES += -DNDEBUG
 
-chemu-static: $(OBJFILES)
-	ar -cvr $(BINDIR)/libchemu.a $(OBJDIR)/*.o
+# enables inline functions
+DEFINES += -D_INLINE_
+
+#==============================================================================
+# Targets
+
+.PHONY=chemu chemu-static clean realclean
+
+chemu: $(BINDIR)/chemu.so
+
+chemu-static: $(BINDIR)/libchemu.a
+
+$(BINDIR)/chemu.so: $(OBJFILES) $(LIBSTHREADS)
+	$(CC) $(LDFLAGS) $(LIBS) -o $@ $(OBJFILES)
+
+$(BINDIR)/libchemu.a: $(OBJFILES)
+	ar -cvr $@ $+
+
+$(LIBSTHREADS):
+	cd $(LIBSTHREADSDIR) && $(MAKE)
+
 
 #.c.o:
 $(OBJDIR)/%.o: %.c
-	$(CC) $(CFLAGS) -I$(INCDIR) $(DEFINES) -c $< -o $@
+	$(CC) $(CFLAGS) $(INCLUDES) $(DEFINES) -c $< -o $@
 
 
+#==============================================================================
 # utils
 
 clean:
 	rm -f $(OBJDIR)/*.o
 
 realclean:        clean
-	rm -f $(BINDIR)/chemu.$(DLLEXT)
+	rm -f $(BINDIR)/chemu.so

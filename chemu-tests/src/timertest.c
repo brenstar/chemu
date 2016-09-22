@@ -1,25 +1,39 @@
 #include "chemu/timer.h"
 
 #include <stdio.h>
-#include <signal.h>
-#include <unistd.h>
-
 #include <time.h>
 
-volatile sig_atomic_t flag = 0;
 
-void interruptHandler(int sig) {
-    flag = sig;
+void timerTrigger(void* arg) {
+    static int counter = 0;
+
+    if (++counter == 60) {
+        counter = 0;
+        time_t tim;
+        char buf[10];
+        struct tm *tm_info;
+        time(&tim);
+        tm_info = localtime(&tim);
+
+        strftime(buf, 10, "%H:%M:%S", tm_info);
+        puts(buf);
+
+    }
 }
 
-#define LOOP_SPEED 512
 
 int main() {
-    signal(SIGINT, interruptHandler);
 
-    ChipTimer timer = chiptimer_create(255);
-    chiptimer_start(timer);
+    //ChipTimer timer = chiptimer_create(255);
+    ChipTimer timer = chiptimer_start(timerTrigger, NULL);
 
+    getchar();
+
+    chiptimer_stop(timer);
+
+    return 0;
+
+/*
     //int counter = 0;
     // interval of time (in nanoseconds) each iteration of the loop will take
     //const long int interval = 1000000L / LOOP_SPEED;
@@ -53,5 +67,6 @@ int main() {
     chiptimer_destroy(timer);
 
     return 0;
+*/
 
 }
