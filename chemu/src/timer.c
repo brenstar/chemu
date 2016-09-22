@@ -15,10 +15,10 @@ static int timerThreadFunc(void *arg);
 
 ChipTimer chiptimer_start(ChipTimerCallback callback, void *callbackArg) {
     ChipTimer timer = (ChipTimer)malloc(sizeof(struct ChipTimer_s));
-    timer->callback = callback;
-    timer->callbackArg = callbackArg;
 
     if (timer != NULL) {
+        timer->callback = callback;
+        timer->callbackArg = callbackArg;
         timer->running = true;
         int res = thrd_create(&timer->thread, timerThreadFunc, timer);
         if (res != thrd_success) {
@@ -48,8 +48,8 @@ int timerThreadFunc(void *arg) {
     // cache timer struct members
     const struct timespec sleepTime = { .tv_sec = 0,
                                         .tv_nsec = CHIP_TIMER_INTERVAL_NS };
-    const ChipTimerCallback callback = timer->callback;
-    const void *callbackArg = timer->callbackArg;
+    ChipTimerCallback callback = timer->callback;
+    void *callbackArg = timer->callbackArg;
 
     do {
         thrd_sleep(&sleepTime, NULL);
