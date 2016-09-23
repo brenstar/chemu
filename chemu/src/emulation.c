@@ -7,41 +7,52 @@
 #include "chemu/emulation.h"
 #include "chemu/decode.h"
 #include "chemu/display.h"
+#include "chemu/input.h"
 #include "chemu/memory.h"
 #include "chemu/stack.h"
 #include "chemu/timer.h"
 #include "chemu/logger.h"
 
+#include "chemu/ChipGetKeyCallback.h"
+#include "chemu/ChipRedrawCallback.h"
 
-#if defined(__unix__)
-#include <unistd.h>
-#elif defined(_WIN32)
-#endif
+struct ChipEmu_s {
+    ChipMem memory;
+    bool running;
+    int limiter;
+    ChipGetKeyCallback getKeyCb;
+    ChipRedrawCallback redrawCb;
+};
+
 
 //static void mainLoop_noLimit(ChipEmu *emu, int *exitStatus);
 //static void mainLoop_limit(ChipEmu *emu, int *exitStatus);
 
-void chipemu_init(ChipEmu *emu) {
-    // set callbacks to NULL
-    emu->pollKeyHandler = NULL;
-    emu->redrawCallback = NULL;
+ChipEmu chipemu_create(void) {
 
-    emu->running = false;
+    ChipEmu emu = (ChipEmu)malloc(sizeof(struct ChipEmu_s));
+    if (emu != NULL) {
+        // set callbacks to NULL
+        emu->getKeyCb = NULL;
+        emu->redrawCb = NULL;
 
-    emu->speed = CHIPEMU_DEFAULT_SPEED;
+        emu->running = false;
 
-	chipmem_init(&emu->memory);
-    chipemu_reset(emu);
+        chipmem_init(&emu->memory);
+        chipemu_reset(emu);
+    }
+
+    return emu;
 }
 
-ChipKey chipemu_getKey(ChipEmu *emu) {
-    if (emu->pollKeyHandler != NULL)
-        return emu->pollKeyHandler(emu);
+ChipKey chipemu_getKey(ChipEmu emu) {
+    if (emu->getKeyCb != NULL)
+        return emu->getKeyCb(emu);
     return CHIP_KEY_0;
 }
 
-int chipemu_loadROM(ChipEmu *emu, const char *path) {
-    int bytesRead = -1;
+int chipemu_loadROM(ChipEmu emu, const char *path) {
+    int bytesRead = CHIP_LOAD_FAILURE;
     FILE *fp;
     #ifdef _WIN32
         fopen_s(&fp, path, "rb");
@@ -52,14 +63,14 @@ int chipemu_loadROM(ChipEmu *emu, const char *path) {
         uint8_t buffer[CHIPMEM_DATA_LEN];
         bytesRead = fread(buffer, 1, CHIPMEM_DATA_LEN, fp);
         if (bytesRead == CHIPMEM_DATA_LEN && !feof(fp))
-            return -1; // ROM file was too big
+            return CHIP_LOAD_FAILURE; // ROM file was too big
         memcpy(emu->memory.array + CHIP_PRGM_START, buffer, bytesRead);
         fclose(fp);
     }
     return bytesRead;
 }
 
-int chipemu_mainLoop(ChipEmu *emu) {
+int chipemu_mainLoop(ChipEmu emu) {
 
     int exitStatus = EXIT_SUCCESS;
     //emu->running = true;
@@ -85,7 +96,7 @@ int chipemu_mainLoop(ChipEmu *emu) {
     return exitStatus;
 }
 
-void chipemu_setKey(ChipEmu *emu, ChipKey key, ChipKeyState state) {
+void chipemu_setKey(ChipEmu emu, ChipKey key, ChipKeyState state) {
 
 	if (state == CHIP_KEYSTATE_PRESSED) {
 		// wake up emulator thread if needed
@@ -94,7 +105,7 @@ void chipemu_setKey(ChipEmu *emu, ChipKey key, ChipKeyState state) {
 	chipin_set(&emu->memory.reserved.input, key, state);
 }
 
-int chipemu_step(ChipEmu *emu) {
+int chipemu_step(ChipEmu emu) {
     int result = CHIP_STEP_SUCCESS;
 
     // fetch
@@ -132,12 +143,12 @@ int chipemu_step(ChipEmu *emu) {
 }
 
 
-void chipemu_redraw(ChipEmu *emu) {
-    if (emu->redrawCallback != NULL)
-        emu->redrawCallback(emu);
+void chipemu_redraw(ChipEmu emu) {
+    if (emu->redrawCb != NULL)
+        emu->redrawCb(emu);
 }
 
-void chipemu_reset(ChipEmu *emu) {
+void chipemu_reset(ChipEmu emu) {
     if (emu->running)
         return;
 
@@ -158,34 +169,3 @@ void chipemu_reset(ChipEmu *emu) {
     // clear framebuffer
     chipdisplay_clear(&emu->memory.reserved.display);
 }
-
-
-//#define mainloop(code)                                \
-//    do {                                              \
-//        if (chipemu_step(emu) == CHIP_STEP_FAILURE) { \
-//            *exitStatus = EXIT_FAILURE;               \
-//            break;                                    \
-//        }                                             \
-//        code                                          \
-//    } while (emu->running)
-//
-//
-//static void mainLoop_limit(ChipEmu *emu, int *exitStatus) {
-//    const int interval = 1000000 / emu->speed;
-//    clock_t currentTime, lastTime;
-//    lastTime = clock();
-//
-//    mainloop(
-//        currentTime = clock();
-//        int sleepTime = interval - ((currentTime - lastTime) * 1000000 / CLOCKS_PER_SEC);
-//        lastTime = currentTime;
-//		#ifdef __unix__
-//        if (sleepTime > 0)
-//            usleep(sleepTime);
-//		#endif
-//    );
-//}
-//
-//static void mainLoop_noLimit(ChipEmu *emu, int *exitStatus) {
-//    mainloop();
-//}

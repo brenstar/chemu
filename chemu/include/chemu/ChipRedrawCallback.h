@@ -3,7 +3,7 @@
 
 #include "ChipEmu.h"
 
-typedef void (*ChipRedrawCallback)(ChipEmu*);
+typedef void (*ChipRedrawCallback)(ChipEmu);
 
 
 #endif
