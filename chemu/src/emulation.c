@@ -126,7 +126,7 @@ int chipemu_step(ChipEmu emu) {
 
     // execute
     chiplog_debug("Executing '%s' (0x%04X) at 0x%03X\n", op.name, instruction, pc);
-    ChipInstResult instResult = op.func(emu, decoded);
+    ChipInstResult instResult = op.func(emu, &emu->memory, decoded);
     switch (instResult) {
         case INST_SUCCESS:
             break;

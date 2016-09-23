@@ -8,13 +8,11 @@
 
 #include "chemu/logger.h"
 
-#define RESERVED emu->memory.reserved
-
 // cls - Clear screen
-ChipInstResult cif_cls(ChipEmu *emu, ChipInstDec instruction) {
+ChipInstResult cif_cls(ChipEmu emu, ChipMem *mem, ChipInstDec instruction) {
     (void)instruction;
 
-    chipdisplay_clear(&RESERVED.display);
+    chipdisplay_clear(&mem->reserved.display);
     //emu->flags |= CHIP_REDRAW_FLAG;
     chipemu_redraw(emu);
 
@@ -22,13 +20,13 @@ ChipInstResult cif_cls(ChipEmu *emu, ChipInstDec instruction) {
 }
 
 // ret - Return from subroutine
-ChipInstResult cif_ret(ChipEmu *emu, ChipInstDec instruction) {
-    (void)instruction;
+ChipInstResult cif_ret(ChipEmu emu, ChipMem *mem, ChipInstDec instruction) {
+    (void)emu; (void)instruction;
 
     ChipInstResult result;
-    if (chipstack_can_pop(&RESERVED.stack)) {
-        RESERVED.pc = chipstack_pop(&RESERVED.stack);
-        chiplog_debug("[Stack] Popped 0x%03X from call stack\n", RESERVED.pc);
+    if (chipstack_can_pop(&mem->reserved.stack)) {
+        mem->reserved.pc = chipstack_pop(&mem->reserved.stack);
+        chiplog_debug("[Stack] Popped 0x%03X from call stack\n", mem->reserved.pc);
         result = INST_SUCCESS_INCR_PC;
     } else {
         chiplog_error("[Stack] Cannot return, stack is empty\n");

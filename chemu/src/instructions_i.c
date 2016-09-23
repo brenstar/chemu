@@ -8,140 +8,134 @@
 
 #include <stdlib.h>
 
-// shortcut for accessing the reserved memory in variable emu
-#define RESERVED emu->memory.reserved
-
-static bool sip_helper(ChipEmu *emu, ChipInstDec inst, ChipKeyState state);
-
 // sei - Skip next if equal to immediate
-ChipInstResult cif_sei(ChipEmu *emu, ChipInstDec inst) {
-
-    if (RESERVED.regs[inst.i.rnum] == inst.i.immediate)
-        RESERVED.pc += 2; // skip next instruction
+ChipInstResult cif_sei(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+    (void)emu;
+    if (mem->reserved.regs[inst.i.rnum] == inst.i.immediate)
+        mem->reserved.pc += 2; // skip next instruction
 
 	return INST_SUCCESS_INCR_PC;
 }
 
 // sni - Skip next if not equal to immediate
-ChipInstResult cif_sni(ChipEmu *emu, ChipInstDec inst) {
-
-    if (RESERVED.regs[inst.i.rnum] != inst.i.immediate)
-        RESERVED.pc += 2;
+ChipInstResult cif_sni(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+    (void)emu;
+    if (mem->reserved.regs[inst.i.rnum] != inst.i.immediate)
+        mem->reserved.pc += 2;
 
 	return INST_SUCCESS_INCR_PC;
 }
 
 // li - load immediate
-ChipInstResult cif_li(ChipEmu *emu, ChipInstDec inst) {
-
-    RESERVED.regs[inst.i.rnum] = inst.i.immediate;
+ChipInstResult cif_li(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+    (void)emu;
+    mem->reserved.regs[inst.i.rnum] = inst.i.immediate;
 
     return INST_SUCCESS_INCR_PC;
 }
 
 // addi - add immediate
-ChipInstResult cif_addi(ChipEmu *emu, ChipInstDec inst) {
-
-    RESERVED.regs[inst.i.rnum] += inst.i.immediate;
+ChipInstResult cif_addi(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+    (void)emu;
+    mem->reserved.regs[inst.i.rnum] += inst.i.immediate;
     // check for carry ?
 
     return INST_SUCCESS_INCR_PC;
 }
 
 // rnd - random
-ChipInstResult cif_rnd(ChipEmu *emu, ChipInstDec inst) {
+ChipInstResult cif_rnd(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+    (void)emu;
     // TODO: make a separate module for RNG
-    RESERVED.regs[inst.i.rnum] = (uint8_t)(rand() % 255) & inst.i.immediate;
+    mem->reserved.regs[inst.i.rnum] = (uint8_t)(rand() % 255) & inst.i.immediate;
 
     return INST_SUCCESS_INCR_PC;
 }
 
 // constant immediate instructions --------------------------------------------
 
+#define sipHelper(mem, inst, state) \
+    do { \
+        ChipReg r = mem->reserved.regs[inst.i.rnum]; \
+        if (r < 16) \
+            if (chipin_keystate(&mem->reserved.input, (ChipKey)r) == state) \
+                mem->reserved.pc += 2; \
+    } while (0)
+
 // sip - skip next instruction if pressed
-ChipInstResult cif_sip(ChipEmu *emu, ChipInstDec inst) {
-    if (sip_helper(emu, inst, CHIP_KEYSTATE_PRESSED))
-        RESERVED.pc += 2;
+ChipInstResult cif_sip(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+    (void)emu;
+    sipHelper(mem, inst, CHIP_KEYSTATE_PRESSED);
 
     return INST_SUCCESS_INCR_PC;
 }
 
 // snip - skip next instruction if not pressed
-ChipInstResult cif_snip(ChipEmu *emu, ChipInstDec inst) {
-    if (sip_helper(emu, inst, CHIP_KEYSTATE_RELEASED))
-        RESERVED.pc += 2;
+ChipInstResult cif_snip(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+    (void)emu;
+    sipHelper(mem, inst, CHIP_KEYSTATE_RELEASED);
 
     return INST_SUCCESS_INCR_PC;
 }
 
 // ld - load delay timer
-ChipInstResult cif_ld(ChipEmu *emu, ChipInstDec inst) {
-    //if (emu->delayTimer == NULL)
-    //    return INST_FAILURE;
-
-
-	//RESERVED.regs[inst.i.rnum] = chiptimer_get(emu->delayTimer);
-    RESERVED.regs[inst.i.rnum] = RESERVED.delTimer;
+ChipInstResult cif_ld(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+    (void)emu;
+    mem->reserved.regs[inst.i.rnum] = mem->reserved.delTimer;
 
     return INST_SUCCESS_INCR_PC;
 }
 
 // lk - wait and load key press
-ChipInstResult cif_lk(ChipEmu *emu, ChipInstDec inst) {
-    RESERVED.regs[inst.i.rnum] = chipemu_getKey(emu);
+ChipInstResult cif_lk(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+    mem->reserved.regs[inst.i.rnum] = chipemu_getKey(emu);
 
     return INST_SUCCESS_INCR_PC;
 }
 
 // del - set delay timer
-ChipInstResult cif_del(ChipEmu *emu, ChipInstDec inst) {
-    //if (emu->delayTimer == NULL)
-    //    return INST_FAILURE;
-
-    RESERVED.delTimer = RESERVED.regs[inst.i.rnum];
-    //chiptimer_set(emu->delayTimer, RESERVED.regs[inst.i.rnum]);
+ChipInstResult cif_del(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+    (void)emu;
+    mem->reserved.delTimer = mem->reserved.regs[inst.i.rnum];
 
     return INST_SUCCESS_INCR_PC;
 }
 
 // snd - set sound timer
-ChipInstResult cif_snd(ChipEmu *emu, ChipInstDec inst) {
-    //if (emu->soundTimer == NULL)
-    //    return INST_FAILURE;
-
-    RESERVED.sndTimer = RESERVED.regs[inst.i.rnum];
-    //chiptimer_set(emu->soundTimer, RESERVED.regs[inst.i.rnum]);
+ChipInstResult cif_snd(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+    (void)emu;
+    mem->reserved.sndTimer = mem->reserved.regs[inst.i.rnum];
 
     return INST_SUCCESS_INCR_PC;
 }
 
 // ii - increment address register
-ChipInstResult cif_ii(ChipEmu *emu, ChipInstDec inst) {
-
-    RESERVED.addrReg += RESERVED.regs[inst.i.rnum];
+ChipInstResult cif_ii(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+    (void)emu;
+    mem->reserved.addrReg += mem->reserved.regs[inst.i.rnum];
 
     return INST_SUCCESS_INCR_PC;
 }
 
 // font - set address register to font sprite
-ChipInstResult cif_font(ChipEmu *emu, ChipInstDec inst) {
-
-    uint8_t vx = RESERVED.regs[inst.i.rnum];
+ChipInstResult cif_font(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+    (void)emu;
+    uint8_t vx = mem->reserved.regs[inst.i.rnum];
     if (vx < 16)
-        RESERVED.addrReg = chipmem_get_font(vx);
+        mem->reserved.addrReg = chipmem_get_font(vx);
 
     return INST_SUCCESS_INCR_PC;
 }
 
 // bcd - binary coded decimal
-ChipInstResult cif_bcd(ChipEmu *emu, ChipInstDec inst) {
-
-    ChipReg regX = RESERVED.regs[inst.i.rnum];
-    ChipAddress addr = RESERVED.addrReg + 2;
+ChipInstResult cif_bcd(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+    (void)emu;
+    ChipReg regX = mem->reserved.regs[inst.i.rnum];
+    ChipAddress addr = mem->reserved.addrReg + 2;
 
     for (int i = 0; i < 3; ++i) {
         //emu->memory.array[addr - i] = regX % 10;
-        chipmem_write(&emu->memory, addr - i, regX % 10);
+        chipmem_write(mem, addr - i, regX % 10);
         regX /= 10;
     }
 
@@ -149,12 +143,12 @@ ChipInstResult cif_bcd(ChipEmu *emu, ChipInstDec inst) {
 }
 
 // save - save registers in memory
-ChipInstResult cif_save(ChipEmu *emu, ChipInstDec inst) {
-
-    ChipAddress addr = RESERVED.addrReg;
+ChipInstResult cif_save(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+    (void)emu;
+    ChipAddress addr = mem->reserved.addrReg;
     for (int i = 0; i <= inst.i.rnum; ++i) {
         //emu->memory.array[addr] = emu->dp.regs[i];
-        chipmem_write(&emu->memory, addr, RESERVED.regs[i]);
+        chipmem_write(mem, addr, mem->reserved.regs[i]);
         if (++addr > CHIP_END)
             return INST_FAILURE; // address register is out of bounds
     }
@@ -163,25 +157,14 @@ ChipInstResult cif_save(ChipEmu *emu, ChipInstDec inst) {
 }
 
 // rest - restore registers from memory
-ChipInstResult cif_rest(ChipEmu *emu, ChipInstDec inst) {
-
-    ChipAddress addr = RESERVED.addrReg;
+ChipInstResult cif_rest(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+    (void)emu;
+    ChipAddress addr = mem->reserved.addrReg;
     for (int i = 0; i <= inst.i.rnum; ++i) {
-        RESERVED.regs[i] = chipmem_read(&emu->memory, addr);
+        mem->reserved.regs[i] = chipmem_read(mem, addr);
         if (++addr > CHIP_END)
             return INST_FAILURE; // address register is out of bounds
     }
 
     return INST_SUCCESS_INCR_PC;
-}
-
-// ----------------------------------------------------------------------------
-// Private helper functions
-
-// Determines if the key stored in rnum of inst has the given state
-// Note: if the value in register rnum is >= 16, false is returned
-inline
-static bool sip_helper(ChipEmu *emu, ChipInstDec inst, ChipKeyState state) {
-    ChipReg regVal = RESERVED.regs[inst.i.rnum];
-    return regVal < 16 && chipin_keystate(&RESERVED.input, (ChipKey)regVal) == state;
 }

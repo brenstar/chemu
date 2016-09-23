@@ -5,13 +5,9 @@
 
 #include "chemu/logger.h"
 
-
-#define RESERVED emu->memory.reserved
-
-
 // sys - syscall
-ChipInstResult cif_sys(ChipEmu *emu, ChipInstDec inst) {
-    (void)emu; (void)inst;
+ChipInstResult cif_sys(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+    (void)emu; (void)mem; (void)inst;
     chiplog_warn("Attempted system call: %d\n", inst.a.addr);
     // not implemented do nothing
 
@@ -19,21 +15,21 @@ ChipInstResult cif_sys(ChipEmu *emu, ChipInstDec inst) {
 }
 
 // j - jump to address
-ChipInstResult cif_j(ChipEmu *emu, ChipInstDec inst) {
-
-    RESERVED.pc = inst.a.addr;
+ChipInstResult cif_j(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+    (void)emu;
+    mem->reserved.pc = inst.a.addr;
 
     return INST_SUCCESS;
 }
 
 // call - call subroutine
-ChipInstResult cif_call(ChipEmu *emu, ChipInstDec inst) {
-
+ChipInstResult cif_call(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+    (void)emu;
     ChipInstResult result;
-    if (chipstack_can_push(&RESERVED.stack)) {
-        chiplog_debug("[Stack] Pushing 0x%03X onto call stack\n", RESERVED.pc);
-        chipstack_push(&RESERVED.stack, RESERVED.pc);
-        RESERVED.pc = inst.a.addr;
+    if (chipstack_can_push(&mem->reserved.stack)) {
+        chiplog_debug("[Stack] Pushing 0x%03X onto call stack\n", mem->reserved.pc);
+        chipstack_push(&mem->reserved.stack, mem->reserved.pc);
+        mem->reserved.pc = inst.a.addr;
         result = INST_SUCCESS;
     } else {
         chiplog_error("Failed to call subroutine: stack at limit\n");
@@ -44,17 +40,17 @@ ChipInstResult cif_call(ChipEmu *emu, ChipInstDec inst) {
 }
 
 // la - load address
-ChipInstResult cif_la(ChipEmu *emu, ChipInstDec inst) {
-
-    RESERVED.addrReg = inst.a.addr;
+ChipInstResult cif_la(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+    (void)emu;
+    mem->reserved.addrReg = inst.a.addr;
 
     return INST_SUCCESS_INCR_PC;
 }
 
 // jo - jump with offset
-ChipInstResult cif_jo(ChipEmu *emu, ChipInstDec inst) {
-
-    RESERVED.pc = inst.a.addr + RESERVED.regs[0];
+ChipInstResult cif_jo(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+    (void)emu;
+    mem->reserved.pc = inst.a.addr + mem->reserved.regs[0];
 
     return INST_SUCCESS;
 }
