@@ -1,6 +1,7 @@
 #ifndef _CHIPOP_H
 #define _CHIPOP_H
 
+#include "ChipInstClass.h"
 #include "ChipInstFunc.h"
 
 // Type definition for a Chip operation structure. Chip operation structures

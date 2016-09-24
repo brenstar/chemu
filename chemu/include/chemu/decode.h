@@ -4,6 +4,7 @@
 #include "ChipOp.h"
 #include "ChipInstFunc.h"
 #include "ChipInst.h"
+#include "ChipInstClass.h"
 #include "ChipInstDec.h"
 
 #include "internal/export.h"

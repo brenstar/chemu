@@ -5,6 +5,7 @@
 
 #include "ChipEmu.h"
 #include "ChipMem.h"
+#include "ChipInstResult.h"
 #include "ChipInstDec.h"
 #include "internal/export.h"
 

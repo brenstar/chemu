@@ -2,7 +2,6 @@
 #define _CHIP_MEM_H
 
 #include "ChipMem.h"
-#include "ChipDP.h"
 #include "ChipAddress.h"
 #include "internal/export.h"
 
