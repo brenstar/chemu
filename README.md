@@ -4,13 +4,30 @@ Chemu is a C library for emulating CHIP-8 programs.
 
 # Build
 
+## Unix
+
 For compiling chemu as a shared library use:
 ```shell
 cd chemu
 make chemu
 ```
-This will output chemu.so (or chemu.dll on Windows) in the bin directory. To
-compile as a static library use `make chemu-static` instead.
+This will output chemu.so in the bin directory. To compile as a static library use `make chemu-static` instead.
+
+## Windows
+
+Build the chemu project in [chemu.sln](VS/chemu.sln) in Visual Studio. The
+library will be built to the Release or Debug folder in the VS folder.
+
+-- OR --
+
+Use the provided makefile, [Makefile.win](chemu/Makefile.win), by running
+make.bat in a visual studio command prompt.
+
+```shell
+cd chemu
+# make.bat is just a shortcut for nmake -f Makefile.win /NOLOGO
+make chemu
+```
 
 # Library Modules <a name="modules"></a>
 
@@ -36,7 +53,8 @@ To include all modules in a source file use the chemu.h header
 * All header files must have a guard
 * Header guards start with an underscore followed by the header file name in uppercase followed by `_H`
 * Function names are prefixed by their associated module name (see [Library Modules](#modules)) and an underscore. Following this prefix is a name in camel case or underscore delimited.
-* Each typedef should have its own header file
+* Each typedef *should* have its own header file, there are some exceptions to
+this.
 * Typedefs should not define pointer types. The only exceptions are function pointers and opaque pointers (e.g. ChipTimer).
 * Inline functions must be implemented using an inline guard macro. This will
 allow for inline functions to be enabled/disabled at compile time

@@ -1,0 +1,73 @@
+#==============================================================================
+# paths
+
+BINDIR=         bin
+OBJDIR=         obj
+SRCDIR=         src
+INCDIR=         include
+
+#==============================================================================
+# Variables
+
+CC =			cl.exe
+CFLAGS=			/W3 /nologo /sdl
+LINK=			link.exe
+LINKFLAGS=		/NOLOGO /DLL
+MKLIB=			lib.exe
+
+LIBSTHREADSDIR=	lib\sthreads
+LIBSTHREADS=	$(LIBSTHREADSDIR)\bin\sthreads.lib
+
+INCLUDES=		/I$(INCDIR) /I$(LIBSTHREADSDIR)\include
+
+
+OBJFILES=		$(OBJDIR)\decode.obj \
+				$(OBJDIR)\display.obj \
+				$(OBJDIR)\emulation.obj \
+				$(OBJDIR)\input.obj \
+				$(OBJDIR)\instructions_a.obj \
+				$(OBJDIR)\instructions_i.obj \
+				$(OBJDIR)\instructions_r.obj \
+				$(OBJDIR)\instructions_v.obj \
+				$(OBJDIR)\logger.obj \
+				$(OBJDIR)\memory.obj \
+				$(OBJDIR)\stack.obj \
+				$(OBJDIR)\timer.obj
+
+DLLTARGET=		$(BINDIR)\chemu.dll
+LIBTARGET=		$(BINDIR)\chemu.lib
+
+#==============================================================================
+# Definitions
+
+DEFINES=		/DCHEMU_EXPORTS /D_INLINE_ /DNDEBUG
+
+# No debug, disables debug output
+#DEFINES += -DNDEBUG
+
+# enables inline functions
+#DEFINES += -D_INLINE_
+
+#==============================================================================
+# Targets
+
+chemu: $(DLLTARGET)
+
+chemu-static: $(DLLTARGET) # linker also creates LIBTARGET
+
+$(DLLTARGET): $(OBJFILES) $(LIBSTHREADS)
+	$(LINK) $(LINKFLAGS) /OUT:$@ $(OBJFILES) $(LIBSTHREADS)
+
+$(LIBSTHREADS):
+	cd $(LIBSTHREADSDIR) && $(MAKE) -f Makefile.win
+
+
+# =============================================================================
+# utils
+
+# source file to object file
+{$(SRCDIR)}.c{$(OBJDIR)}.obj:
+	$(CC) $(DEFINES) $(INCLUDES) /Fo$(OBJDIR)\ /c $(CFLAGS) $<
+
+clean:
+	DEL $(OBJDIR)\*.obj
