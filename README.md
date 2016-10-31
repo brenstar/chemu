@@ -35,9 +35,10 @@ make chemu
 |--------------|----------------------|-------------|------------|
 | decode       | chemu/decode.h       | chipdec     | Contains the OPTABLE and routines for decoding CHIP-8 instructions |
 | display      | chemu/display.h      | chipdisplay | Routines for drawing sprites on a ChipDisplay |
-| emulation    | chemu/emulation.h    | chipemu     | Contains the main loop |
+| emulation    | chemu/emulation.h    | chipemu     | Routines for emulating a CHIP-8 ROM |
 | input        | chemu/input.h        | chipinput   | Routines for modifying/accessing the ChipInput type |
 | instructions | chemu/instructions.h | cif         | Contains all instruction functions |
+| loop         | chemu/loop.h         | chiploop    | Routines for emulation in a separate thread |
 | memory       | chemu/memory.h       | chipmem     | Routines for modifying/accessing a ChipMem struct |
 | stack        | chemu/stack.h        | chipstack   | Routines for modifying a ChipStack struct |
 | timer        | chemu/timer.h        | chiptimer   | Encapsulates a CHIP-8 timer, which counts down at 60Hz |
