@@ -14,6 +14,7 @@ CFLAGS=			/W3 /nologo /sdl
 LINK=			link.exe
 LINKFLAGS=		/NOLOGO /DLL
 MKLIB=			lib.exe
+LIBFLAGS=		/NOLOGO
 
 LIBSTHREADSDIR=	lib\sthreads
 LIBSTHREADS=	$(LIBSTHREADSDIR)\bin\sthreads.lib
@@ -53,10 +54,13 @@ DEFINES=		/DCHEMU_EXPORTS /D_INLINE_ /DNDEBUG
 
 chemu: $(DLLTARGET)
 
-chemu-static: $(DLLTARGET) # linker also creates LIBTARGET
+chemu-static: $(LIBTARGET)
 
 $(DLLTARGET): $(OBJFILES) $(LIBSTHREADS)
 	$(LINK) $(LINKFLAGS) /OUT:$@ $(OBJFILES) $(LIBSTHREADS)
+
+$(LIBTARGET): $(OBJFILES) $(LIBSTHREADS)
+	$(MKLIB) $(LIBFLAGS) /OUT:$@ $(OBJFILES) $(LIBSTHREADS)
 
 $(LIBSTHREADS):
 	cd $(LIBSTHREADSDIR) && $(MAKE) -f Makefile.win
@@ -71,3 +75,8 @@ $(LIBSTHREADS):
 
 clean:
 	DEL $(OBJDIR)\*.obj
+
+realclean: clean
+	DEL $(BINDIR)\chemu.so
+	DEL $(BINDIR)\chemu.lib
+	DEL $(BINDIR)\chemu.exp

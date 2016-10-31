@@ -16,6 +16,9 @@
     <Filter Include="Header Files\chemu">
       <UniqueIdentifier>{de55ec09-1385-45e7-9fd0-201c534b83b5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\chemu\internal">
+      <UniqueIdentifier>{3ca3d8be-ff60-499e-8678-7b30126853e1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\chemu\src\display.c">
@@ -55,6 +58,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\chemu\src\logger.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\chemu\src\loop.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\chemu\src\threads.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -134,13 +143,22 @@
     <ClInclude Include="..\..\chemu\include\chemu\timer.h">
       <Filter>Header Files\chemu</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\chemu\include\inline.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\chemu\include\export.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\chemu\include\chemu\logger.h">
+      <Filter>Header Files\chemu</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\chemu\include\chemu\ChipLoop.h">
+      <Filter>Header Files\chemu</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\chemu\include\chemu\loop.h">
+      <Filter>Header Files\chemu</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\chemu\include\chemu\internal\export.h">
+      <Filter>Header Files\chemu\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\chemu\include\chemu\internal\inline.h">
+      <Filter>Header Files\chemu\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\chemu\include\chemu\threads.h">
       <Filter>Header Files\chemu</Filter>
     </ClInclude>
   </ItemGroup>

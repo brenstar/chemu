@@ -1,5 +1,5 @@
 #include "chemu/timer.h"
-#include "threads.h"
+#include "chemu/threads.h"
 
 #include <stdlib.h>
 

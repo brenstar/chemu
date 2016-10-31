@@ -72,6 +72,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <TargetExt>.dll</TargetExt>
+    <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -162,8 +163,10 @@
     <ClCompile Include="..\..\chemu\src\instructions_r.c" />
     <ClCompile Include="..\..\chemu\src\instructions_v.c" />
     <ClCompile Include="..\..\chemu\src\logger.c" />
+    <ClCompile Include="..\..\chemu\src\loop.c" />
     <ClCompile Include="..\..\chemu\src\memory.c" />
     <ClCompile Include="..\..\chemu\src\stack.c" />
+    <ClCompile Include="..\..\chemu\src\threads.c" />
     <ClCompile Include="..\..\chemu\src\timer.c" />
   </ItemGroup>
   <ItemGroup>
@@ -177,6 +180,7 @@
     <ClInclude Include="..\..\chemu\include\chemu\ChipInst.h" />
     <ClInclude Include="..\..\chemu\include\chemu\ChipInstDec.h" />
     <ClInclude Include="..\..\chemu\include\chemu\ChipInstFunc.h" />
+    <ClInclude Include="..\..\chemu\include\chemu\ChipLoop.h" />
     <ClInclude Include="..\..\chemu\include\chemu\ChipMem.h" />
     <ClInclude Include="..\..\chemu\include\chemu\ChipOp.h" />
     <ClInclude Include="..\..\chemu\include\chemu\ChipRedrawCallback.h" />
@@ -189,12 +193,14 @@
     <ClInclude Include="..\..\chemu\include\chemu\emulation.h" />
     <ClInclude Include="..\..\chemu\include\chemu\input.h" />
     <ClInclude Include="..\..\chemu\include\chemu\instructions.h" />
+    <ClInclude Include="..\..\chemu\include\chemu\internal\export.h" />
+    <ClInclude Include="..\..\chemu\include\chemu\internal\inline.h" />
     <ClInclude Include="..\..\chemu\include\chemu\logger.h" />
+    <ClInclude Include="..\..\chemu\include\chemu\loop.h" />
     <ClInclude Include="..\..\chemu\include\chemu\memory.h" />
     <ClInclude Include="..\..\chemu\include\chemu\stack.h" />
+    <ClInclude Include="..\..\chemu\include\chemu\threads.h" />
     <ClInclude Include="..\..\chemu\include\chemu\timer.h" />
-    <ClInclude Include="..\..\chemu\include\export.h" />
-    <ClInclude Include="..\..\chemu\include\inline.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\chemu\include\chemu\memory.ipp">

@@ -4,7 +4,7 @@
 #include <time.h>
 #include <string.h>
 
-#include "threads.h"
+#include "chemu/threads.h"
 
 #include "chemu/emulation.h"
 #include "chemu/decode.h"
@@ -22,30 +22,14 @@
 
 static ChipInstResult __execute(ChipEmu emu, ChipInst inst);
 
-static void __stop(ChipEmu emu);
-
-static int __run(void* arg);
-
 struct ChipEmu_s {
     ChipMem memory;
-    ChipEmuState state;
-    int limiter;
-    // mutex for synchronizing any call to a monitor function
-    // must be locked at start of function, then unlocked before return
-    mtx_t emulatorLock;
     // mutex for synchronizing any access to the emulator's memory
     mtx_t memlock;
-    cnd_t getKeyCV;
     ChipGetKeyCallback getKeyCb;
     ChipRedrawCallback redrawCb;
 };
 
-//
-// Monitor: YES
-//
-ChipEmuState chipemu_break(ChipEmu emu) {
-    return CHIPEMU_IDLE;
-}
 
 ChipEmu chipemu_create(void) {
 
@@ -55,9 +39,6 @@ ChipEmu chipemu_create(void) {
         emu->getKeyCb = NULL;
         emu->redrawCb = NULL;
 
-        emu->state = CHIPEMU_READY;
-
-        mtx_init(&emu->emulatorLock, mtx_plain);
         mtx_init(&emu->memlock, mtx_plain);
 
         chipmem_init(&emu->memory);
@@ -70,20 +51,7 @@ ChipEmu chipemu_create(void) {
 //
 // Monitor: YES
 //
-ChipEmuState chipemu_continue(ChipEmu emu) {
-    return CHIPEMU_LOOP;
-}
-
-//
-// Monitor: YES
-//
 void chipemu_destroy(ChipEmu emu) {
-    mtx_lock(&emu->emulatorLock);
-    if (LOOPACTIVE(emu->state))
-        __stop(emu);
-    mtx_unlock(&emu->emulatorLock);
-
-    mtx_destroy(&emu->emulatorLock);
     mtx_destroy(&emu->memlock);
 
     free(emu);
@@ -93,13 +61,10 @@ void chipemu_destroy(ChipEmu emu) {
 // Monitor: YES
 //
 ChipInstResult chipemu_execute(ChipEmu emu, ChipInst inst) {
-    mtx_lock(&emu->emulatorLock);
 
     mtx_lock(&emu->memlock);
     ChipInstResult res = __execute(emu, inst);
     mtx_unlock(&emu->memlock);
-
-    mtx_unlock(&emu->emulatorLock);
 
     return res;
 }
@@ -176,12 +141,6 @@ int chipemu_loadROM(ChipEmu emu, const char *path) {
     return bytesRead;
 }
 
-int chipemu_mainLoop(ChipEmu emu) {
-
-    int exitStatus = EXIT_SUCCESS;
-    return exitStatus;
-}
-
 void chipemu_setKey(ChipEmu emu, ChipKey key, ChipKeyState state) {
     mtx_lock(&emu->memlock);
     chipin_set(&emu->memory.reserved.input, key, state);
@@ -195,35 +154,8 @@ void chipemu_setKey(ChipEmu emu, ChipKey key, ChipKeyState state) {
 //
 // Monitor: YES
 //
-ChipEmuState chipemu_start(ChipEmu emu) {
-    mtx_lock(&emu->emulatorLock);
-
-    if (emu->state == CHIPEMU_READY) {
-        // create thread
-
-    }
-
-    mtx_unlock(&emu->emulatorLock);
-    return emu->state;
-}
-
-//
-// Monitor: YES
-//
-ChipEmuState chipemu_stop(ChipEmu emu) {
-    return CHIPEMU_READY;
-}
-
 int chipemu_step(ChipEmu emu) {
     int result = CHIP_STEP_SUCCESS;
-
-    mtx_lock(&emu->emulatorLock);
-
-    if (emu->state == CHIPEMU_ERROR) {
-        // do nothing, error occurred previously
-        mtx_unlock(&emu->emulatorLock);
-        return CHIP_STEP_FAILURE;
-    }
 
     mtx_lock(&emu->memlock);
 
@@ -245,8 +177,6 @@ int chipemu_step(ChipEmu emu) {
     }
 
     mtx_unlock(&emu->memlock);
-    mtx_unlock(&emu->emulatorLock);
-
     return result;
 }
 
@@ -256,14 +186,7 @@ void chipemu_redraw(ChipEmu emu) {
         emu->redrawCb(emu);
 }
 
-ChipEmuState chipemu_reset(ChipEmu emu) {
-
-    mtx_lock(&emu->emulatorLock);
-
-    if (LOOPACTIVE(emu->state))
-        __stop(emu);
-
-    emu->state = CHIPEMU_READY;
+void chipemu_reset(ChipEmu emu) {
 
     mtx_lock(&emu->memlock);
     // clear datapath
@@ -284,7 +207,6 @@ ChipEmuState chipemu_reset(ChipEmu emu) {
     chipdisplay_clear(&emu->memory.reserved.display);
 
     mtx_unlock(&emu->memlock);
-    mtx_unlock(&emu->emulatorLock);
 }
 
 // Static helper functions
@@ -308,12 +230,5 @@ ChipInstResult __execute(ChipEmu emu, ChipInst inst) {
         result = op.func(emu, &emu->memory, decoded);
     }
 
-    if (result == INST_FAILURE)
-        emu->state = CHIPEMU_ERROR;
-
     return result;
-}
-
-void __stop(ChipEmu emu) {
-
 }
