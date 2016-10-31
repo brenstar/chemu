@@ -1,3 +1,0 @@
-[submodule "chemu/lib/sthreads"]
-	path = chemu/lib/sthreads
-	url = https://github.com/pedgeon/sthreads.git
