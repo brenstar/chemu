@@ -2,7 +2,6 @@
 #define _EMULATION_H
 
 #include "ChipEmu.h"
-#include "ChipEmuState.h"
 #include "ChipInput.h"
 #include "ChipInst.h"
 #include "ChipInstResult.h"

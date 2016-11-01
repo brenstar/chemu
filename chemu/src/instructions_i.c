@@ -88,6 +88,7 @@ ChipInstResult cif_ld(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
 
 // lk - wait and load key press
 ChipInstResult cif_lk(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+    // Note that this instruction will block until chipemu_setKey is called
     mem->reserved.regs[inst.i.rnum] = chipemu_getKey(emu);
 
     return INST_SUCCESS_INCR_PC;

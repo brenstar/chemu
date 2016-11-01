@@ -17,7 +17,6 @@
 
 #include "chemu/ChipGetKeyCallback.h"
 #include "chemu/ChipRedrawCallback.h"
-#include "chemu/ChipEmuState.h"
 
 
 static ChipInstResult __execute(ChipEmu emu, ChipInst inst);
@@ -26,7 +25,9 @@ struct ChipEmu_s {
     ChipMem memory;
     // mutex for synchronizing any access to the emulator's memory
     mtx_t memlock;
-    ChipGetKeyCallback getKeyCb;
+    mtx_t getKeyLock;
+    cnd_t getKeyCV;
+    int lastKeyPressed;
     ChipRedrawCallback redrawCb;
 };
 
@@ -36,10 +37,11 @@ ChipEmu chipemu_create(void) {
     ChipEmu emu = (ChipEmu)malloc(sizeof(struct ChipEmu_s));
     if (emu != NULL) {
         // set callbacks to NULL
-        emu->getKeyCb = NULL;
         emu->redrawCb = NULL;
 
         mtx_init(&emu->memlock, mtx_plain);
+        mtx_init(&emu->getKeyLock, mtx_plain);
+        cnd_init(&emu->getKeyCV);
 
         chipmem_init(&emu->memory);
         chipemu_reset(emu);
@@ -48,18 +50,14 @@ ChipEmu chipemu_create(void) {
     return emu;
 }
 
-//
-// Monitor: YES
-//
 void chipemu_destroy(ChipEmu emu) {
     mtx_destroy(&emu->memlock);
+    mtx_destroy(&emu->getKeyLock);
+    cnd_destroy(&emu->getKeyCV);
 
     free(emu);
 }
 
-//
-// Monitor: YES
-//
 ChipInstResult chipemu_execute(ChipEmu emu, ChipInst inst) {
 
     mtx_lock(&emu->memlock);
@@ -69,36 +67,31 @@ ChipInstResult chipemu_execute(ChipEmu emu, ChipInst inst) {
     return res;
 }
 
-//
-// Monitor: NO
-//
 ChipKey chipemu_getKey(ChipEmu emu) {
-    if (emu->getKeyCb != NULL)
-        return emu->getKeyCb(emu);
-    return CHIP_KEY_0;
+    //if (emu->getKeyCb != NULL)
+    //    return emu->getKeyCb(emu);
+    mtx_lock(&emu->getKeyLock);
+    emu->lastKeyPressed = -1;
+    while (emu->lastKeyPressed == -1) {
+        cnd_wait(&emu->getKeyCV, &emu->getKeyLock);
+    }
+    mtx_unlock(&emu->getKeyLock);
+
+    return emu->lastKeyPressed;
 }
 
-//
-// Monitor: NO
-//
 void chipemu_getDisplay(ChipEmu emu, ChipDisplay *displayDest) {
     mtx_lock(&emu->memlock);
     *displayDest = emu->memory.reserved.display;
     mtx_unlock(&emu->memlock);
 }
 
-//
-// Monitor: NO
-//
 void chipemu_getStack(ChipEmu emu, ChipStack *stackDest) {
     mtx_lock(&emu->memlock);
     *stackDest = emu->memory.reserved.stack;
     mtx_unlock(&emu->memlock);
 }
 
-//
-// Monitor: NO
-//
 void chipemu_getDatapath(ChipEmu emu, ChipDP *datapathDest) {
     mtx_lock(&emu->memlock);
 
@@ -112,7 +105,6 @@ void chipemu_getDatapath(ChipEmu emu, ChipDP *datapathDest) {
     mtx_unlock(&emu->memlock);
 }
 //
-// Monitor: NO
 // Reads the binary file stored in path and copies the read data into
 // the emulator's memory struct. CHIP_LOAD_FAILURE is returned if the
 // file could not be opened, a read error occurs, or the ROM is too big (the
@@ -142,18 +134,20 @@ int chipemu_loadROM(ChipEmu emu, const char *path) {
 }
 
 void chipemu_setKey(ChipEmu emu, ChipKey key, ChipKeyState state) {
+    if (state == CHIP_KEYSTATE_PRESSED) {
+        // wake up emulator thread if needed
+        mtx_lock(&emu->getKeyLock);
+        if (emu->lastKeyPressed == -1) {
+            emu->lastKeyPressed = key;
+            cnd_signal(&emu->getKeyCV);
+        }
+        mtx_unlock(&emu->getKeyLock);
+    }
     mtx_lock(&emu->memlock);
     chipin_set(&emu->memory.reserved.input, key, state);
     mtx_unlock(&emu->memlock);
-
-    if (state == CHIP_KEYSTATE_PRESSED) {
-        // wake up emulator thread if needed
-    }
 }
 
-//
-// Monitor: YES
-//
 int chipemu_step(ChipEmu emu) {
     int result = CHIP_STEP_SUCCESS;
 

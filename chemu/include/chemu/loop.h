@@ -48,7 +48,7 @@ CHEMU_API int chiploop_main(ChipLoop loop);
 // Starts execution of the main loop in a separate thread. The loop handle must
 // be inactive when calling this function, otherwise nothing happens.
 //
-CHEMU_API void chiploop_start(ChipEmu emu);
+CHEMU_API void chiploop_start(ChipLoop loop);
 
 //
 // Signals to stop execution of the main loop. The loop handle must be in the

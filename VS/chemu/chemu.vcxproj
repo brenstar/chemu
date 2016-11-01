@@ -181,6 +181,7 @@
     <ClInclude Include="..\..\chemu\include\chemu\ChipInstDec.h" />
     <ClInclude Include="..\..\chemu\include\chemu\ChipInstFunc.h" />
     <ClInclude Include="..\..\chemu\include\chemu\ChipLoop.h" />
+    <ClInclude Include="..\..\chemu\include\chemu\ChipLoopState.h" />
     <ClInclude Include="..\..\chemu\include\chemu\ChipMem.h" />
     <ClInclude Include="..\..\chemu\include\chemu\ChipOp.h" />
     <ClInclude Include="..\..\chemu\include\chemu\ChipRedrawCallback.h" />

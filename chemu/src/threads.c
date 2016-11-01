@@ -160,7 +160,6 @@ void thrd_yield() {
 }
 
 NORETURN void thrd_exit(int result) {
-    // destroy all tss
     #ifdef _ST_UNIX
         pthread_exit((void*)(intptr_t)result);
     #elif defined(_ST_WIN)

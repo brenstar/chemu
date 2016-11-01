@@ -161,6 +161,9 @@
     <ClInclude Include="..\..\chemu\include\chemu\threads.h">
       <Filter>Header Files\chemu</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\chemu\include\chemu\ChipLoopState.h">
+      <Filter>Header Files\chemu</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\chemu\include\chemu\memory.ipp">
