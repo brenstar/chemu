@@ -21,6 +21,8 @@
 
 static ChipInstResult __execute(ChipEmu emu, ChipInst inst);
 
+static void __updateTimer(ChipEmu emu, ChipReg *timerPtr);
+
 struct ChipEmu_s {
     ChipMem memory;
     // mutex for synchronizing any access to the emulator's memory
@@ -28,6 +30,8 @@ struct ChipEmu_s {
     mtx_t getKeyLock;
     cnd_t getKeyCV;
     int lastKeyPressed;
+    // true if emulator is emulating a cycle, false otherwise
+    bool stepping;
     ChipRedrawCallback redrawCb;
 };
 
@@ -38,6 +42,8 @@ ChipEmu chipemu_create(void) {
     if (emu != NULL) {
         // set callbacks to NULL
         emu->redrawCb = NULL;
+
+        emu->stepping = false;
 
         mtx_init(&emu->memlock, mtx_plain);
         mtx_init(&emu->getKeyLock, mtx_plain);
@@ -70,14 +76,23 @@ ChipInstResult chipemu_execute(ChipEmu emu, ChipInst inst) {
 ChipKey chipemu_getKey(ChipEmu emu) {
     //if (emu->getKeyCb != NULL)
     //    return emu->getKeyCb(emu);
-    mtx_lock(&emu->getKeyLock);
-    emu->lastKeyPressed = -1;
-    while (emu->lastKeyPressed == -1) {
-        cnd_wait(&emu->getKeyCV, &emu->getKeyLock);
+
+    if (emu->stepping) {
+        // no longer modifying memory, release lock
+        mtx_unlock(&emu->memlock);
+
+        mtx_lock(&emu->getKeyLock);
+        emu->lastKeyPressed = -1;
+        while (emu->lastKeyPressed == -1) {
+            cnd_wait(&emu->getKeyCV, &emu->getKeyLock);
+        }
+        mtx_unlock(&emu->getKeyLock);
+
+        mtx_lock(&emu->memlock);
     }
-    mtx_unlock(&emu->getKeyLock);
 
     return emu->lastKeyPressed;
+
 }
 
 void chipemu_getDisplay(ChipEmu emu, ChipDisplay *displayDest) {
@@ -152,6 +167,7 @@ int chipemu_step(ChipEmu emu) {
     int result = CHIP_STEP_SUCCESS;
 
     mtx_lock(&emu->memlock);
+    emu->stepping = true;
 
     // fetch
     ChipAddress pc = emu->memory.reserved.pc;
@@ -170,14 +186,19 @@ int chipemu_step(ChipEmu emu) {
             break;
     }
 
+    emu->stepping = false;
     mtx_unlock(&emu->memlock);
     return result;
 }
 
 
 void chipemu_redraw(ChipEmu emu) {
-    if (emu->redrawCb != NULL)
+    if (emu->redrawCb != NULL && emu->stepping) {
+        // release the memlock so the callback can access the display
+        mtx_unlock(&emu->memlock);
         emu->redrawCb(emu);
+        mtx_lock(&emu->memlock);
+    }
 }
 
 void chipemu_reset(ChipEmu emu) {
@@ -203,6 +224,14 @@ void chipemu_reset(ChipEmu emu) {
     mtx_unlock(&emu->memlock);
 }
 
+void chipemu_triggerDelayTimer(ChipEmu emu) {
+    __updateTimer(emu, &emu->memory.reserved.delTimer);
+}
+
+void chipemu_triggerSoundTimer(ChipEmu emu) {
+    __updateTimer(emu, &emu->memory.reserved.sndTimer);
+}
+
 // Static helper functions
 //-----------------------------------------------------------------------------
 
@@ -225,4 +254,11 @@ ChipInstResult __execute(ChipEmu emu, ChipInst inst) {
     }
 
     return result;
+}
+
+void __updateTimer(ChipEmu emu, ChipReg *timerPtr) {
+    mtx_lock(&emu->memlock);
+    if (*timerPtr > 0)
+        *timerPtr--;
+    mtx_unlock(&emu->memlock);
 }

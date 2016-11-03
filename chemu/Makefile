@@ -2,35 +2,50 @@
 #==============================================================================
 # paths
 
-BINDIR=         bin
-OBJDIR=         obj
-SRCDIR=         src
-INCDIR=         include
+PLATFORM := $(shell uname -m)-$(shell uname -s)
+
+BINROOT:=       bin
+BINDIR:=        $(BINROOT)/$(PLATFORM)
+OBJROOT:=       obj
+SRCDIR:=        src
+INCDIR:=        include
+
+
 
 vpath %.c $(SRCDIR)
 
 #==============================================================================
 # Variables
 
-CC =            gcc
-CFLAGS =        -std=c11 -Wextra -Wall -pedantic -fPIC
-OBJFN =         emulation.o decode.o display.o instructions_a.o input.o \
-                instructions_i.o instructions_r.o instructions_v.o memory.o \
-                logger.o stack.o timer.o
-OBJFILES =      $(addprefix $(OBJDIR)/,$(OBJFN))
-LDFLAGS=        -shared -lsthreads
+NAME := libchemu
+DNAME := $(NAME).so
+SNAME := $(NAME).a
 
-LIBSTHREADSDIR= lib/sthreads
-LIBSTHREADS=    $(LIBSTHREADSDIR)/bin/libsthreads.a
+DTARGET := $(BINDIR)/$(DNAME)
+STARGET := $(BINDIR)/$(SNAME)
 
-INCLUDES=       -I$(INCDIR) -I$(LIBSTHREADSDIR)/include
+DOBJDIR := $(OBJROOT)/$(DNAME)-$(PLATFORM)
+SOBJDIR := $(OBJROOT)/$(SNAME)-$(PLATFORM)
 
-LIBS=           -L$(LIBSTHREADSDIR)/bin
+CFLAGS :=       -std=c11 -Wextra -Wall -pedantic
+ARFLAGS := 		-cvr
+
+SRCFILES := $(wildcard $(SRCDIR)/*.c)
+SRCFILES := $(filter-out $(SRCDIR)/instructions.c, $(SRCFILES))
+
+DOBJFILES := $(SRCFILES:$(SRCDIR)/%.c=$(DOBJDIR)/%.o)
+SOBJFILES := $(SRCFILES:$(SRCDIR)/%.c=$(SOBJDIR)/%.o)
+
+LDFLAGS=
+
+INCLUDES=       -I$(INCDIR)
+
+MKDIR_P = mkdir -p
 
 #==============================================================================
 # Definitions
 
-DEFINES=
+DEFINES := -D_GNU_SOURCE
 
 # No debug, disables debug output
 DEFINES += -DNDEBUG
@@ -41,32 +56,49 @@ DEFINES += -D_INLINE_
 #==============================================================================
 # Targets
 
-.PHONY=chemu chemu-static clean realclean
+.PHONY=all chemu chemu-static clean realclean
 
-chemu: $(BINDIR)/chemu.so
+all: chemu chemu-static
 
-chemu-static: $(BINDIR)/libchemu.a
+chemu: CFLAGS += -fPIC
+chemu: LDFLAGS += -shared
+chemu: $(DTARGET)
 
-$(BINDIR)/chemu.so: $(OBJFILES) $(LIBSTHREADS)
-	$(CC) $(LDFLAGS) $(LIBS) -o $@ $(OBJFILES)
+chemu-static: $(STARGET)
 
-$(BINDIR)/libchemu.a: $(OBJFILES)
-	ar -cvr $@ $+
+$(DTARGET): $(DOBJFILES) | $(BINDIR)
+	$(CC) $(LDFLAGS) $(DOBJFILES) -o $@
 
-$(LIBSTHREADS):
-	cd $(LIBSTHREADSDIR) && $(MAKE)
+$(STARGET): $(SOBJFILES) | $(BINDIR)
+	$(AR) $(ARFLAGS) $@ $(SOBJFILES)
 
+
+COMPILE = $(CC) $(CFLAGS) $(INCLUDES) $(DEFINES) -c $< -o $@
+
+$(DOBJDIR)/%.o: %.c | $(DOBJDIR)
+	$(COMPILE)
+
+$(SOBJDIR)/%.o: %.c | $(SOBJDIR)
+	$(COMPILE)
 
 #.c.o:
-$(OBJDIR)/%.o: %.c
-	$(CC) $(CFLAGS) $(INCLUDES) $(DEFINES) -c $< -o $@
+#$(DOBJDIR)/%.o: %.c
+#	$(CC) $(CFLAGS) $(INCLUDES) $(DEFINES) -c $< -o $@
 
+$(DOBJDIR) $(SOBJDIR) $(BINDIR):
+	$(MKDIR_P) $@
+
+# $(SOBJDIR):
+# 	$(MKDIR_P) $@
+#
+# $(BINDIR):
+# 	$(MKDIR_P) $@
 
 #==============================================================================
 # utils
 
 clean:
-	rm -f $(OBJDIR)/*.o
+	$(RM) -f $(DOBJDIR)/*.o $(SOBJDIR)/*.o
 
-realclean:        clean
-	rm -f $(BINDIR)/chemu.so
+realclean: clean
+	$(RM) -f $(STARGET) $(DTARGET)

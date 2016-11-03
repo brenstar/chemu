@@ -70,8 +70,7 @@ int thrd_create(thrd_t *thrd, thrd_start_t start, void *arg) {
                                     0, &thrd->threadId);
 
         if (thrd->thread == NULL) {
-            // todo: check GetLastError to determine if out of memory, etc
-            result = thrd_error;
+            result = (GetLastError() == ERROR_OUTOFMEMORY) ? thrd_nomem : thrd_error;
         } else {
             // thrd_create cannot return until the wrapper has finished accessing call (call exists on the stack)
             // so block until any one of these happen:
@@ -234,7 +233,7 @@ int mtx_init(mtx_t *mutex, int type) {
         pthread_mutexattr_destroy(&attr);
 
     #elif defined(_ST_WIN)
-        InitializeCriticalSection((LPCRITICAL_SECTION)&mutex);
+        InitializeCriticalSection((LPCRITICAL_SECTION)mutex);
     #endif
 
     return result;
@@ -250,7 +249,7 @@ int mtx_lock(mtx_t *mutex) {
 
     #elif defined(_ST_WIN)
         // same behavior for plain and recursive mutexes
-        EnterCriticalSection((LPCRITICAL_SECTION)&mutex);
+        EnterCriticalSection((LPCRITICAL_SECTION)mutex);
     #endif
 
     return result;
@@ -267,7 +266,7 @@ int mtx_trylock(mtx_t *mutex) {
 
     #elif defined(_ST_WIN)
 
-        if (!TryEnterCriticalSection((LPCRITICAL_SECTION)&mutex)) {
+        if (!TryEnterCriticalSection((LPCRITICAL_SECTION)mutex)) {
             result = thrd_busy;
         }
 
@@ -283,7 +282,7 @@ int mtx_unlock(mtx_t *mutex) {
         if (pthread_mutex_unlock(mutex))
             result = thrd_error;
     #elif defined(_ST_WIN)
-        LeaveCriticalSection((LPCRITICAL_SECTION)&mutex);
+        LeaveCriticalSection((LPCRITICAL_SECTION)mutex);
     #endif
 
     return result;
@@ -294,7 +293,7 @@ void mtx_destroy(mtx_t *mutex) {
     #ifdef _ST_UNIX
         pthread_mutex_destroy(mutex);
     #elif defined(_ST_WIN)
-        DeleteCriticalSection((LPCRITICAL_SECTION)&mutex);
+        DeleteCriticalSection((LPCRITICAL_SECTION)mutex);
     #endif
 
 }
@@ -305,6 +304,10 @@ int cnd_init(cnd_t *cond) {
     int result = thrd_success;
 
     #ifdef _ST_UNIX
+        
+        if (pthread_cond_init(cond, NULL))
+            result = thrd_error;
+
     #elif defined _ST_WIN
         InitializeConditionVariable((PCONDITION_VARIABLE)cond);
     #endif
@@ -316,6 +319,10 @@ int cnd_signal(cnd_t *cond) {
     int result = thrd_success;
 
     #ifdef _ST_UNIX
+       
+        if (pthread_cond_signal(cond))
+            result = thrd_error;
+
     #elif defined _ST_WIN
         WakeConditionVariable((PCONDITION_VARIABLE)cond);
     #endif
@@ -327,6 +334,10 @@ int cnd_broadcast(cnd_t *cond) {
     int result = thrd_success;
 
     #ifdef _ST_UNIX
+
+        if (pthread_cond_broadcast(cond))
+            result = thrd_error;
+
     #elif defined _ST_WIN
         WakeAllConditionVariable((PCONDITION_VARIABLE)cond);
     #endif
@@ -338,35 +349,43 @@ int cnd_wait(cnd_t *cond, mtx_t *mutex) {
     //(void)cond; (void)mutex;
     int result = thrd_success;
 
-    mtx_unlock(mutex);
-
     #ifdef _ST_UNIX
+
+        if (pthread_cond_wait(cond, mutex))
+            result = thrd_error;
+
     #elif defined _ST_WIN
-    if (!SleepConditionVariableCS((PCONDITION_VARIABLE)cond, (LPCRITICAL_SECTION)&mutex, INFINITE))
-        result = thrd_error;
+        if (!SleepConditionVariableCS((PCONDITION_VARIABLE)cond, (LPCRITICAL_SECTION)mutex, INFINITE))
+            result = thrd_error;
     #endif
 
-    mtx_lock(mutex);
 
     return result;
 }
 
 int cnd_timedwait(cnd_t *cond, mtx_t *mutex, const struct timespec *time_point) {
-    //(void)cond; (void)mutex; (void)time_point;
+    int result = thrd_success;
 
     #ifdef _ST_UNIX
+
+        int status = pthread_cond_timedwait(cond, mutex, time_point);
+        if (status)
+            result = (status == ETIMEDOUT) ? thrd_timedout : thrd_error;
+
     #elif defined _ST_WIN
         DWORD ms = timespecToMillis(time_point);
-        if (!SleepConditionVariableCS((PCONDITION_VARIABLE)cond, (LPCRITICAL_SECTION)&mutex, ms))
-            return thrd_error;
+        if (!SleepConditionVariableCS((PCONDITION_VARIABLE)cond, (LPCRITICAL_SECTION)mutex, ms))
+            result = (GetLastError() == ERROR_TIMEOUT) ? thrd_timedout : thrd_error;
     #endif
     
-    return thrd_success;
+    return result;
 }
 
 void cnd_destroy(cnd_t *cond) {
     #ifdef _ST_UNIX
+        pthread_cond_destroy(cond);
     #elif defined _ST_WIN
-        
+        (void)cond;
+        // nothing to destroy
     #endif
 }

@@ -15,6 +15,9 @@
 
 #define CHIP_LOAD_FAILURE -1
 
+#define CHIP_SOUND_TIMER 0
+#define CHIP_DELAY_TIMER 1
+
 //
 // Creates an emulator handle. Callbacks are set to NULL. Memory and Stack are
 // initialized. The datapath is reset. Input and display are cleared.
@@ -101,5 +104,16 @@ CHEMU_API void chipemu_reset(ChipEmu emu);
 // in the READY or IDLE state when calling this function.
 //
 CHEMU_API int chipemu_step(ChipEmu emu);
+
+//
+// Triggers the sound timer. The value of the timer stored in the reserved portion
+// of memory is decremented by 1 if it is nonzero
+//
+CHEMU_API void chipemu_triggerSoundTimer(ChipEmu emu);
+
+//
+// Triggers the delay timer, see chipemu_triggerSoundTimer.
+//
+CHEMU_API void chipemu_triggerDelayTimer(ChipEmu emu);
 
 #endif

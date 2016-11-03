@@ -77,11 +77,11 @@ int thrd_create(thrd_t*, thrd_start_t, void*);
 
 int thrd_equal(thrd_t lhs, thrd_t rhs);
 
-thrd_t thrd_current();
+thrd_t thrd_current(void);
 
 int thrd_sleep(const struct timespec* time_point, struct timespec* remaining);
 
-void thrd_yield();
+void thrd_yield(void);
 
 NORETURN void thrd_exit(int result);
 
@@ -111,7 +111,7 @@ int cnd_broadcast(cnd_t *cond);
 
 int cnd_wait(cnd_t *cond, mtx_t *mutex);
 
-int cnd_timedwait(cnd_t *cond, mtx_t *mutex, struct timespec* time_point);
+int cnd_timedwait(cnd_t *cond, mtx_t *mutex, const struct timespec* time_point);
 
 void cnd_destroy(cnd_t *cond);
 

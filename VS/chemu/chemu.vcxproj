@@ -87,7 +87,7 @@
     <ClCompile>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;CHEMU_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
@@ -192,6 +192,7 @@
     <ClInclude Include="..\..\chemu\include\chemu\decode.h" />
     <ClInclude Include="..\..\chemu\include\chemu\display.h" />
     <ClInclude Include="..\..\chemu\include\chemu\emulation.h" />
+    <ClInclude Include="..\..\chemu\include\chemu\err.h" />
     <ClInclude Include="..\..\chemu\include\chemu\input.h" />
     <ClInclude Include="..\..\chemu\include\chemu\instructions.h" />
     <ClInclude Include="..\..\chemu\include\chemu\internal\export.h" />
