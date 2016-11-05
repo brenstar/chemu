@@ -8,6 +8,7 @@
 #include "ChipDP.h"
 #include "ChipStack.h"
 #include "ChipDisplay.h"
+#include "ChipRedrawCallback.h"
 #include "internal/export.h"
 
 #define CHIP_STEP_SUCCESS 0
@@ -80,6 +81,12 @@ CHEMU_API void chipemu_setKey(ChipEmu emu, ChipKey key, ChipKeyState state);
 // API.
 //
 void chipemu_redraw(ChipEmu emu);
+
+//
+// Associates the given redraw callback with the emulator. The emulator will
+// call the given function when the display is modified.
+//
+CHEMU_API void chipemu_setRedrawCallback(ChipEmu emu, ChipRedrawCallback callback);
 
 //
 // Resets the state of the emulator to the default state.

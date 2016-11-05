@@ -97,7 +97,8 @@ ChipKey chipemu_getKey(ChipEmu emu) {
 
 void chipemu_getDisplay(ChipEmu emu, ChipDisplay *displayDest) {
     mtx_lock(&emu->memlock);
-    *displayDest = emu->memory.reserved.display;
+    //*displayDest = emu->memory.reserved.display;
+    memcpy(displayDest, &(emu->memory.reserved.display), sizeof(ChipDisplay));
     mtx_unlock(&emu->memlock);
 }
 
@@ -154,6 +155,7 @@ void chipemu_setKey(ChipEmu emu, ChipKey key, ChipKeyState state) {
         mtx_lock(&emu->getKeyLock);
         if (emu->lastKeyPressed == -1) {
             emu->lastKeyPressed = key;
+            chiplog_info("Waking up emulator thread with key press %d\n", key);
             cnd_signal(&emu->getKeyCV);
         }
         mtx_unlock(&emu->getKeyLock);
@@ -161,6 +163,10 @@ void chipemu_setKey(ChipEmu emu, ChipKey key, ChipKeyState state) {
     mtx_lock(&emu->memlock);
     chipin_set(&emu->memory.reserved.input, key, state);
     mtx_unlock(&emu->memlock);
+}
+
+void chipemu_setRedrawCallback(ChipEmu emu, ChipRedrawCallback callback) {
+    emu->redrawCb = callback;
 }
 
 int chipemu_step(ChipEmu emu) {
@@ -259,6 +265,6 @@ ChipInstResult __execute(ChipEmu emu, ChipInst inst) {
 void __updateTimer(ChipEmu emu, ChipReg *timerPtr) {
     mtx_lock(&emu->memlock);
     if (*timerPtr > 0)
-        *timerPtr--;
+        (*timerPtr)--;
     mtx_unlock(&emu->memlock);
 }
