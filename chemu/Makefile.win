@@ -2,7 +2,7 @@
 # paths
 
 BINDIR=         bin
-OBJDIR=         obj
+OBJDIR=         obj\win32
 SRCDIR=         src
 INCDIR=         include
 
@@ -33,6 +33,8 @@ OBJFILES=		$(OBJDIR)\decode.obj \
 				$(OBJDIR)\logger.obj \
 				$(OBJDIR)\memory.obj \
 				$(OBJDIR)\stack.obj \
+                $(OBJDIR)\threadutil.obj \
+                $(OBJDIR)\threads.obj \
 				$(OBJDIR)\timer.obj
 
 DLLTARGET=		$(BINDIR)\chemu.dll

@@ -66,6 +66,9 @@
     <ClCompile Include="..\..\chemu\src\threads.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\chemu\src\threadutil.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\chemu\include\chemu.h">
@@ -165,6 +168,9 @@
       <Filter>Header Files\chemu</Filter>
     </ClInclude>
     <ClInclude Include="..\..\chemu\include\chemu\err.h">
+      <Filter>Header Files\chemu</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\chemu\include\chemu\threadutil.h">
       <Filter>Header Files\chemu</Filter>
     </ClInclude>
   </ItemGroup>

@@ -184,7 +184,10 @@ int chipemu_step(ChipEmu emu) {
         case INST_SUCCESS:
             break;
         case INST_SUCCESS_INCR_PC:
-            emu->memory.reserved.pc += 2;
+            if (emu->memory.reserved.pc == 0xFFFF)
+                emu->memory.reserved.pc = 0;
+            else
+                emu->memory.reserved.pc += 2;
             break;
         case INST_FAILURE:
             //chiplog_error("Instruction %d:%s has failed.\n", i, op.name);

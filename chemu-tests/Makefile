@@ -1,21 +1,22 @@
 
 # paths
 
-BINDIR=		bin
-OBJDIR=		obj
-SRCDIR=		src
+BINDIR:=		bin
+OBJDIR:=		obj
+SRCDIR:=		src
 
-UNIT_SRC=	../chemu/src
-UNIT_INC=	../chemu/include
+UNIT_SRC:=	../chemu/src
+UNIT_INC:=	../chemu/include
 
-INCLUDES=	-I../chemu/include -I../chemu/lib/sthreads/include
+INCLUDES:=	-I$(UNIT_INC)
+
+DEFINES:= -D_GNU_SOURCE
 
 vpath %.c $(SRCDIR):$(UNIT_SRC)
 
 # Variables
 
-CC = 		gcc
-CFLAGS =	-std=c11 -Wextra -Wall -pedantic -ggdb
+CFLAGS:=	-std=c11 -Wextra -Wall -pedantic -ggdb
 
 
 # targets
@@ -41,9 +42,12 @@ decodetest: $(addprefix $(OBJDIR)/,decode.o decodetest.o instructions.o)
 timertest: $(addprefix $(OBJDIR)/,timer.o timertest.o) ../chemu/lib/sthreads/obj/threads.o
 	$(CC) -o $(BINDIR)/$@ $+ -lpthread
 
+semtest: $(addprefix $(OBJDIR)/,semtest.o threads.o threadutil.o)
+	$(CC) -o $(BINDIR)/$@ $+ -lpthread
+
 #.c.o:
 $(OBJDIR)/%.o: %.c
-	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+	$(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -c $< -o $@
 
 # utils:
 
