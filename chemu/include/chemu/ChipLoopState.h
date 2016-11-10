@@ -4,6 +4,8 @@
 // macro determines if an emulator loop is active (state is IDLE or LOOP)
 #define LOOPACTIVE(s) ((s & 1) == 1)
 
+#define LOOPINACTIVE(s) ((s & 1) != 1)
+
 //
 // Enum of possible states the ChipEmu handle can encounter. The value of each
 // enum is a 2 bit number. The LSB of this number determines if the emulator
