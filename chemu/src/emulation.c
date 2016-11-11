@@ -36,7 +36,7 @@ struct ChipEmu_s {
 };
 
 
-ChipEmu chipemu_create(void) {
+ChipEmu chemu_emu_create(void) {
 
     ChipEmu emu = (ChipEmu)malloc(sizeof(struct ChipEmu_s));
     if (emu != NULL) {
@@ -49,14 +49,14 @@ ChipEmu chipemu_create(void) {
         mtx_init(&emu->getKeyLock, mtx_plain);
         cnd_init(&emu->getKeyCV);
 
-        chipmem_init(&emu->memory);
-        chipemu_reset(emu);
+        chemu_mem_init(&emu->memory);
+        chemu_emu_reset(emu);
     }
 
     return emu;
 }
 
-void chipemu_destroy(ChipEmu emu) {
+void chemu_emu_destroy(ChipEmu emu) {
     mtx_destroy(&emu->memlock);
     mtx_destroy(&emu->getKeyLock);
     cnd_destroy(&emu->getKeyCV);
@@ -64,7 +64,7 @@ void chipemu_destroy(ChipEmu emu) {
     free(emu);
 }
 
-ChipInstResult chipemu_execute(ChipEmu emu, ChipInst inst) {
+ChipInstResult chemu_emu_execute(ChipEmu emu, ChipInst inst) {
 
     mtx_lock(&emu->memlock);
     ChipInstResult res = __execute(emu, inst);
@@ -73,7 +73,7 @@ ChipInstResult chipemu_execute(ChipEmu emu, ChipInst inst) {
     return res;
 }
 
-ChipKey chipemu_getKey(ChipEmu emu) {
+ChipKey chemu_emu_getKey(ChipEmu emu) {
     //if (emu->getKeyCb != NULL)
     //    return emu->getKeyCb(emu);
 
@@ -95,20 +95,20 @@ ChipKey chipemu_getKey(ChipEmu emu) {
 
 }
 
-void chipemu_getDisplay(ChipEmu emu, ChipDisplay *displayDest) {
+void chemu_emu_getDisplay(ChipEmu emu, ChipDisplay *displayDest) {
     mtx_lock(&emu->memlock);
     //*displayDest = emu->memory.reserved.display;
     memcpy(displayDest, &(emu->memory.reserved.display), sizeof(ChipDisplay));
     mtx_unlock(&emu->memlock);
 }
 
-void chipemu_getStack(ChipEmu emu, ChipStack *stackDest) {
+void chemu_emu_getStack(ChipEmu emu, ChipStack *stackDest) {
     mtx_lock(&emu->memlock);
     *stackDest = emu->memory.reserved.stack;
     mtx_unlock(&emu->memlock);
 }
 
-void chipemu_getDatapath(ChipEmu emu, ChipDP *datapathDest) {
+void chemu_emu_getDatapath(ChipEmu emu, ChipDP *datapathDest) {
     mtx_lock(&emu->memlock);
 
     datapathDest->pc = emu->memory.reserved.pc;
@@ -126,7 +126,7 @@ void chipemu_getDatapath(ChipEmu emu, ChipDP *datapathDest) {
 // file could not be opened, a read error occurs, or the ROM is too big (the
 // max number of bytes was read and EOF was not reached).
 //
-int chipemu_loadROM(ChipEmu emu, const char *path) {
+int chemu_emu_loadROM(ChipEmu emu, const char *path) {
     int bytesRead = CHIP_LOAD_FAILURE;
     FILE *fp;
     #ifdef _WIN32
@@ -149,7 +149,7 @@ int chipemu_loadROM(ChipEmu emu, const char *path) {
     return bytesRead;
 }
 
-void chipemu_setKey(ChipEmu emu, ChipKey key, ChipKeyState state) {
+void chemu_emu_setKey(ChipEmu emu, ChipKey key, ChipKeyState state) {
     if (state == CHIP_KEYSTATE_PRESSED) {
         // wake up emulator thread if needed
         mtx_lock(&emu->getKeyLock);
@@ -161,15 +161,15 @@ void chipemu_setKey(ChipEmu emu, ChipKey key, ChipKeyState state) {
         mtx_unlock(&emu->getKeyLock);
     }
     mtx_lock(&emu->memlock);
-    chipin_set(&emu->memory.reserved.input, key, state);
+    chemu_in_set(&emu->memory.reserved.input, key, state);
     mtx_unlock(&emu->memlock);
 }
 
-void chipemu_setRedrawCallback(ChipEmu emu, ChipRedrawCallback callback) {
+void chemu_emu_setRedrawCallback(ChipEmu emu, ChipRedrawCallback callback) {
     emu->redrawCb = callback;
 }
 
-int chipemu_step(ChipEmu emu) {
+int chemu_emu_step(ChipEmu emu) {
     int result = CHIP_STEP_SUCCESS;
 
     mtx_lock(&emu->memlock);
@@ -201,7 +201,7 @@ int chipemu_step(ChipEmu emu) {
 }
 
 
-void chipemu_redraw(ChipEmu emu) {
+void chemu_emu_redraw(ChipEmu emu) {
     if (emu->redrawCb != NULL && emu->stepping) {
         // release the memlock so the callback can access the display
         mtx_unlock(&emu->memlock);
@@ -210,7 +210,7 @@ void chipemu_redraw(ChipEmu emu) {
     }
 }
 
-void chipemu_reset(ChipEmu emu) {
+void chemu_emu_reset(ChipEmu emu) {
 
     mtx_lock(&emu->memlock);
     // clear datapath
@@ -222,22 +222,22 @@ void chipemu_reset(ChipEmu emu) {
     emu->memory.reserved.delTimer = 0;
 
     // clear stack
-    chipstack_init(&emu->memory.reserved.stack);
+    chemu_stack_init(&emu->memory.reserved.stack);
 
     // clear input
     emu->memory.reserved.input = 0;
 
     // clear framebuffer
-    chipdisplay_clear(&emu->memory.reserved.display);
+    chemu_disp_clear(&emu->memory.reserved.display);
 
     mtx_unlock(&emu->memlock);
 }
 
-void chipemu_triggerDelayTimer(ChipEmu emu) {
+void chemu_emu_triggerDelayTimer(ChipEmu emu) {
     __updateTimer(emu, &emu->memory.reserved.delTimer);
 }
 
-void chipemu_triggerSoundTimer(ChipEmu emu) {
+void chemu_emu_triggerSoundTimer(ChipEmu emu) {
     __updateTimer(emu, &emu->memory.reserved.sndTimer);
 }
 
@@ -249,13 +249,13 @@ ChipInstResult __execute(ChipEmu emu, ChipInst inst) {
     ChipInstResult result;
 
     // decode
-    int i = chipdec_index(inst);
+    int i = chemu_dec_index(inst);
     if (i == NO_INSTRUCTION) {
         chiplog_error("Illegal instruction: %04X\n", inst);
         result = INST_FAILURE;
     } else {
-        ChipOp op = CHIP_OPTABLE[i];
-        ChipInstDec decoded = chipdec_decode(inst, op.cls);
+        ChipOp op = CHEMU_OPTABLE[i];
+        ChipInstDec decoded = chemu_dec_decode(inst, op.cls);
 
         // execute
         chiplog_debug("Executing '%s' (0x%04X)\n", op.name, inst);

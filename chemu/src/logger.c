@@ -7,7 +7,7 @@
 
 typedef struct Logger_s {
     FILE *stream;
-    LogLevel level;
+    ChemuLogLevel level;
     bool error;
 } Logger;
 
@@ -25,7 +25,7 @@ static const char * levelNames[] = {
     "ERROR"
 };
 
-void chiplog_set(FILE *fp) {
+void chemu_log_set(FILE *fp) {
     // set the stream if
     // fp is NULL (disables logging)
     // or
@@ -36,23 +36,23 @@ void chiplog_set(FILE *fp) {
     }
 }
 
-FILE* chiplog_get() {
+FILE* chemu_log_get() {
     return logger.stream;
 }
 
-LogLevel chiplog_level() {
+ChemuLogLevel chemu_log_level() {
     return logger.level;
 }
 
-void chiplog_setLevel(LogLevel level) {
+void chemu_log_setLevel(ChemuLogLevel level) {
     logger.level = level;
 }
 
-void chiplog_log(LogLevel level, const char *fmt, ...) {
+void chemu_log_write(ChemuLogLevel level, const char *fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
 
-    if (level == CHIP_LOG_NONE)
+    if (level == CHEMU_LOG_NONE)
         return;
 
     if (logger.stream != NULL && !logger.error && level >= logger.level) {

@@ -173,6 +173,9 @@
     <ClInclude Include="..\..\chemu\include\chemu\threadutil.h">
       <Filter>Header Files\chemu</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\chemu\include\chemu\ChemuLogLevel.h">
+      <Filter>Header Files\chemu</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\chemu\include\chemu\memory.ipp">

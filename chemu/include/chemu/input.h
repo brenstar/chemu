@@ -7,12 +7,12 @@
 //
 // Gets the keystate of a given key stored in the input parameter.
 //
-CHEMU_API ChipKeyState chipin_keystate(ChipInput *input, ChipKey key);
+CHEMU_API ChipKeyState chemu_in_keystate(ChipInput *input, ChipKey key);
 
 //
 // Sets the keystate (pressed or released) of the given key in the input
 // parameter
 //
-CHEMU_API void chipin_set(ChipInput *input, ChipKey key, ChipKeyState state);
+CHEMU_API void chemu_in_set(ChipInput *input, ChipKey key, ChipKeyState state);
 
 #endif

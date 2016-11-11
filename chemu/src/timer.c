@@ -13,7 +13,7 @@ struct ChipTimer_s {
 static int timerThreadFunc(void *arg);
 
 
-ChipTimer chiptimer_start(ChipTimerCallback callback, void *callbackArg) {
+ChipTimer chemu_timer_start(ChipTimerCallback callback, void *callbackArg) {
     ChipTimer timer = (ChipTimer)malloc(sizeof(struct ChipTimer_s));
 
     if (timer != NULL) {
@@ -30,7 +30,7 @@ ChipTimer chiptimer_start(ChipTimerCallback callback, void *callbackArg) {
     return timer;
 }
 
-void chiptimer_stop(ChipTimer timer) {
+void chemu_timer_stop(ChipTimer timer) {
     if (!timer->running)
         return;
 

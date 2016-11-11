@@ -6,15 +6,15 @@
 #include "ChipStack.h"
 #include "internal/export.h"
 
-CHEMU_API void chipstack_init(ChipStack *stack);
+CHEMU_API void chemu_stack_init(ChipStack *stack);
 
-CHEMU_API bool chipstack_can_push(ChipStack *stack);
+CHEMU_API bool chemu_stack_canPush(ChipStack *stack);
 
-CHEMU_API bool chipstack_can_pop(ChipStack *stack);
+CHEMU_API bool chemu_stack_canPop(ChipStack *stack);
 
-CHEMU_API void chipstack_push(ChipStack *stack, ChipAddress element);
+CHEMU_API void chemu_stack_push(ChipStack *stack, ChipAddress element);
 
-CHEMU_API ChipAddress chipstack_pop(ChipStack *stack);
+CHEMU_API ChipAddress chemu_stack_pop(ChipStack *stack);
 
 #if defined(_INLINE_) && defined(_MSC_VER)
 #include "internal/inline.h"

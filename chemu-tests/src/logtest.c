@@ -16,17 +16,17 @@ int main() {
 	printf("testing log functions with message '%s'\n", msg);
 
 	puts("Testing on stderr");
-	chiplog_set(stderr);
+	chemu_log_set(stderr);
 
 	for (int i = 0; i < 5; ++i) {
 		printf("Setting log level to %d\n", i);
-		chiplog_setLevel((LogLevel)i);
+		chemu_log_setLevel((LogLevel)i);
 		testLog(msg);
 	}
 
 	puts("testing on NULL");
-	chiplog_set(NULL);
-	chiplog_setLevel(CHIP_LOG_DEBUG);
+	chemu_log_set(NULL);
+	chemu_log_setLevel(CHIP_LOG_DEBUG);
 
 	testLog(msg);
 

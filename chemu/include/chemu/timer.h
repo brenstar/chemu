@@ -24,9 +24,9 @@
 
 //CHEMU_API void chiptimer_set(ChipTimer timer, int value);
 
-CHEMU_API ChipTimer chiptimer_start(ChipTimerCallback callback, void *callbackArg);
+CHEMU_API ChipTimer chemu_timer_start(ChipTimerCallback callback, void *callbackArg);
 
-CHEMU_API void chiptimer_stop(ChipTimer timer);
+CHEMU_API void chemu_timer_stop(ChipTimer timer);
 
 
 #endif

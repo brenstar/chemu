@@ -172,6 +172,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\chemu\include\chemu.h" />
+    <ClInclude Include="..\..\chemu\include\chemu\ChemuLogLevel.h" />
     <ClInclude Include="..\..\chemu\include\chemu\ChipAddress.h" />
     <ClInclude Include="..\..\chemu\include\chemu\ChipDisplay.h" />
     <ClInclude Include="..\..\chemu\include\chemu\ChipDP.h" />

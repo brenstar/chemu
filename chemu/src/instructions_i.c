@@ -9,7 +9,7 @@
 #include <stdlib.h>
 
 // sei - Skip next if equal to immediate
-ChipInstResult cif_sei(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+ChipInstResult chemu_if_sei(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
     (void)emu;
     if (mem->reserved.regs[inst.i.rnum] == inst.i.immediate)
         mem->reserved.pc += 2; // skip next instruction
@@ -18,7 +18,7 @@ ChipInstResult cif_sei(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
 }
 
 // sni - Skip next if not equal to immediate
-ChipInstResult cif_sni(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+ChipInstResult chemu_if_sni(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
     (void)emu;
     if (mem->reserved.regs[inst.i.rnum] != inst.i.immediate)
         mem->reserved.pc += 2;
@@ -27,7 +27,7 @@ ChipInstResult cif_sni(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
 }
 
 // li - load immediate
-ChipInstResult cif_li(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+ChipInstResult chemu_if_li(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
     (void)emu;
     mem->reserved.regs[inst.i.rnum] = inst.i.immediate;
 
@@ -35,7 +35,7 @@ ChipInstResult cif_li(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
 }
 
 // addi - add immediate
-ChipInstResult cif_addi(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+ChipInstResult chemu_if_addi(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
     (void)emu;
     mem->reserved.regs[inst.i.rnum] += inst.i.immediate;
     // check for carry ?
@@ -44,7 +44,7 @@ ChipInstResult cif_addi(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
 }
 
 // rnd - random
-ChipInstResult cif_rnd(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+ChipInstResult chemu_if_rnd(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
     (void)emu;
     // TODO: make a separate module for RNG
     mem->reserved.regs[inst.i.rnum] = (uint8_t)(rand() % 255) & inst.i.immediate;
@@ -58,12 +58,12 @@ ChipInstResult cif_rnd(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
     do { \
         ChipReg r = mem->reserved.regs[inst.i.rnum]; \
         if (r < 16) \
-            if (chipin_keystate(&mem->reserved.input, (ChipKey)r) == state) \
+            if (chemu_in_keystate(&mem->reserved.input, (ChipKey)r) == state) \
                 mem->reserved.pc += 2; \
     } while (0)
 
 // sip - skip next instruction if pressed
-ChipInstResult cif_sip(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+ChipInstResult chemu_if_sip(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
     (void)emu;
     sipHelper(mem, inst, CHIP_KEYSTATE_PRESSED);
 
@@ -71,7 +71,7 @@ ChipInstResult cif_sip(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
 }
 
 // snip - skip next instruction if not pressed
-ChipInstResult cif_snip(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+ChipInstResult chemu_if_snip(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
     (void)emu;
     sipHelper(mem, inst, CHIP_KEYSTATE_RELEASED);
 
@@ -79,7 +79,7 @@ ChipInstResult cif_snip(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
 }
 
 // ld - load delay timer
-ChipInstResult cif_ld(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+ChipInstResult chemu_if_ld(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
     (void)emu;
     mem->reserved.regs[inst.i.rnum] = mem->reserved.delTimer;
 
@@ -87,15 +87,15 @@ ChipInstResult cif_ld(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
 }
 
 // lk - wait and load key press
-ChipInstResult cif_lk(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
-    // Note that this instruction will block until chipemu_setKey is called
-    mem->reserved.regs[inst.i.rnum] = chipemu_getKey(emu);
+ChipInstResult chemu_if_lk(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+    // Note that this instruction will block until chemu_emu_setKey is called
+    mem->reserved.regs[inst.i.rnum] = chemu_emu_getKey(emu);
 
     return INST_SUCCESS_INCR_PC;
 }
 
 // del - set delay timer
-ChipInstResult cif_del(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+ChipInstResult chemu_if_del(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
     (void)emu;
     mem->reserved.delTimer = mem->reserved.regs[inst.i.rnum];
 
@@ -103,7 +103,7 @@ ChipInstResult cif_del(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
 }
 
 // snd - set sound timer
-ChipInstResult cif_snd(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+ChipInstResult chemu_if_snd(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
     (void)emu;
     mem->reserved.sndTimer = mem->reserved.regs[inst.i.rnum];
 
@@ -111,7 +111,7 @@ ChipInstResult cif_snd(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
 }
 
 // ii - increment address register
-ChipInstResult cif_ii(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+ChipInstResult chemu_if_ii(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
     (void)emu;
     mem->reserved.addrReg += mem->reserved.regs[inst.i.rnum];
 
@@ -119,24 +119,24 @@ ChipInstResult cif_ii(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
 }
 
 // font - set address register to font sprite
-ChipInstResult cif_font(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+ChipInstResult chemu_if_font(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
     (void)emu;
     uint8_t vx = mem->reserved.regs[inst.i.rnum];
     if (vx < 16)
-        mem->reserved.addrReg = chipmem_get_font(vx);
+        mem->reserved.addrReg = chemu_mem_getFont(vx);
 
     return INST_SUCCESS_INCR_PC;
 }
 
 // bcd - binary coded decimal
-ChipInstResult cif_bcd(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+ChipInstResult chemu_if_bcd(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
     (void)emu;
     ChipReg regX = mem->reserved.regs[inst.i.rnum];
     ChipAddress addr = mem->reserved.addrReg + 2;
 
     for (int i = 0; i < 3; ++i) {
         //emu->memory.array[addr - i] = regX % 10;
-        chipmem_write(mem, addr - i, regX % 10);
+        chemu_mem_write(mem, addr - i, regX % 10);
         regX /= 10;
     }
 
@@ -144,12 +144,12 @@ ChipInstResult cif_bcd(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
 }
 
 // save - save registers in memory
-ChipInstResult cif_save(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+ChipInstResult chemu_if_save(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
     (void)emu;
     ChipAddress addr = mem->reserved.addrReg;
     for (int i = 0; i <= inst.i.rnum; ++i) {
         //emu->memory.array[addr] = emu->dp.regs[i];
-        chipmem_write(mem, addr, mem->reserved.regs[i]);
+        chemu_mem_write(mem, addr, mem->reserved.regs[i]);
         if (++addr > CHIP_END)
             return INST_FAILURE; // address register is out of bounds
     }
@@ -158,11 +158,11 @@ ChipInstResult cif_save(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
 }
 
 // rest - restore registers from memory
-ChipInstResult cif_rest(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+ChipInstResult chemu_if_rest(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
     (void)emu;
     ChipAddress addr = mem->reserved.addrReg;
     for (int i = 0; i <= inst.i.rnum; ++i) {
-        mem->reserved.regs[i] = chipmem_read(mem, addr);
+        mem->reserved.regs[i] = chemu_mem_read(mem, addr);
         if (++addr > CHIP_END)
             return INST_FAILURE; // address register is out of bounds
     }

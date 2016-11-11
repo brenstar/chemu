@@ -3,42 +3,42 @@
 #include "chemu/instructions.h"
 #include <stdlib.h>
 
-const ChipOp CHIP_OPTABLE[] = {
-    {.func = cif_sys,   .cls = INST_CLASS_A, .name="sys"},
-    {.func = cif_cls,   .cls = INST_CLASS_V, .name="cls"},
-    {.func = cif_ret,	.cls = INST_CLASS_V, .name="ret"},
-    {.func = cif_j,     .cls = INST_CLASS_A, .name="j"},
-    {.func = cif_call,  .cls = INST_CLASS_A, .name="call"},
-    {.func = cif_sei,   .cls = INST_CLASS_I, .name="sei"},
-    {.func = cif_sni,   .cls = INST_CLASS_I, .name="sni"},
-    {.func = cif_se,    .cls = INST_CLASS_R, .name="se"},
-    {.func = cif_li,    .cls = INST_CLASS_I, .name="li"},
-    {.func = cif_addi,  .cls = INST_CLASS_I, .name="addi"},
-    {.func = cif_move,  .cls = INST_CLASS_R, .name="move"},
-    {.func = cif_or,    .cls = INST_CLASS_R, .name="or"},
-    {.func = cif_and,   .cls = INST_CLASS_R, .name="and"},
-    {.func = cif_xor,   .cls = INST_CLASS_R, .name="xor"},
-    {.func = cif_add,   .cls = INST_CLASS_R, .name="add"},
-    {.func = cif_sub,   .cls = INST_CLASS_R, .name="sub"},
-    {.func = cif_shr,   .cls = INST_CLASS_R, .name="shr"},
-    {.func = cif_subn,  .cls = INST_CLASS_R, .name="subn"},
-    {.func = cif_shl,   .cls = INST_CLASS_R, .name="shl"},
-    {.func = cif_sn,    .cls = INST_CLASS_R, .name="sn"},
-    {.func = cif_la,    .cls = INST_CLASS_A, .name="la"},
-    {.func = cif_jo,    .cls = INST_CLASS_A, .name="jo"},
-    {.func = cif_rnd,   .cls = INST_CLASS_I, .name="rnd"},
-    {.func = cif_draw,  .cls = INST_CLASS_R, .name="draw"},
-    {.func = cif_sip,   .cls = INST_CLASS_I, .name="sip"},
-    {.func = cif_snip,  .cls = INST_CLASS_I, .name="snip"},
-    {.func = cif_ld,    .cls = INST_CLASS_I, .name="ld"},
-    {.func = cif_lk,    .cls = INST_CLASS_I, .name="lk"},
-    {.func = cif_del,   .cls = INST_CLASS_I, .name="del"},
-    {.func = cif_snd,   .cls = INST_CLASS_I, .name="snd"},
-    {.func = cif_ii,    .cls = INST_CLASS_I, .name="ii"},
-    {.func = cif_font,  .cls = INST_CLASS_I, .name="font"},
-    {.func = cif_bcd,   .cls = INST_CLASS_I, .name="bcd"},
-    {.func = cif_save,  .cls = INST_CLASS_I, .name="save"},
-    {.func = cif_rest,  .cls = INST_CLASS_I, .name="rest"}
+const ChipOp CHEMU_OPTABLE[] = {
+    {.func = chemu_if_sys,   .cls = INST_CLASS_A, .name="sys"},
+    {.func = chemu_if_cls,   .cls = INST_CLASS_V, .name="cls"},
+    {.func = chemu_if_ret,   .cls = INST_CLASS_V, .name="ret"},
+    {.func = chemu_if_j,     .cls = INST_CLASS_A, .name="j"},
+    {.func = chemu_if_call,  .cls = INST_CLASS_A, .name="call"},
+    {.func = chemu_if_sei,   .cls = INST_CLASS_I, .name="sei"},
+    {.func = chemu_if_sni,   .cls = INST_CLASS_I, .name="sni"},
+    {.func = chemu_if_se,    .cls = INST_CLASS_R, .name="se"},
+    {.func = chemu_if_li,    .cls = INST_CLASS_I, .name="li"},
+    {.func = chemu_if_addi,  .cls = INST_CLASS_I, .name="addi"},
+    {.func = chemu_if_move,  .cls = INST_CLASS_R, .name="move"},
+    {.func = chemu_if_or,    .cls = INST_CLASS_R, .name="or"},
+    {.func = chemu_if_and,   .cls = INST_CLASS_R, .name="and"},
+    {.func = chemu_if_xor,   .cls = INST_CLASS_R, .name="xor"},
+    {.func = chemu_if_add,   .cls = INST_CLASS_R, .name="add"},
+    {.func = chemu_if_sub,   .cls = INST_CLASS_R, .name="sub"},
+    {.func = chemu_if_shr,   .cls = INST_CLASS_R, .name="shr"},
+    {.func = chemu_if_subn,  .cls = INST_CLASS_R, .name="subn"},
+    {.func = chemu_if_shl,   .cls = INST_CLASS_R, .name="shl"},
+    {.func = chemu_if_sn,    .cls = INST_CLASS_R, .name="sn"},
+    {.func = chemu_if_la,    .cls = INST_CLASS_A, .name="la"},
+    {.func = chemu_if_jo,    .cls = INST_CLASS_A, .name="jo"},
+    {.func = chemu_if_rnd,   .cls = INST_CLASS_I, .name="rnd"},
+    {.func = chemu_if_draw,  .cls = INST_CLASS_R, .name="draw"},
+    {.func = chemu_if_sip,   .cls = INST_CLASS_I, .name="sip"},
+    {.func = chemu_if_snip,  .cls = INST_CLASS_I, .name="snip"},
+    {.func = chemu_if_ld,    .cls = INST_CLASS_I, .name="ld"},
+    {.func = chemu_if_lk,    .cls = INST_CLASS_I, .name="lk"},
+    {.func = chemu_if_del,   .cls = INST_CLASS_I, .name="del"},
+    {.func = chemu_if_snd,   .cls = INST_CLASS_I, .name="snd"},
+    {.func = chemu_if_ii,    .cls = INST_CLASS_I, .name="ii"},
+    {.func = chemu_if_font,  .cls = INST_CLASS_I, .name="font"},
+    {.func = chemu_if_bcd,   .cls = INST_CLASS_I, .name="bcd"},
+    {.func = chemu_if_save,  .cls = INST_CLASS_I, .name="save"},
+    {.func = chemu_if_rest,  .cls = INST_CLASS_I, .name="rest"}
 };
 
 
@@ -79,7 +79,7 @@ static const Decoder DEC_TABLE[] = {
 
 
 
-ChipInstDec chipdec_decode(ChipInst instruction, ChipInstClass cls) {
+ChipInstDec chemu_dec_decode(ChipInst instruction, ChipInstClass cls) {
     ChipInstDec decoded;
     switch (cls) {
         case INST_CLASS_A:
@@ -105,7 +105,7 @@ ChipInstDec chipdec_decode(ChipInst instruction, ChipInstClass cls) {
 }
 
 
-int chipdec_index(ChipInst instruction) {
+int chemu_dec_index(ChipInst instruction) {
     int i = nibble4(instruction);
     Decoder dec = DEC_TABLE[i];
     int index = dec.index;

@@ -9,23 +9,23 @@
 #include "chemu/logger.h"
 
 // cls - Clear screen
-ChipInstResult cif_cls(ChipEmu emu, ChipMem *mem, ChipInstDec instruction) {
+ChipInstResult chemu_if_cls(ChipEmu emu, ChipMem *mem, ChipInstDec instruction) {
     (void)instruction;
 
-    chipdisplay_clear(&mem->reserved.display);
+    chemu_disp_clear(&mem->reserved.display);
     //emu->flags |= CHIP_REDRAW_FLAG;
-    chipemu_redraw(emu);
+    chemu_emu_redraw(emu);
 
     return INST_SUCCESS_INCR_PC;
 }
 
 // ret - Return from subroutine
-ChipInstResult cif_ret(ChipEmu emu, ChipMem *mem, ChipInstDec instruction) {
+ChipInstResult chemu_if_ret(ChipEmu emu, ChipMem *mem, ChipInstDec instruction) {
     (void)emu; (void)instruction;
 
     ChipInstResult result;
-    if (chipstack_can_pop(&mem->reserved.stack)) {
-        mem->reserved.pc = chipstack_pop(&mem->reserved.stack);
+    if (chemu_stack_canPop(&mem->reserved.stack)) {
+        mem->reserved.pc = chemu_stack_pop(&mem->reserved.stack);
         chiplog_debug("[Stack] Popped 0x%03X from call stack\n", mem->reserved.pc);
         result = INST_SUCCESS_INCR_PC;
     } else {

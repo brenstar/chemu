@@ -6,7 +6,7 @@
 #include "chemu/logger.h"
 
 // sys - syscall
-ChipInstResult cif_sys(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+ChipInstResult chemu_if_sys(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
     (void)emu; (void)mem; (void)inst;
     chiplog_warn("Attempted system call: %d\n", inst.a.addr);
     // not implemented do nothing
@@ -15,7 +15,7 @@ ChipInstResult cif_sys(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
 }
 
 // j - jump to address
-ChipInstResult cif_j(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+ChipInstResult chemu_if_j(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
     (void)emu;
     mem->reserved.pc = inst.a.addr;
 
@@ -23,12 +23,12 @@ ChipInstResult cif_j(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
 }
 
 // call - call subroutine
-ChipInstResult cif_call(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+ChipInstResult chemu_if_call(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
     (void)emu;
     ChipInstResult result;
-    if (chipstack_can_push(&mem->reserved.stack)) {
+    if (chemu_stack_canPush(&mem->reserved.stack)) {
         chiplog_debug("[Stack] Pushing 0x%03X onto call stack\n", mem->reserved.pc);
-        chipstack_push(&mem->reserved.stack, mem->reserved.pc);
+        chemu_stack_push(&mem->reserved.stack, mem->reserved.pc);
         mem->reserved.pc = inst.a.addr;
         result = INST_SUCCESS;
     } else {
@@ -40,7 +40,7 @@ ChipInstResult cif_call(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
 }
 
 // la - load address
-ChipInstResult cif_la(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+ChipInstResult chemu_if_la(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
     (void)emu;
     mem->reserved.addrReg = inst.a.addr;
 
@@ -48,7 +48,7 @@ ChipInstResult cif_la(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
 }
 
 // jo - jump with offset
-ChipInstResult cif_jo(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
+ChipInstResult chemu_if_jo(ChipEmu emu, ChipMem *mem, ChipInstDec inst) {
     (void)emu;
     mem->reserved.pc = inst.a.addr + mem->reserved.regs[0];
 

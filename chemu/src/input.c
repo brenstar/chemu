@@ -3,12 +3,12 @@
 #include "chemu/ChipInput.h"
 
 
-ChipKeyState chipin_keystate(ChipInput *input, ChipKey key) {
+ChipKeyState chemu_in_keystate(ChipInput *input, ChipKey key) {
     return ((*input >> (int)key) & 1) == 1 ? CHIP_KEYSTATE_PRESSED
                                            : CHIP_KEYSTATE_RELEASED;
 }
 
-void chipin_set(ChipInput *input, ChipKey key, ChipKeyState state) {
+void chemu_in_set(ChipInput *input, ChipKey key, ChipKeyState state) {
     switch (state) {
         case CHIP_KEYSTATE_RELEASED:
             *input &= ~(1 << (int)key);      // clear bit at key

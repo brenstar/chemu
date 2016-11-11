@@ -23,42 +23,42 @@
 // Creates an emulator handle. Callbacks are set to NULL. Memory and Stack are
 // initialized. The datapath is reset. Input and display are cleared.
 //
-CHEMU_API ChipEmu chipemu_create(void);
+CHEMU_API ChipEmu chemu_emu_create(void);
 
 //
 // Frees all resources used by the given emulator handle.
 //
-CHEMU_API void chipemu_destroy(ChipEmu emu);
+CHEMU_API void chemu_emu_destroy(ChipEmu emu);
 
 //
 // Executes the given instruction without modifying the program counter. If
 // the given instruction fails to execute or is illegal, the emulator state is
 // set to ERROR.
 //
-CHEMU_API ChipInstResult chipemu_execute(ChipEmu emu, ChipInst inst);
+CHEMU_API ChipInstResult chemu_emu_execute(ChipEmu emu, ChipInst inst);
 
 //
 // Invokes the GetKeyCallback associated with the emulator. If no callback is
 // associated with the emulator then the function will return CHIP_KEY_0.
-// This function is used only by cif_lk and is not part of the API
+// This function is used only by chemu_if_lk and is not part of the API
 //
-ChipKey chipemu_getKey(ChipEmu emu);
+ChipKey chemu_emu_getKey(ChipEmu emu);
 
 //
 // Stores a copy of the display into the given ChipDisplay pointer.
 //
-CHEMU_API void chipemu_getDisplay(ChipEmu emu, ChipDisplay *displayDest);
+CHEMU_API void chemu_emu_getDisplay(ChipEmu emu, ChipDisplay *displayDest);
 
 //
 // Stores a copy of the stack into the given ChipStack pointer.
 //
-CHEMU_API void chipemu_getStack(ChipEmu emu, ChipStack *stackDest);
+CHEMU_API void chemu_emu_getStack(ChipEmu emu, ChipStack *stackDest);
 
 //
 // Stores a copy of the datapath (program counter, registers, timers) into the
 // given ChipDP pointer.
 //
-CHEMU_API void chipemu_getDatapath(ChipEmu emu, ChipDP *datapathDest);
+CHEMU_API void chemu_emu_getDatapath(ChipEmu emu, ChipDP *datapathDest);
 
 //
 // Loads a CHIP-8 ROM file into the emulator's memory in the data section.
@@ -66,13 +66,13 @@ CHEMU_API void chipemu_getDatapath(ChipEmu emu, ChipDP *datapathDest);
 // occurs or the ROM file was too big, -1 is returned and the emulator
 // is unmodified.
 //
-CHEMU_API int chipemu_loadROM(ChipEmu emu, const char *path);
+CHEMU_API int chemu_emu_loadROM(ChipEmu emu, const char *path);
 
 //
 // Updates the state of a key in the emulator. This function may wake up the
 // emulator thread if it is waiting on a key press
 //
-CHEMU_API void chipemu_setKey(ChipEmu emu, ChipKey key, ChipKeyState state);
+CHEMU_API void chemu_emu_setKey(ChipEmu emu, ChipKey key, ChipKeyState state);
 
 //
 // Invokes the RedrawCallback associated with the given emulator. If no
@@ -80,13 +80,13 @@ CHEMU_API void chipemu_setKey(ChipEmu emu, ChipKey key, ChipKeyState state);
 // function is called by the draw and cls instructions and is not part of the
 // API.
 //
-void chipemu_redraw(ChipEmu emu);
+void chemu_emu_redraw(ChipEmu emu);
 
 //
 // Associates the given redraw callback with the emulator. The emulator will
 // call the given function when the display is modified.
 //
-CHEMU_API void chipemu_setRedrawCallback(ChipEmu emu, ChipRedrawCallback callback);
+CHEMU_API void chemu_emu_setRedrawCallback(ChipEmu emu, ChipRedrawCallback callback);
 
 //
 // Resets the state of the emulator to the default state.
@@ -104,23 +104,23 @@ CHEMU_API void chipemu_setRedrawCallback(ChipEmu emu, ChipRedrawCallback callbac
 // The emulator state is set to READY, and if necessary, all associated threads
 // are stopped. This function will always return CHIPEMU_READY
 //
-CHEMU_API void chipemu_reset(ChipEmu emu);
+CHEMU_API void chemu_emu_reset(ChipEmu emu);
 
 //
 // Emulates a single cycle for the given emulator object. The emulator must be
 // in the READY or IDLE state when calling this function.
 //
-CHEMU_API int chipemu_step(ChipEmu emu);
+CHEMU_API int chemu_emu_step(ChipEmu emu);
 
 //
 // Triggers the sound timer. The value of the timer stored in the reserved portion
 // of memory is decremented by 1 if it is nonzero
 //
-CHEMU_API void chipemu_triggerSoundTimer(ChipEmu emu);
+CHEMU_API void chemu_emu_triggerSoundTimer(ChipEmu emu);
 
 //
-// Triggers the delay timer, see chipemu_triggerSoundTimer.
+// Triggers the delay timer, see chemu_emu_triggerSoundTimer.
 //
-CHEMU_API void chipemu_triggerDelayTimer(ChipEmu emu);
+CHEMU_API void chemu_emu_triggerDelayTimer(ChipEmu emu);
 
 #endif

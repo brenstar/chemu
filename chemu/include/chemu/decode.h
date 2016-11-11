@@ -9,12 +9,12 @@
 
 #include "internal/export.h"
 
-// Constant return value for chipdec_index when the given instruction is not
+// Constant return value for chemu_dec_index when the given instruction is not
 // a valid CHIP-8 instruction
 #define NO_INSTRUCTION -1
 
 // Table of ChipOp structures
-CHEMU_API extern const ChipOp CHIP_OPTABLE[];
+CHEMU_API extern const ChipOp CHEMU_OPTABLE[];
 
 // Macro calculates the address of an instruction, x. The address is the lower
 // 12 bits of the instruction.
@@ -41,10 +41,10 @@ CHEMU_API extern const ChipOp CHIP_OPTABLE[];
 
 // Decodes the given instruction as the given class. The returned value can
 // then be used to execute a CHIP-8 instruction function.
-CHEMU_API ChipInstDec chipdec_decode(ChipInst instruction, ChipInstClass cls);
+CHEMU_API ChipInstDec chemu_dec_decode(ChipInst instruction, ChipInstClass cls);
 
-// Decodes the given instruction and returns the index in the CHIP_OPTABLE.
+// Decodes the given instruction and returns the index in the CHEMU_OPTABLE.
 // Returns NO_INSTRUCTION if the instruction is illegal.
-CHEMU_API int chipdec_index(ChipInst instruction);
+CHEMU_API int chemu_dec_index(ChipInst instruction);
 
 #endif

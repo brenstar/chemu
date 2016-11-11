@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stddef.h>
 
-const uint8_t FONTSET[] = {
+const uint8_t CHEMU_FONTSET[] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
     0x20, 0x60, 0x20, 0x20, 0x70, // 1
     0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
@@ -22,16 +22,11 @@ const uint8_t FONTSET[] = {
     0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 };
 
-void chipmem_init(ChipMem *mem) {
+void chemu_mem_init(ChipMem *mem) {
     // copy the fontset
-    memcpy(mem->reserved.fontset, FONTSET, sizeof(FONTSET) / sizeof(uint8_t));
+    memcpy(mem->reserved.fontset, CHEMU_FONTSET, sizeof(CHEMU_FONTSET) / sizeof(uint8_t));
     // clear the rest
     memset(mem->array + sizeof(ChipMem_reserved), 0, CHIP_END - sizeof(ChipMem_reserved));
-}
-
-
-ChipAddress chipmem_get_font(uint8_t digit) {
-    return offsetof(ChipMem_reserved, fontset) + (digit * 5);
 }
 
 #ifdef __GNUC__

@@ -1,7 +1,7 @@
 #include "chemu/display.h"
 
 
-void chipdisplay_clear(ChipDisplay *display) {
+void chemu_disp_clear(ChipDisplay *display) {
     for (int i = 0; i < CHIP_DISPLAY_ROWS; ++i) {
         // inner for loop not used for optimization
         display->buffer[i][0] = 0;
@@ -9,7 +9,7 @@ void chipdisplay_clear(ChipDisplay *display) {
     }
 }
 
-bool chipdisplay_draw(ChipDisplay *display, ChipSprite sprite) {
+bool chemu_disp_draw(ChipDisplay *display, ChipSprite sprite) {
     bool collision = false;
 
     const int x = sprite.x & 31;
@@ -62,7 +62,7 @@ bool chipdisplay_draw(ChipDisplay *display, ChipSprite sprite) {
 
 }
 
-int chipdisplay_get(ChipDisplay *display, int x, int y) {
+int chemu_disp_get(ChipDisplay *display, int x, int y) {
     // bounds checking omitted
     return (display->buffer[y][x >> 5] >> (31 - (x & 31))) & 1;
 }

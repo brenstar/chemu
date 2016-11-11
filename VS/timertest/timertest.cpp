@@ -19,7 +19,7 @@ int main() {
 
 
 	ChipTimer timer = chiptimer_create(255);
-	chiptimer_start(timer);
+	chemu_timer_start(timer);
 	int counter = 0;
 	do {
 		Sleep(2);
@@ -38,7 +38,7 @@ int main() {
 	} while (!interrupted);
 
 
-	chiptimer_stop(timer);
+	chemu_timer_stop(timer);
 	chiptimer_destroy(timer);
     return EXIT_SUCCESS;
 }

@@ -44,7 +44,7 @@ static void __timerHandler(void *arg);
 static int __loopMain(void *arg);
 
 
-void chiploop_break(ChipLoop loop) {
+void chemu_loop_break(ChipLoop loop) {
     mtx_lock(&loop->lock);
 
     if (loop->state == CHIPLOOP_ACTIVE) {
@@ -62,7 +62,7 @@ void chiploop_break(ChipLoop loop) {
     mtx_unlock(&loop->lock);
 }
 
-ChipLoop chiploop_create(ChipEmu emu) {
+ChipLoop chemu_loop_create(ChipEmu emu) {
     ChipLoop loop = (ChipLoop)malloc(sizeof(struct ChipLoop_s));
 
     loop->emu = emu;
@@ -78,7 +78,7 @@ ChipLoop chiploop_create(ChipEmu emu) {
     return loop;
 }
 
-void chiploop_continue(ChipLoop loop) {
+void chemu_loop_continue(ChipLoop loop) {
     mtx_lock(&loop->lock);
 
     if (loop->state == CHIPLOOP_IDLE) {
@@ -96,9 +96,9 @@ void chiploop_continue(ChipLoop loop) {
     mtx_unlock(&loop->lock);
 }
 
-void chiploop_destroy(ChipLoop loop) {
+void chemu_loop_destroy(ChipLoop loop) {
     if (LOOPACTIVE(loop->state))
-        chiploop_stop(loop);
+        chemu_loop_stop(loop);
 
     mtx_destroy(&loop->lock);
     mtx_destroy(&loop->interruptLock);
@@ -108,11 +108,11 @@ void chiploop_destroy(ChipLoop loop) {
     free(loop);
 }
 
-int chiploop_main(ChipLoop loop) {
+int chemu_loop_main(ChipLoop loop) {
     return __loopMain(loop);
 }
 
-void chiploop_start(ChipLoop loop) {
+void chemu_loop_start(ChipLoop loop) {
     mtx_lock(&loop->lock);
     if (LOOPINACTIVE(loop->state)) {
         loop->state = CHIPLOOP_ACTIVE;
@@ -122,7 +122,7 @@ void chiploop_start(ChipLoop loop) {
     mtx_unlock(&loop->lock);
 }
 
-void chiploop_stop(ChipLoop loop) {
+void chemu_loop_stop(ChipLoop loop) {
     mtx_lock(&loop->lock);
 
     if (LOOPACTIVE(loop->state)) {
@@ -161,14 +161,14 @@ static int __loopMain(void *arg) {
     sndArg.timerid = TIMERID_SOUND;
     delArg.timerid = TIMERID_DELAY;
 
-    ChipTimer soundTimer = chiptimer_start(__timerHandler, &sndArg);
-    ChipTimer delayTimer = chiptimer_start(__timerHandler, &delArg);
+    ChipTimer soundTimer = chemu_timer_start(__timerHandler, &sndArg);
+    ChipTimer delayTimer = chemu_timer_start(__timerHandler, &delArg);
 
     //int cycles = 0;
 
     for (;;) {
         // emulate cycle
-        int result = chipemu_step(emu);
+        int result = chemu_emu_step(emu);
         if (result) {
             error = result;
             break;
@@ -203,8 +203,8 @@ static int __loopMain(void *arg) {
         
     }
 
-    chiptimer_stop(soundTimer);
-    chiptimer_stop(delayTimer);
+    chemu_timer_stop(soundTimer);
+    chemu_timer_stop(delayTimer);
 
 
     return error;
@@ -214,8 +214,8 @@ static int __loopMain(void *arg) {
 static void __timerHandler(void* arg) {
     struct TimerHandlerArg_s *targ = (struct TimerHandlerArg_s *)arg;
     if (targ->timerid == TIMERID_SOUND)
-        chipemu_triggerSoundTimer(targ->emu);
+        chemu_emu_triggerSoundTimer(targ->emu);
     else
-        chipemu_triggerDelayTimer(targ->emu);
+        chemu_emu_triggerDelayTimer(targ->emu);
 
 }

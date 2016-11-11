@@ -228,7 +228,7 @@ int main() {
 		int hits = 0;
 		for (int j = 0; j <= 0xFFFF; ++j) {
 			ChipInst inst = (ChipInst)j;
-			int index = chipdec_index(inst);
+			int index = chemu_dec_index(inst);
 			bool match = index == test.expectedIndex;
 
 			if ((inst & test.mask) == test.base) {
@@ -271,7 +271,7 @@ int main() {
         printf("Decoding 0x%04X\n", test.inst);
         // A-type
         puts("A-Type");
-        dec = chipdec_decode(test.inst, INST_CLASS_A);
+        dec = chemu_dec_decode(test.inst, INST_CLASS_A);
         printf("\tliteral     = 0x%X    (expected: 0x%X)\n", dec.a.literal, test.aExpected.literal);
         assert(dec.a.literal == test.aExpected.literal);
         printf("\taddr        = 0x%03X  (expected: 0x%03X)\n", dec.a.addr, test.aExpected.addr);
@@ -279,7 +279,7 @@ int main() {
 
         // i-type
         puts("I-Type");
-        dec = chipdec_decode(test.inst, INST_CLASS_I);
+        dec = chemu_dec_decode(test.inst, INST_CLASS_I);
         printf("\tliteral     = 0x%X    (expected: 0x%X)\n", dec.i.literal, test.iExpected.literal);
         assert(dec.i.literal == test.iExpected.literal);
         printf("\trnum        = 0x%X    (expected: 0x%X)\n", dec.i.rnum, test.iExpected.rnum);
@@ -289,7 +289,7 @@ int main() {
 
         // R-Type
         puts("R-Type");
-        dec = chipdec_decode(test.inst, INST_CLASS_R);
+        dec = chemu_dec_decode(test.inst, INST_CLASS_R);
         printf("\tliteral_hi  = 0x%X    (expected: 0x%X)\n", dec.r.literal_hi, test.rExpected.literal_hi);
         assert(dec.r.literal_hi == test.rExpected.literal_hi);
         printf("\trnum_dest   = 0x%X    (expected: 0x%X)\n", dec.r.rnum_dest, test.rExpected.rnum_dest);
@@ -301,7 +301,7 @@ int main() {
 
         // V-Type
         puts("V-Type");
-        dec = chipdec_decode(test.inst, INST_CLASS_V);
+        dec = chemu_dec_decode(test.inst, INST_CLASS_V);
         printf("\tinstruction = 0x%04X (expected: 0x%04X)\n", dec.instruction, test.inst);
         assert(dec.instruction == test.inst);
 
@@ -311,11 +311,11 @@ int main() {
     // ChipInst testInst = 0xABCD;
     // ChipInstDec dec;
     // printf("Decoding 0x%04X as a-type instruction\n", testInst);
-    // dec = chipdec_decode(testInst, INST_CLASS_A);
+    // dec = chemu_dec_decode(testInst, INST_CLASS_A);
     // printf("literal = 0x%X   (expected: 0xA)\n", dec.a.literal);
     // printf("addr    = 0x%03X (expected: 0xBCD)\n", dec.a.addr);
     // printf("Decoding 0x%04X as i-type instruction\n", testInst);
-    // dec = chipdec_decode(testInst, INST_CLASS_I);
+    // dec = chemu_dec_decode(testInst, INST_CLASS_I);
 
 
 
@@ -323,7 +323,7 @@ int main() {
     // for (size_t i = 0; i < testCount; ++i) {
     //     IndexTest test = INDEX_TESTS[i];
     //     printf("(%d/%d) Decoding 0x%04X...", i + 1, testCount, test.instruction);
-    //     int index = chipdec_index(test.instruction);
+    //     int index = chemu_dec_index(test.instruction);
     //     printf("%d (Expected: %d)\n", index, test.expectedIndex);
     // }
 
@@ -334,7 +334,7 @@ int main() {
 static int rangeTester(RangeTest test) {
     int errors = 0;
     for (ChipInst i = test.startInst; i <= test.stopInst; i += test.step) {
-        int index = chipdec_index(i);
+        int index = chemu_dec_index(i);
         if (index != test.expectedIndex) {
             printf("Instruction 0x%04X was indexed as %d\n", i, index);
             ++errors;
